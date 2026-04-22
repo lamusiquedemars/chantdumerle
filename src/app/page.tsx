@@ -1,65 +1,275 @@
-import Image from "next/image";
+import Hero from "@/components/blocks/Hero/Hero";
+import TextBlock from "@/components/blocks/TextBlock/TextBlock";
+import EntryGrid from "@/components/blocks/EntryGrid/EntryGrid";
+import CardGrid from "@/components/blocks/CardGrid/CardGrid";
 
-export default function Home() {
+import Section from "@/components/layout/Section/Section";
+import Container from "@/components/layout/Container/Container";
+
+import SectionHeading from "@/components/ui/SectionHeading/SectionHeading";
+import LinkButton from "@/components/ui/LinkButton/LinkButton";
+
+import SelectionGrid from "@/components/selection/SelectionGrid/SelectionGrid";
+import GuideList from "@/components/guide/GuideList/GuideList";
+import ProductGrid from "@/components/product/ProductGrid/ProductGrid";
+
+export default function HomePage() {
+  const instrumentEntries = [
+    {
+      label: "Violon",
+      href: "/fr/cordes/violon",
+      description: "Cordes et repères pour violon",
+    },
+    {
+      label: "Alto",
+      href: "/fr/cordes/alto",
+      description: "Cordes et repères pour alto",
+    },
+    {
+      label: "Violoncelle",
+      href: "/fr/cordes/violoncelle",
+      description: "Cordes et repères pour violoncelle",
+    },
+    {
+      label: "Contrebasse",
+      href: "/fr/cordes/contrebasse",
+      description: "Cordes et repères pour contrebasse",
+    },
+  ];
+
+  const soundEntries = [
+    {
+      label: "Chaud",
+      href: "/fr/cordes?son=chaud",
+      description: "Plus de rondeur et de densité",
+    },
+    {
+      label: "Équilibré",
+      href: "/fr/cordes?son=equilibre",
+      description: "Un bon centre, sans excès",
+    },
+    {
+      label: "Brillant",
+      href: "/fr/cordes?son=brillant",
+      description: "Plus d’éclat et de projection",
+    },
+  ];
+
+  const levelEntries = [
+    {
+      label: "Étudiant",
+      href: "/fr/selections/etudiant",
+      description: "Fiable, simple, cohérent",
+    },
+    {
+      label: "Conservatoire",
+      href: "/fr/selections/conservatoire",
+      description: "Plus de précision et de nuance",
+    },
+    {
+      label: "Avancé / Soliste",
+      href: "/fr/selections/soliste",
+      description: "Réponse, projection, caractère",
+    },
+  ];
+
+  const featuredSelections = [
+    {
+      title: "Pack étudiant violon",
+      href: "/fr/selections/pack-etudiant-violon",
+      description: "Une base claire, stable et rassurante",
+      instrument: "Violon",
+    },
+    {
+      title: "Pack conservatoire alto",
+      href: "/fr/selections/pack-conservatoire-alto",
+      description: "Un équilibre entre confort et précision",
+      instrument: "Alto",
+    },
+    {
+      title: "Pack soliste violoncelle",
+      href: "/fr/selections/pack-soliste-violoncelle",
+      description: "Une sélection plus exigeante et plus ample",
+      instrument: "Violoncelle",
+    },
+  ];
+
+  const featuredProducts = [
+    {
+      title: "Pirastro Obligato",
+      href: "/fr/produit/pirastro-obligato",
+      description: "Son chaud, souple, ample",
+      brand: "Pirastro",
+      price: "À partir de 89 €",
+    },
+    {
+      title: "Thomastik Dominant",
+      href: "/fr/produit/thomastik-dominant",
+      description: "Référence équilibrée, polyvalente",
+      brand: "Thomastik",
+      price: "À partir de 72 €",
+    },
+    {
+      title: "Larsen Soloist",
+      href: "/fr/produit/larsen-soloist",
+      description: "Projection et présence",
+      brand: "Larsen",
+      price: "À partir de 96 €",
+    },
+  ];
+
+  const guideItems = [
+    {
+      title: "Comment choisir ses cordes",
+      href: "/fr/guides/comment-choisir-ses-cordes",
+      excerpt: "Les vrais critères utiles pour décider sans se perdre.",
+      category: "Choix",
+    },
+    {
+      title: "Chaud, brillant, équilibré : que veulent dire ces mots ?",
+      href: "/fr/guides/chaud-brillant-equilibre",
+      excerpt: "Mettre des mots simples sur des sensations réelles.",
+      category: "Son",
+    },
+    {
+      title: "Quand faut-il changer ses cordes ?",
+      href: "/fr/guides/quand-changer-ses-cordes",
+      excerpt: "Les signes concrets d’usure et de perte de réponse.",
+      category: "Entretien",
+    },
+  ];
+
+  const accessoryEntries = [
+    {
+      label: "Colophanes",
+      href: "/fr/accessoires/colophanes",
+      description: "Pour adapter l’attaque et l’adhérence",
+    },
+    {
+      label: "Épaulières",
+      href: "/fr/accessoires/epaulieres",
+      description: "Confort, stabilité, posture",
+    },
+    {
+      label: "Entretien",
+      href: "/fr/accessoires/entretien",
+      description: "Nettoyer, protéger, durer",
+    },
+    {
+      label: "Étuis et protection",
+      href: "/fr/accessoires/etuis-protection",
+      description: "Transport et sécurité",
+    },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <>
+      <Hero
+        title="Trouver les bonnes cordes ne devrait pas être un doute."
+        subtitle="Cordes et accessoires pour instruments du quatuor, avec une logique de sélection guidée."
+        actions={[
+          { label: "Choisir mes cordes", href: "/fr/cordes" },
+          { label: "Explorer les sélections", href: "/fr/selections" },
+        ]}
+      />
+
+      <Section>
+        <Container>
+          <TextBlock
+            title="Une sélection, pas un catalogue"
+            text="Le Chant du Merle aide à choisir plus clairement, avec moins de bruit, moins d’hésitation, et une lecture musicale des produits."
+          />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <SectionHeading title="Entrer par instrument" />
+          <EntryGrid items={instrumentEntries} />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <SectionHeading title="Entrer par son" />
+          <EntryGrid items={soundEntries} />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <SectionHeading title="Entrer par niveau" />
+          <EntryGrid items={levelEntries} />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <SectionHeading
+            title="Sélections prêtes à jouer"
+            subtitle="Des parcours plus simples pour réduire le doute."
+            action={<LinkButton href="/fr/selections">Voir les sélections</LinkButton>}
+          />
+          <SelectionGrid items={featuredSelections} />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <SectionHeading
+            title="Quelques références"
+            subtitle="Une mise en avant courte, au service du choix."
+            action={<LinkButton href="/fr/cordes">Voir les cordes</LinkButton>}
+          />
+          <ProductGrid items={featuredProducts} />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <SectionHeading
+            title="Guides"
+            subtitle="Pour comprendre, comparer, et choisir plus vite."
+            action={<LinkButton href="/fr/guides">Voir les guides</LinkButton>}
+          />
+          <GuideList items={guideItems} />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <SectionHeading
+            title="Accessoires"
+            subtitle="L’essentiel pour compléter, entretenir et protéger."
+            action={<LinkButton href="/fr/accessoires">Voir les accessoires</LinkButton>}
+          />
+          <CardGrid items={accessoryEntries} />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <TextBlock
+            title="Choisir avec plus de justesse"
+            text="Ici, l’objectif n’est pas de montrer tout ce qui existe, mais d’aider chaque musicien à aller vers une solution lisible, cohérente et musicale."
+          />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <TextBlock
+            title="Archets Ivo Incidit"
+            text="Un atelier à part, pour les musiciens qui cherchent une autre relation au geste, au timbre et à la réponse."
+            actions={[
+              {
+                label: "Découvrir l’atelier",
+                href: "https://atelierivoincidit.fr",
+              },
+            ]}
+          />
+        </Container>
+      </Section>
+    </>
   );
 }
