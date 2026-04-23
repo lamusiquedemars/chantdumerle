@@ -1,0 +1,77 @@
+/* SectionHeading.module.css */
+
+/* 
+Composant de titre de section
+Rôle :
+- structurer la page
+- introduire clairement un bloc
+- éventuellement porter une action (CTA léger)
+
+Contraintes charte :
+- sobre, lisible
+- hiérarchie claire
+- pas décoratif
+*/
+
+.sectionHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-24);
+
+  margin-bottom: var(--space-32);
+}
+
+/* bloc gauche (titre + sous-titre) */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+
+  max-width: 70ch; /* lisibilité */
+}
+
+/* titre principal */
+.title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-tight);
+  color: var(--color-text);
+
+  /* léger ancrage visuel sans décoratif */
+  letter-spacing: 0.01em;
+}
+
+/* sous-titre = aide à la décision */
+.subtitle {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-info);
+
+  /* hiérarchie douce */
+  max-width: 60ch;
+}
+
+/* zone action (ex: "voir tout") */
+.action {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* 
+Responsive :
+- action passe sous le titre
+- logique verticale naturelle
+*/
+@media (max-width: 768px) {
+  .sectionHeading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-16);
+  }
+
+  .action {
+    width: 100%;
+  }
+}

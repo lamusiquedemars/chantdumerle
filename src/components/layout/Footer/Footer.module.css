@@ -1,0 +1,98 @@
+/* Footer.module.css */
+
+/* 
+  Bloc racine du footer
+  - fond beige pour marquer une fin de page douce, sans rupture trop forte
+  - bordure haute discrète pour séparer du contenu principal
+*/
+.footer {
+  background: var(--color-beige);
+  border-top: 1px solid var(--color-border-soft);
+  margin-top: var(--space-64);
+}
+
+/* 
+  Conteneur interne
+  - reprend la logique de largeur max du design system
+  - layout horizontal sobre sur desktop
+  - espacement vertical confortable
+*/
+.inner {
+  width: min(100% - 2rem, var(--container));
+  margin: 0 auto;
+  padding: var(--space-24) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-24);
+}
+
+/* 
+  Signature de marque
+  - serif pour rappeler l’univers éditorial
+  - léger renfort visuel sans tomber dans l’effet logo
+*/
+.brand {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  line-height: var(--lh-tight);
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+}
+
+/* 
+  Liste de navigation secondaire
+  - liens alignés horizontalement
+  - pas de puces
+  - wrap autorisé pour rester propre si plusieurs liens
+*/
+.links {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  padding: 0;
+  margin: 0;
+}
+
+/* 
+  Liens du footer
+  - ton discret par défaut
+  - transition légère et propre
+*/
+.links a {
+  color: var(--color-text);
+  font-size: var(--fs-small);
+  line-height: 1.4;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+/* 
+  Hover / focus
+  - action en rouge profond, cohérente avec la charte
+*/
+.links a:hover,
+.links a:focus-visible {
+  color: var(--color-primary);
+}
+
+/* 
+  Version mobile
+  - empilement vertical
+  - alignement à gauche pour rester simple et lisible
+*/
+@media (max-width: 640px) {
+  .inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .links {
+    justify-content: flex-start;
+    gap: var(--space-8) var(--space-16);
+  }
+}

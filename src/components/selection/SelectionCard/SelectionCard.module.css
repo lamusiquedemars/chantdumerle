@@ -1,0 +1,87 @@
+/* SelectionCard
+   Carte de navigation pour une sélection éditoriale.
+   Objectif visuel :
+   - sobre et haut de gamme
+   - lisibilité immédiate
+   - interaction discrète
+   - réutilisable dans un design system
+*/
+
+.card {
+  /* structure */
+  display: block;
+  height: 100%;
+  padding: var(--space-24);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+  background: var(--color-white);
+
+  /* comportement */
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.card:hover {
+  /* survol discret : plus de présence sans effet gadget */
+  border-color: var(--color-border);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(26, 26, 26, 0.06);
+}
+
+.card:active {
+  transform: translateY(0);
+}
+
+.body {
+  /* empilement vertical propre */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-height: 100%;
+}
+
+.instrument {
+  /* méta-information secondaire, utile pour filtrer mentalement */
+  font-size: var(--fs-small);
+  line-height: 1.4;
+  color: var(--color-green);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.title {
+  /* titre principal de carte */
+  font-size: var(--fs-h3);
+  line-height: var(--lh-tight);
+  color: var(--color-text);
+  text-wrap: balance;
+}
+
+.description {
+  /* texte d’accompagnement court, lisible, non dominant */
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-info);
+  max-width: 36ch;
+}
+
+/* états accessibilité */
+.card:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(140, 47, 28, 0.14);
+}
+
+/* variante responsive légère :
+   on allège un peu la carte sur petits écrans */
+@media (max-width: 768px) {
+  .card {
+    padding: var(--space-16);
+  }
+
+  .description {
+    max-width: none;
+  }
+}

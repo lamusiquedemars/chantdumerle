@@ -1,0 +1,124 @@
+/* ==========================================================================
+   ProductFilters
+   Bloc de filtres simple, lisible et sobre.
+   Objectif : aider au choix sans surcharge visuelle.
+   ========================================================================== */
+
+.filters {
+  display: grid;
+  gap: var(--space-16);
+  align-items: end;
+}
+
+/* 
+   Sur écran plus large, les filtres se placent naturellement en colonnes.
+   auto-fit permet de s’adapter au nombre de filtres sans casser la grille.
+*/
+@media (min-width: 768px) {
+  .filters {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-24);
+  }
+}
+
+/* 
+   Chaque groupe contient un label + un select.
+   On garde une structure verticale claire et régulière.
+*/
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+/* 
+   Label discret mais lisible.
+   Pas trop décoratif : il doit guider, pas attirer l’attention.
+*/
+.label {
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+/* 
+   Select principal.
+   Fond clair, contour fin, contraste fort.
+   Apparence propre et réutilisable dans un design system.
+*/
+.select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.75rem 2.75rem 0.75rem 0.875rem;
+
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.4;
+  color: var(--color-text);
+
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+
+  /* 
+     Chevron custom sobre.
+     Noir adouci via stroke encoded.
+  */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%231A1A1A' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 0.875rem;
+}
+
+/* 
+   Hover léger.
+   On reste subtil : interface premium, pas agressive.
+*/
+.select:hover {
+  border-color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+/* 
+   Focus renforcé pour accessibilité.
+   Le rouge principal sert ici de repère d’action.
+*/
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(140, 47, 28, 0.14);
+}
+
+/* 
+   Etat désactivé prévu pour réutilisation future.
+*/
+.select:disabled {
+  cursor: not-allowed;
+  color: var(--color-info);
+  background-color: var(--color-beige);
+  border-color: var(--color-border-soft);
+  opacity: 0.75;
+}
+
+/* 
+   Ajustement mobile :
+   on garde de bons champs tactiles et une lecture confortable.
+*/
+@media (max-width: 767px) {
+  .select {
+    min-height: 3rem;
+  }
+}

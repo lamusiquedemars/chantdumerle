@@ -38,10 +38,15 @@ export default function Header({
           type="button"
           className={styles.burger}
           aria-expanded={isOpen}
-          aria-label="Ouvrir le menu"
+          aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
           onClick={() => setIsOpen((prev) => !prev)}
         >
-          Menu
+          <span className={styles.burgerLabel}>Menu</span>
+          <span className={styles.burgerIcon} aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
         </button>
       </div>
 

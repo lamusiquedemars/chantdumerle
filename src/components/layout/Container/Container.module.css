@@ -1,0 +1,19 @@
+/* Container principal du design system
+   - centre le contenu
+   - limite la largeur de lecture
+   - garde un retrait latéral cohérent sur tous les écrans
+*/
+.container {
+  width: min(100% - 2rem, var(--container));
+  margin-inline: auto;
+}
+
+/* Variante confort grand écran
+   - évite que le contenu "colle" trop au bord du container
+   - utile si un fond ou une bordure est ajouté via className
+*/
+@media (min-width: 1200px) {
+  .container {
+    width: min(100% - 3rem, var(--container));
+  }
+}

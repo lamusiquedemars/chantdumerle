@@ -1,0 +1,40 @@
+/* SelectionGrid
+   Grille responsive pour afficher des cartes de sélection.
+   Objectif :
+   - rythme visuel sobre
+   - lecture claire
+   - comportement stable quel que soit le nombre de cartes
+*/
+
+.grid {
+  display: grid;
+
+  /* 3 colonnes maxi sur desktop, puis repli naturel */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  /* Espacement cohérent avec le design system */
+  gap: var(--space-24);
+
+  /* Alignement propre des cartes dans la grille */
+  align-items: stretch;
+}
+
+/* Tablet / petit desktop :
+   on passe à 2 colonnes pour garder de l'air
+*/
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-24);
+  }
+}
+
+/* Mobile :
+   une seule colonne pour maximiser la lisibilité
+*/
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-16);
+  }
+}

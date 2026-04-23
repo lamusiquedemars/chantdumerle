@@ -1,0 +1,47 @@
+/* 
+  Grille d’entrées principale.
+  Sert à afficher des cartes de navigation ou d’accès,
+  avec une structure responsive propre et réutilisable.
+*/
+.grid {
+  display: grid;
+
+  /* 
+    Colonnes fluides :
+    chaque carte garde une largeur minimale lisible,
+    puis la grille s’adapte automatiquement à l’espace.
+  */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+
+  /* 
+    Espacement standard entre les cartes.
+    Cohérent avec le rythme général du design system.
+  */
+  gap: var(--space-24);
+
+  /* 
+    Les cartes restent alignées en haut,
+    utile si les descriptions ont des longueurs différentes.
+  */
+  align-items: start;
+}
+
+/* 
+  Sur tablette et petits desktops,
+  on réduit légèrement l’écart pour garder une bonne densité.
+*/
+@media (max-width: 900px) {
+  .grid {
+    gap: var(--space-16);
+  }
+}
+
+/* 
+  Sur mobile, on passe sur une seule colonne
+  pour préserver la lisibilité et éviter des cartes trop étroites.
+*/
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

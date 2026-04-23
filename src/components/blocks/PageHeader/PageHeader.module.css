@@ -1,0 +1,65 @@
+.pageHeader {
+  /* Empile le titre et l’intro avec un espacement régulier */
+  display: grid;
+  gap: var(--space-16);
+
+  /* Donne au header un vrai poids visuel sans l’alourdir */
+  padding-block: var(--space-32);
+}
+
+.title {
+  /* Supprime la marge par défaut du h1 pour garder un rythme maîtrisé */
+  margin: 0;
+
+  /* Évite des lignes trop longues sur un grand titre */
+  max-width: 16ch;
+
+  /* Contraste principal du titre */
+  color: var(--color-text);
+
+  /* Réaffirme explicitement l’échelle du design system */
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+
+  /* Neutralité typographique, sans effet décoratif */
+  letter-spacing: 0;
+
+  /* Meilleur équilibrage automatique des retours à la ligne */
+  text-wrap: balance;
+}
+
+.intro {
+  /* Supprime la marge par défaut du paragraphe */
+  margin: 0;
+
+  /* Garde une largeur de lecture confortable */
+  max-width: 70ch;
+
+  /* Couleur secondaire : lisible mais moins dominante que le titre */
+  color: var(--color-info);
+
+  /* L’intro prend un ton légèrement éditorial, un peu plus ample que le body */
+  font-size: 1.125rem;
+  line-height: var(--lh-body);
+
+  /* Rend les coupures de lignes plus naturelles */
+  text-wrap: pretty;
+}
+
+@media (min-width: 768px) {
+  .pageHeader {
+    /* Plus d’air sur écran plus large */
+    gap: var(--space-24);
+    padding-block: var(--space-48);
+  }
+
+  .title {
+    /* Titre un peu plus compact visuellement pour mieux tenir la largeur */
+    max-width: 14ch;
+  }
+
+  .intro {
+    /* On conserve la même taille, déjà équilibrée pour desktop */
+    font-size: 1.125rem;
+  }
+}

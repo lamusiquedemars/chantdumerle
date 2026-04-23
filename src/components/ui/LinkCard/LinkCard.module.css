@@ -1,0 +1,89 @@
+/* =========================
+   LINK CARD
+   ========================= */
+
+/* 
+Carte cliquable utilisée pour navigation (sélections, guides, entrées)
+→ doit rester sobre, lisible, avec un léger feedback au survol
+*/
+
+.linkCard {
+  display: block;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+  padding: var(--space-24);
+  
+  /* transition douce, haut de gamme discret */
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 
+Hover = léger mouvement + accent subtil
+→ pas agressif
+*/
+.linkCard:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 
+Focus accessibilité
+*/
+.linkCard:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* =========================
+   CONTENT
+   ========================= */
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* =========================
+   TITLE
+   ========================= */
+
+/* 
+Titre = élément principal
+→ typographie heading
+→ lisibilité immédiate
+*/
+.title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-tight);
+  color: var(--color-text);
+}
+
+/* =========================
+   DESCRIPTION
+   ========================= */
+
+/* 
+Texte secondaire
+→ doit rester discret mais lisible
+*/
+.description {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-info);
+}
+
+/* =========================
+   OPTIONAL CHILDREN
+   ========================= */
+
+/* 
+Permet d’ajouter badge, icône, etc
+→ espacement contrôlé
+*/
+.content > *:not(:first-child) {
+  margin-top: var(--space-8);
+}

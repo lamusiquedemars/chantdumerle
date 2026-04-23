@@ -1,0 +1,72 @@
+/* GuideCard.module.css */
+
+/* 
+  Carte de guide
+  Rôle : point d’entrée vers contenu éditorial
+  Style : sobre, lisible, orienté décision
+*/
+
+.card {
+  display: block;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+  padding: var(--space-24);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+/* 
+  Interaction :
+  - léger lift
+  - accent subtil (jamais agressif)
+*/
+.card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+/* 
+  Corps interne
+  Structure verticale simple
+*/
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* 
+  Catégorie :
+  - micro information
+  - ton discret
+*/
+.category {
+  font-size: var(--fs-small);
+  color: var(--color-info);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* 
+  Titre :
+  - élément principal
+  - serif pour hiérarchie forte
+*/
+.title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-tight);
+  color: var(--color-text);
+}
+
+/* 
+  Extrait :
+  - aide à la décision
+  - reste court et lisible
+*/
+.excerpt {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  opacity: 0.85;
+  line-height: var(--lh-body);
+}

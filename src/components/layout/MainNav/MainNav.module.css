@@ -1,0 +1,108 @@
+/* =========================================
+   MAIN NAV
+   Navigation principale desktop / base
+   - sobre
+   - lisible
+   - alignement horizontal
+   - pas d'effet décoratif inutile
+   ========================================= */
+
+.nav {
+  display: flex;
+  align-items: center;
+}
+
+/* Liste horizontale de liens */
+.list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Item de navigation :
+   utile si plus tard on ajoute un dropdown ou un badge */
+.item {
+  display: flex;
+  align-items: center;
+}
+
+/* Lien principal
+   - zone cliquable confortable
+   - style discret
+   - transition légère
+*/
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-8) 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-text);
+  transition:
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+/* Soulignement fin, plus élégant qu'un simple hover brutal */
+.link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0.2rem;
+  width: 100%;
+  height: 1px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 180ms ease;
+}
+
+/* Hover : léger changement de couleur + soulignement */
+.link:hover {
+  color: var(--color-primary);
+}
+
+.link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Etat actif futur possible via aria-current="page" */
+.link[aria-current="page"] {
+  color: var(--color-primary);
+}
+
+.link[aria-current="page"]::after {
+  transform: scaleX(1);
+  background: var(--color-primary);
+}
+
+/* Etat focus clavier :
+   on garde la logique globale mais on améliore la lisibilité */
+.link:focus-visible {
+  border-radius: 2px;
+}
+
+/* Variante compacte si la nav est utilisée dans un contexte plus serré */
+.nav[data-size="sm"] .list {
+  gap: var(--space-16);
+}
+
+.nav[data-size="sm"] .link {
+  font-size: var(--fs-small);
+}
+
+/* Responsive :
+   la nav principale disparaît sur mobile
+   le menu mobile prend le relais */
+@media (max-width: 767px) {
+  .nav {
+    display: none;
+  }
+}

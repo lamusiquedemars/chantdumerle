@@ -1,0 +1,71 @@
+/* SelectionHeader
+   Bloc d’en-tête pour une page de sélection.
+   Logique :
+   - instrument = repère secondaire
+   - title = point d’entrée principal
+   - intro = texte d’orientation court
+*/
+
+.header {
+  /* largeur confortable de lecture */
+  max-width: 48rem;
+
+  /* alignement standard du site : à gauche */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-16);
+}
+
+.instrument {
+  /* petit repère éditorial discret */
+  margin: 0;
+
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  color: var(--color-green);
+}
+
+.title {
+  /* titre principal fort, mais sobre */
+  margin: 0;
+
+  color: var(--color-text);
+  line-height: var(--lh-tight);
+
+  /* évite qu’un très long titre devienne trop large visuellement */
+  max-width: 14ch;
+  text-wrap: balance;
+}
+
+.intro {
+  /* texte d’introduction lisible et calmement éditorial */
+  margin: 0;
+
+  max-width: 65ch;
+
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: var(--lh-body);
+  color: var(--color-info);
+}
+
+/* tablette et moins */
+@media (max-width: 768px) {
+  .header {
+    gap: var(--space-8);
+  }
+
+  .title {
+    max-width: none;
+  }
+
+  .intro {
+    font-size: var(--fs-body);
+  }
+}

@@ -1,0 +1,47 @@
+/* base badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  line-height: 1;
+
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border-soft);
+
+  white-space: nowrap;
+}
+
+/* tailles */
+.sm {
+  padding: 0.25rem 0.5rem;
+}
+
+.md {
+  padding: 0.35rem 0.65rem;
+}
+
+/* variant: default (usage principal) */
+/* discret, informatif */
+.default {
+  background: var(--color-beige);
+  color: var(--color-text);
+}
+
+/* variant: accent */
+/* mise en avant légère (rare) */
+.accent {
+  background: transparent;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* variant: success */
+/* état positif (stock, recommandé) */
+.success {
+  background: var(--color-success);
+  color: var(--color-white);
+  border-color: var(--color-success);
+}

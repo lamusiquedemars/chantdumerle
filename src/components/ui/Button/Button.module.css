@@ -1,33 +1,149 @@
-/* Styles for the Button component */
+/* 
+  Composant bouton principal du design system.
+  Objectif :
+  - lisibilité immédiate
+  - hiérarchie claire entre actions
+  - style sobre, premium, stable
+*/
+
 .button {
+  /* structure */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius);
+  gap: var(--space-8);
+
+  /* dimension */
+  min-height: 2.75rem;
+  padding: 0.75rem 1.25rem;
   border: 1px solid transparent;
+  border-radius: var(--radius);
+
+  /* typo */
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+
+  /* rendu */
   cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
+
+/* 
+  États globaux
+*/
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 
+  Variante primaire
+  Action principale : achat, validation, CTA fort
+*/
 
 .primary {
   background: var(--color-primary);
   color: var(--color-white);
+  border-color: var(--color-primary);
 }
+
+.primary:hover:not(:disabled) {
+  background: #762717;
+  border-color: #762717;
+}
+
+.primary:active:not(:disabled) {
+  background: #652114;
+  border-color: #652114;
+}
+
+/* 
+  Variante secondaire
+  Action alternative mais visible
+*/
 
 .secondary {
-  border-color: var(--color-border);
+  background: transparent;
   color: var(--color-text);
+  border-color: var(--color-text);
 }
 
-.tertiary {
-  padding: 0;
+.secondary:hover:not(:disabled) {
+  background: rgba(26, 26, 26, 0.04);
 }
 
-.button:hover {
-  opacity: 0.9;
+.secondary:active:not(:disabled) {
+  background: rgba(26, 26, 26, 0.08);
 }
 
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* 
+  Variante ghost
+  Action discrète, contextuelle, peu prioritaire
+*/
+
+.ghost {
+  background: transparent;
+  color: var(--color-text);
+  border-color: transparent;
+}
+
+.ghost:hover:not(:disabled) {
+  background: rgba(26, 26, 26, 0.05);
+}
+
+.ghost:active:not(:disabled) {
+  background: rgba(26, 26, 26, 0.08);
+}
+
+/* 
+  Tailles
+  sm : interface dense
+  md : taille par défaut
+  lg : hero, CTA principal
+*/
+
+.sm {
+  min-height: 2.25rem;
+  padding: 0.5rem 0.875rem;
+  font-size: var(--fs-small);
+}
+
+.md {
+  min-height: 2.75rem;
+  padding: 0.75rem 1.25rem;
+  font-size: var(--fs-body);
+}
+
+.lg {
+  min-height: 3.25rem;
+  padding: 0.95rem 1.5rem;
+  font-size: 1.0625rem;
+}
+
+/* 
+  Bouton pleine largeur
+  utile pour mobile, formulaires, blocs CTA
+*/
+
+.fullWidth {
+  width: 100%;
 }

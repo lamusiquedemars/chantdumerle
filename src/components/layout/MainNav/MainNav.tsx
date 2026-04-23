@@ -5,6 +5,7 @@ import styles from "./MainNav.module.css";
 export type NavItem = {
   label: string;
   href: string;
+  current?: boolean;
 };
 
 type MainNavProps = {
@@ -18,7 +19,11 @@ export default function MainNav({ items, className }: MainNavProps) {
       <ul className={styles.list}>
         {items.map((item) => (
           <li key={item.href} className={styles.item}>
-            <Link href={item.href} className={styles.link}>
+            <Link
+              href={item.href}
+              className={styles.link}
+              aria-current={item.current ? "page" : undefined}
+            >
               {item.label}
             </Link>
           </li>

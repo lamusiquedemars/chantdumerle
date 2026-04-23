@@ -1,27 +1,167 @@
+/* ==========================================================================
+   PRODUCT CARD
+   Carte produit sobre, lisible, orientée décision.
+   Structure :
+   - bloc entier cliquable
+   - image carrée
+   - contenu textuel compact
+   ========================================================================== */
+
 .card {
-  display: grid;
-  gap: var(--space-16);
+  /* Le lien devient un vrai bloc de carte */
+  display: flex;
+  flex-direction: column;
+
+  /* La carte doit pouvoir remplir sa colonne proprement */
+  height: 100%;
+
+  /* Fond clair pour garder un rendu net et produit-first */
+  background: var(--color-white);
+
+  /* Bordure discrète mais structurante */
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+
+  /* On masque les débordements de l’image */
+  overflow: hidden;
+
+  /* Transition douce, sans effet gadget */
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card:hover {
+  /* Léger soulèvement pour signifier l’interaction */
+  transform: translateY(-2px);
+
+  /* Accentuation subtile */
+  border-color: var(--color-border);
+
+  /* Ombre très légère pour rester haut de gamme discret */
+  box-shadow: 0 10px 24px rgba(26, 26, 26, 0.08);
+}
+
+.card:active {
+  transform: translateY(0);
+}
+
+.card:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(140, 47, 28, 0.18);
+}
+
+/* ==========================================================================
+   MEDIA
+   Zone image carrée, stable, cohérente pour une grille produit.
+   ========================================================================== */
+
+.media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border-soft);
+  overflow: hidden;
 }
 
 .image {
-  aspect-ratio: 1 / 1;
-  background: var(--color-beige);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* Transition légère pour donner de la vie au survol */
+  transition: transform 0.35s ease;
 }
+
+.card:hover .image {
+  transform: scale(1.02);
+}
+
+/* ==========================================================================
+   BODY
+   Bloc texte compact, respirant, bien hiérarchisé.
+   ========================================================================== */
 
 .body {
-  display: grid;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   gap: var(--space-8);
+  padding: var(--space-16);
 }
+
+/* ==========================================================================
+   BRAND
+   Niveau secondaire : marque, discrète mais utile.
+   ========================================================================== */
+
+.brand {
+  font-size: var(--fs-small);
+  line-height: 1.4;
+  color: var(--color-info);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ==========================================================================
+   TITLE
+   Élément principal de la carte.
+   ========================================================================== */
 
 .title {
-  font-weight: 600;
+  font-size: var(--fs-h3);
+  line-height: 1.25;
+  color: var(--color-text);
 }
 
-.usage {
-  font-size: var(--fs-small);
+/* ==========================================================================
+   DESCRIPTION
+   Aide à la compréhension rapide, sans prendre le dessus.
+   ========================================================================== */
+
+.description {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
   color: var(--color-info);
+
+  /* Évite qu’un texte trop long casse l’homogénéité de la grille */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
+
+/* ==========================================================================
+   PRICE
+   Bloc final, visuellement stable, légèrement valorisé.
+   ========================================================================== */
 
 .price {
+  margin-top: auto;
+
+  font-size: 1rem;
   font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-primary);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   Ajustements légers pour petites largeurs.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  .body {
+    padding: var(--space-16);
+  }
+
+  .title {
+    font-size: 1.125rem;
+  }
+
+  .description {
+    -webkit-line-clamp: 3;
+  }
 }

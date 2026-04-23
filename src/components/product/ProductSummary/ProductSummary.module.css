@@ -1,0 +1,96 @@
+/* 
+  ProductSummary
+  Bloc de résumé produit pour page détail.
+  Objectif :
+  - hiérarchie claire
+  - lecture rapide
+  - ton sobre et premium
+  - compatibilité design system
+*/
+
+.summary {
+  /* Empilement vertical simple et robuste */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+/* 
+  Marque :
+  discrète mais identifiable immédiatement.
+  On la traite comme une méta-information.
+*/
+.brand {
+  font-size: var(--fs-small);
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-info);
+}
+
+/* 
+  Titre principal :
+  élément dominant du bloc.
+  Serif pour ancrer le positionnement éditorial et haut de gamme.
+*/
+.title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  line-height: 1.08;
+  font-weight: 600;
+  color: var(--color-text);
+  max-width: 12ch;
+}
+
+/* 
+  Prix :
+  visible rapidement, sans agressivité commerciale.
+  Léger renfort de poids pour la décision.
+*/
+.price {
+  font-size: 1.125rem;
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* 
+  Description :
+  texte de soutien.
+  Largeur limitée pour préserver le confort de lecture.
+*/
+.description {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-text);
+  max-width: 60ch;
+}
+
+/* 
+  Zone des badges :
+  flexible, respirante, utilisable avec longueur variable.
+*/
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  padding-top: var(--space-8);
+}
+
+/* 
+  Ajustements responsive :
+  on garde une hiérarchie forte sans surdimensionnement.
+*/
+@media (max-width: 768px) {
+  .summary {
+    gap: 0.875rem;
+  }
+
+  .title {
+    max-width: none;
+  }
+
+  .price {
+    font-size: 1.0625rem;
+  }
+}

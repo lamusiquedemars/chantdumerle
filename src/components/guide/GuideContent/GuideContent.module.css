@@ -1,0 +1,166 @@
+.content {
+  /* structure */
+  width: 100%;
+  max-width: 72ch;
+  margin: 0 auto;
+
+  /* spacing */
+  display: grid;
+  gap: var(--space-24);
+
+  /* typography */
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+.content > * {
+  /* évite les collisions de styles imprévues */
+  margin: 0;
+}
+
+.content p,
+.content ul,
+.content ol,
+.content blockquote {
+  /* garde une largeur de lecture confortable */
+  max-width: 70ch;
+}
+
+.content h2,
+.content h3,
+.content h4 {
+  /* hiérarchie lisible dans un article */
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  line-height: var(--lh-tight);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.content h2 {
+  /* titre de section principal */
+  font-size: var(--fs-h2);
+  margin-top: var(--space-16);
+}
+
+.content h3 {
+  /* sous-section */
+  font-size: var(--fs-h3);
+  margin-top: var(--space-8);
+}
+
+.content h4 {
+  /* niveau éditorial secondaire */
+  font-size: 1.125rem;
+  margin-top: var(--space-8);
+}
+
+.content p + p {
+  /* respiration entre paragraphes */
+  margin-top: calc(var(--space-8) * -1);
+}
+
+.content ul,
+.content ol {
+  /* listes éditoriales sobres */
+  padding-left: 1.25rem;
+}
+
+.content li + li {
+  margin-top: 0.4rem;
+}
+
+.content strong {
+  /* mise en avant discrète mais nette */
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.content em {
+  font-style: italic;
+}
+
+.content a {
+  /* lien éditorial visible sans agressivité */
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.14em;
+  transition: color 160ms ease;
+}
+
+.content a:hover {
+  color: var(--color-brown);
+}
+
+.content blockquote {
+  /* citation ou mise en relief */
+  padding-left: var(--space-16);
+  border-left: 2px solid var(--color-accent);
+  color: var(--color-brown);
+  font-style: italic;
+}
+
+.content hr {
+  /* séparation douce */
+  border: 0;
+  border-top: 1px solid var(--color-border-soft);
+  margin: var(--space-8) 0;
+}
+
+.content img {
+  /* image éditoriale intégrée */
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.content figure {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.content figcaption {
+  color: var(--color-info);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.content code {
+  /* inline code discret */
+  padding: 0.12rem 0.35rem;
+  border-radius: 0.25rem;
+  background: var(--color-beige);
+  font-size: 0.95em;
+}
+
+.content pre {
+  /* bloc de code lisible */
+  padding: var(--space-16);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+  background: var(--color-beige);
+  overflow-x: auto;
+}
+
+.content pre code {
+  padding: 0;
+  background: transparent;
+}
+
+@media (max-width: 768px) {
+  .content {
+    /* réduit légèrement le rythme sur mobile */
+    gap: var(--space-16);
+  }
+
+  .content h2 {
+    font-size: 1.625rem;
+  }
+
+  .content h3 {
+    font-size: 1.125rem;
+  }
+}

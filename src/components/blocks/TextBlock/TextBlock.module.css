@@ -1,0 +1,53 @@
+/* 
+  Bloc texte générique
+  Usage : intro de section, bloc éditorial, contenu simple avec CTA
+  Logique :
+  - lisibilité forte
+  - largeur maîtrisée
+  - hiérarchie sobre
+  - compatible design system global
+*/
+
+.textBlock {
+  /* 
+    Conteneur vertical simple.
+    On garde une largeur raisonnable pour éviter les lignes trop longues.
+  */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-16);
+  max-width: 70ch;
+}
+
+/* 
+  Titre de bloc.
+  La police serif et la taille globale sont déjà définies par la charte,
+  ici on affine surtout la couleur et l’équilibre visuel.
+*/
+.title {
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+/* 
+  Texte courant.
+  On privilégie une lecture confortable, sobre, sans effet décoratif.
+*/
+.text {
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+/* 
+  Zone d’actions.
+  Les boutons doivent pouvoir passer à la ligne proprement si besoin.
+*/
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  padding-top: var(--space-8);
+}

@@ -1,0 +1,85 @@
+/* MobileMenu
+   ----------
+   Menu mobile simple et lisible.
+   Objectif :
+   - panneau clair, bien séparé du header
+   - lecture immédiate
+   - aucune décoration inutile
+   - base propre pour laisser MainNav gérer la liste/liens
+*/
+
+.mobileMenu {
+  /* positionnement */
+  position: absolute;
+  top: calc(100% + var(--space-8));
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  /* boîte */
+  width: 100%;
+  padding: var(--space-16);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+  background: var(--color-white);
+
+  /* rendu */
+  box-shadow: 0 10px 30px rgba(26, 26, 26, 0.08);
+}
+
+/* état visuel interne :
+   on force un conteneur vertical calme pour la nav injectée */
+.mobileMenu :global(nav) {
+  width: 100%;
+}
+
+/* liste principale */
+.mobileMenu :global(ul) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* items */
+.mobileMenu :global(li) {
+  margin: 0;
+  padding: 0;
+}
+
+/* liens :
+   grande zone cliquable, lisible au doigt */
+.mobileMenu :global(a) {
+  display: block;
+  width: 100%;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--color-beige);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-text);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+/* dernier lien sans trait inutile */
+.mobileMenu :global(li:last-child a) {
+  border-bottom: 0;
+}
+
+/* hover / focus :
+   discret, premium, cohérent avec la charte */
+.mobileMenu :global(a:hover),
+.mobileMenu :global(a:focus-visible) {
+  color: var(--color-primary);
+  border-color: var(--color-accent);
+}
+
+/* petit retour tactile */
+.mobileMenu :global(a:active) {
+  transform: translateY(1px);
+}

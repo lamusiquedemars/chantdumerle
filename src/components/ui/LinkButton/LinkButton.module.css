@@ -1,0 +1,85 @@
+/* LinkButton.module.css */
+
+/* Base
+   Composant bouton sous forme de lien
+   → cohérent, lisible, sans effet décoratif inutile
+*/
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--space-8) var(--space-16);
+
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1;
+
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  /* éviter les boutons trop larges */
+  width: fit-content;
+}
+
+/* =========================
+   VARIANT PRIMARY
+   action principale → rouge
+========================= */
+.primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+.primary:hover {
+  background-color: #732617; /* légèrement plus sombre */
+  border-color: #732617;
+}
+
+/* =========================
+   VARIANT SECONDARY
+   action alternative → contour
+========================= */
+.secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  border-color: var(--color-text);
+}
+
+.secondary:hover {
+  background-color: var(--color-text);
+  color: var(--color-white);
+}
+
+/* =========================
+   VARIANT GHOST
+   action faible → lien amélioré
+========================= */
+.ghost {
+  background-color: transparent;
+  color: var(--color-text);
+  border: none;
+
+  padding: 0; /* aligné avec texte */
+}
+
+.ghost:hover {
+  color: var(--color-primary);
+}
+
+/* =========================
+   STATES
+========================= */
+
+/* focus accessible déjà géré globalement */
+
+/* disabled (option future si besoin)
+.linkButton:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+*/
