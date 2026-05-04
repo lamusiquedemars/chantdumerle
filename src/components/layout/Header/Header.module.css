@@ -25,6 +25,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-24);
+  transition: min-height 220ms ease;
 }
 
 /* 
@@ -35,6 +36,7 @@
 .brand {
   display: inline-flex;
   align-items: center;
+  gap: 0.75rem;
   flex-shrink: 0;
   font-family: var(--font-heading);
   font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
@@ -53,7 +55,34 @@
 .brand:active {
   opacity: 0.75;
 }
+/* 
+  Logo de marque
+  - taille stable dans le header
+  - object-fit pour éviter toute déformation
+*/
+.logo {
+  width: 200px;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  transition: width 220ms ease;
+}
+/*shrink au scroll*/
+.headerShrink .inner {
+  min-height: 3.4rem;
+}
 
+.headerShrink .logo {
+  width: 110px;
+}
+/* 
+  Texte de marque
+  - séparé du logo pour pouvoir le masquer ou l'ajuster facilement
+*/
+.brandLabel {
+  display: inline-flex;
+  align-items: center;
+}
 /* 
   Navigation desktop
   - visible à partir de la tablette large / desktop
@@ -103,14 +132,32 @@
   gap: 0.22rem;
 }
 
+/* Animation douce des traits du burger */
 .burgerIcon span {
   display: block;
   width: 100%;
   height: 1.5px;
   background: currentColor;
   border-radius: 999px;
+  transition:
+    transform 180ms ease,
+    opacity 160ms ease,
+    background 160ms ease;
+  transform-origin: center;
 }
 
+/* Etat ouvert : le burger devient un X */
+.burgerOpen .burgerIcon span:nth-child(1) {
+  transform: translateY(0.36rem) rotate(45deg);
+}
+
+.burgerOpen .burgerIcon span:nth-child(2) {
+  opacity: 0;
+}
+
+.burgerOpen .burgerIcon span:nth-child(3) {
+  transform: translateY(-0.36rem) rotate(-45deg);
+}
 /* 
   États interactifs
 */
@@ -141,8 +188,30 @@
   }
 
   .brand {
-    max-width: calc(100% - 5.5rem);
+    max-width: calc(100% - 4rem);
+    min-width: 0;
     font-size: clamp(1.35rem, 1.1rem + 1vw, 1.75rem);
+  }
+
+  .logo {
+    width: 130px;
+    max-width: 100%;
+  }
+
+  .burger {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  /*shrink au scroll*/
+  .headerShrink .inner {
+    min-height: 2.4rem;
+  }
+
+  .headerShrink .logo {
+    width: 80px;
   }
 }
 
@@ -164,4 +233,11 @@
   .brand {
     font-size: 1.5rem;
   }
+  .logo {
+  width: 140px;
+}
+
+.brandLabel {
+  display: none;
+}
 }

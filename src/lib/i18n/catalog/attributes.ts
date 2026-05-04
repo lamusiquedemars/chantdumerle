@@ -12,4 +12,6 @@ export const attributes = {
   end: 'end',
   core: 'core',
   winding: 'winding',
-};
+} as const; // "as const" pour que les valeurs soient des littéraux de type string, pas juste string
+
+export type AttributeKey = keyof typeof attributes; // AttributeKey est un type qui peut être "brand" | "model" | "instrument" | "string" | "size" | "tension" | "end" | "core" | "winding"

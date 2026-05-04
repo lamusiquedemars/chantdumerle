@@ -5,27 +5,12 @@
 */
 .grid {
   display: grid;
-
-  /* 
-    Colonnes fluides :
-    chaque carte garde une largeur minimale lisible,
-    puis la grille s’adapte automatiquement à l’espace.
-  */
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-
-  /* 
-    Espacement standard entre les cartes.
-    Cohérent avec le rythme général du design system.
-  */
   gap: var(--space-24);
-
-  /* 
-    Les cartes restent alignées en haut,
-    utile si les descriptions ont des longueurs différentes.
-  */
-  align-items: start;
+  align-items: stretch;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-24);
 }
-
 /* 
   Sur tablette et petits desktops,
   on réduit légèrement l’écart pour garder une bonne densité.
@@ -35,7 +20,6 @@
     gap: var(--space-16);
   }
 }
-
 /* 
   Sur mobile, on passe sur une seule colonne
   pour préserver la lisibilité et éviter des cartes trop étroites.

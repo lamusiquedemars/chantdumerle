@@ -8,19 +8,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   padding: var(--space-8) var(--space-16);
-
   font-family: var(--font-body);
   font-size: var(--fs-body);
   line-height: 1;
-
   border-radius: var(--radius);
   border: 1px solid transparent;
-
   cursor: pointer;
   transition: all 0.2s ease;
-
   /* éviter les boutons trop larges */
   width: fit-content;
 }
@@ -33,6 +28,8 @@
   background-color: var(--color-primary);
   color: var(--color-white);
   border-color: var(--color-primary);
+  padding: var(--space-16) var(--space-24);
+  font-size: var(--fs-button);
 }
 
 .primary:hover {

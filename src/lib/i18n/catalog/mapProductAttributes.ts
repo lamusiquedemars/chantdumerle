@@ -1,9 +1,24 @@
-import type { ProductAttribute } from "@/lib/i18n/catalog/formatProductAttribute";
+import type { AttributeKey } from "./attributes";
+import type { ProductAttribute } from "./formatProductAttribute";
 
 export type SourceProductAttribute = {
   name: string;
   options?: string[] | null;
 };
+
+function isAttributeKey(value: string): value is AttributeKey {
+  return [
+    "brand",
+    "model",
+    "instrument",
+    "string",
+    "size",
+    "tension",
+    "end",
+    "core",
+    "winding",
+  ].includes(value);
+}
 
 export function mapProductAttributes(
   attributes: SourceProductAttribute[] = []
@@ -16,10 +31,12 @@ export function mapProductAttributes(
         Array.isArray(attribute.options) &&
         attribute.options.length > 0
     )
+    .filter((attribute) => isAttributeKey(attribute.name))
     .map((attribute) => ({
       key: attribute.name,
       values: attribute.options.filter(
-        (option): option is string => typeof option === "string" && option.length > 0
+        (option): option is string =>
+          typeof option === "string" && option.trim().length > 0
       ),
     }));
 }

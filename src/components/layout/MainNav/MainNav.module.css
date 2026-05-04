@@ -101,8 +101,26 @@
 /* Responsive :
    la nav principale disparaît sur mobile
    le menu mobile prend le relais */
-@media (max-width: 767px) {
+@media (max-width: 900px) {
   .nav {
-    display: none;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .list {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-8);
+    padding-right: 1rem;
+  }
+
+  .item {
+    justify-content: flex-end;
+  }
+
+  .link {
+    justify-content: flex-end;
+    text-align: right;
   }
 }

@@ -9,6 +9,7 @@ type LinkCardProps = {
   description?: string;
   children?: ReactNode;
   className?: string;
+  backgroundImage?: string;
 };
 
 export default function LinkCard({
@@ -17,9 +18,17 @@ export default function LinkCard({
   description,
   children,
   className,
+  backgroundImage,
 }: LinkCardProps) {
   return (
     <Link href={href} className={clsx(styles.linkCard, className)}>
+      {backgroundImage ? (
+        <span
+          className={styles.backgroundImage}
+          style={{ backgroundImage: `url(${backgroundImage})` }}
+          aria-hidden="true"
+        />
+      ) : null}
       <div className={styles.content}>
         <h3 className={styles.title}>{title}</h3>
         {description ? <p className={styles.description}>{description}</p> : null}

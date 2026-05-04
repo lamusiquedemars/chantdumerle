@@ -2,14 +2,14 @@
  * Ordre d’affichage des attributs produit.
  * Les clés doivent correspondre aux clés du dictionnaire.
  */
-export const PRODUCT_ATTRIBUTE_ORDER: string[] = [
-  "marque",
-  "modele",
+export const PRODUCT_ATTRIBUTE_ORDER = [
+  "brand",
+  "model",
   "instrument",
-  "corde",
-  "taille",
+  "string",
+  "size",
   "tension",
-  "attache",
-  "ame",
-  "filage",
-];
+  "end",
+  "core",
+  "winding",
+] as const;

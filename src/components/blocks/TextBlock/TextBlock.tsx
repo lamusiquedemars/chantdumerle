@@ -12,6 +12,7 @@ type TextBlockProps = {
   text: string;
   actions?: TextBlockAction[];
   className?: string;
+  tone?: "default" | "light";
 };
 
 export default function TextBlock({
@@ -19,9 +20,10 @@ export default function TextBlock({
   text,
   actions = [],
   className,
+  tone = "default",
 }: TextBlockProps) {
   return (
-    <div className={clsx(styles.textBlock, className)}>
+    <div className={clsx(styles.textBlock, styles[tone], className)}>
       <h2 className={styles.title}>{title}</h2>
       <p className={styles.text}>{text}</p>
 

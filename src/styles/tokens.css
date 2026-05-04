@@ -1,6 +1,6 @@
 /* fondamental CSS Variables for Chant du Merle */
 :root {
-  --color-bg: #F2EBDD;
+  --color-bg: #fffbf5;
   --color-text: #1A1A1A;
   --color-primary: #8C2F1C;
   --color-accent: #C6A96B;
@@ -20,9 +20,10 @@
   --font-heading: "Cormorant", serif;
   --font-body: "Source Sans 3", sans-serif;
 
-  --fs-h1: 2.5rem;
-  --fs-h2: 1.75rem;
-  --fs-h3: 1.25rem;
+  --fs-h1: 3.5rem;
+  --fs-h2: 2rem;
+  --fs-h3: 1.5rem;
+  --fs-button: 1.25rem;
   --fs-body: 1rem;
   --fs-small: 0.875rem;
 
@@ -33,7 +34,7 @@
   --space-16: 1rem;
   --space-24: 1.5rem;
   --space-32: 2rem;
-  --space-48: 3rem;
+  --space-48: 2.5rem;
   --space-64: 4rem;
 
   --radius: 0.5rem;

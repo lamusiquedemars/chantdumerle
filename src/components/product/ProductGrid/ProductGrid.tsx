@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import styles from "./ProductGrid.module.css";
-import ProductCard, { type ProductCardItem } from "@/components/ui/ProductCard/ProductCard";
+import ProductCard, { type ProductCardItem } from "@/components/product/ProductCard/ProductCard";
 
 type ProductGridProps = {
   items?: ProductCardItem[];

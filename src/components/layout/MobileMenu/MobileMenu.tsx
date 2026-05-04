@@ -5,19 +5,26 @@ import MainNav, { type NavItem } from "../MainNav/MainNav";
 type MobileMenuProps = {
   items: NavItem[];
   isOpen: boolean;
+  onClose: () => void;
   className?: string;
 };
 
 export default function MobileMenu({
   items,
   isOpen,
+  onClose,
   className,
 }: MobileMenuProps) {
-  if (!isOpen) return null;
-
   return (
-    <div className={clsx(styles.mobileMenu, className)}>
-      <MainNav items={items} />
+    <div
+      className={clsx(
+        styles.mobileMenu,
+        isOpen ? styles.open : styles.closed,
+        className
+      )}
+      aria-hidden={!isOpen}
+    >
+      <MainNav items={items} onNavigate={onClose} />
     </div>
   );
 }

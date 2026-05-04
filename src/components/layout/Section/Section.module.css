@@ -6,6 +6,8 @@
 .section {
   /* Espace vertical principal entre les grandes zones de contenu */
   padding: var(--space-48) 0;
+    /* Fond piloté par les variantes */
+  background: var(--section-background, transparent);
 }
 
 /* Sur écrans plus larges, on ouvre légèrement le rythme */
@@ -13,4 +15,35 @@
   .section {
     padding: var(--space-64) 0;
   }
+}
+/* Variantes de fond */
+
+.beige {
+  --section-background: var(--color-beige);
+}
+.accent {
+  --section-background: var(--color-accent);
+  color: var(--color-background);
+}
+/* Image de fond */
+.withBackground {
+  background-image: var(--section-background-image);
+  position: relative;
+  isolation: isolate;
+  min-height: 50vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.withBackground::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgb(0 0 0 / 0.35);
+}
+.withBackground > * {
+  position: relative;
+  z-index: 1;
 }

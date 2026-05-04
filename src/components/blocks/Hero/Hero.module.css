@@ -5,27 +5,22 @@
 .hero {
   padding: var(--space-64) 0;
 }
-
 /* 
   Conteneur interne.
-  Limite la largeur de lecture pour garder un rendu élégant,
-  calme et très lisible.
+  Limite la largeur de lecture pour garder un rendu élégant, calme et très lisible.
 */
 .inner {
   width: min(100% - 2rem, 820px);
   margin: 0 auto;
 }
-
 /* 
-  Titre principal.
-  Forte présence typographique, mais sans excès décoratif.
+  Titre principal. Forte présence typographique, mais sans excès décoratif.
 */
 .title {
   margin: 0;
   color: var(--color-text);
   text-wrap: balance;
 }
-
 /* 
   Sous-titre.
   Garde une largeur de lecture confortable et un ton éditorial sobre.
@@ -34,10 +29,9 @@
   margin-top: var(--space-16);
   max-width: 70ch;
   color: var(--color-text);
-  font-size: 1.125rem;
+  font-size: 1.3rem;
   line-height: var(--lh-body);
 }
-
 /* 
   Zone des actions.
   Les boutons sont espacés proprement et peuvent passer à la ligne.
@@ -48,15 +42,12 @@
   gap: var(--space-16);
   margin-top: var(--space-24);
 }
-
 /* 
-  Variante home.
-  Plus généreuse en respiration pour une page d’accueil.
+  Variante home. Plus généreuse en respiration pour une page d’accueil.
 */
 .home {
   padding: calc(var(--space-64) + var(--space-16)) 0;
 }
-
 /* 
   Variante page.
   Plus compacte, adaptée aux pages internes.
@@ -64,16 +55,13 @@
 .page {
   padding: var(--space-48) 0;
 }
-
 /* 
   Variante wide.
-  Autorise une largeur de contenu un peu plus large,
-  utile si le hero doit respirer davantage.
+  Autorise une largeur de contenu un peu plus large, utile si le hero doit respirer davantage.
 */
 .wide .inner {
   width: min(100% - 2rem, 980px);
 }
-
 /* 
   Alignement à gauche.
   C’est l’alignement par défaut du système.
@@ -81,7 +69,6 @@
 .left .inner {
   text-align: left;
 }
-
 /* 
   Alignement centré.
   Réservé surtout au hero d’accueil.
@@ -89,7 +76,6 @@
 .center .inner {
   text-align: center;
 }
-
 /* 
   En mode centré, on recentre aussi le sous-titre
   pour garder un bloc cohérent.
@@ -98,18 +84,40 @@
   margin-left: auto;
   margin-right: auto;
 }
-
 /* 
   En mode centré, les actions se recentrent également.
 */
 .center .actions {
   justify-content: center;
 }
-
 /* 
   Ajustement tablette.
   On réduit légèrement les respirations pour éviter un hero trop massif.
 */
+.withBackground {
+  position: relative;
+  min-height: 50vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.withBackground::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.35);
+}
+
+.withBackground .inner {
+  position: relative;
+  z-index: 1;
+}
+
+.withBackground .title,
+.withBackground .subtitle {
+  color: white;
+}
 @media (max-width: 900px) {
   .hero,
   .home,

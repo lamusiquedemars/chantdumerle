@@ -7,6 +7,7 @@ type SectionHeadingProps = {
   subtitle?: string;
   action?: ReactNode;
   className?: string;
+  tone?: "default" | "light";
 };
 
 export default function SectionHeading({
@@ -14,9 +15,10 @@ export default function SectionHeading({
   subtitle,
   action,
   className,
+  tone = "default",
 }: SectionHeadingProps) {
   return (
-    <div className={clsx(styles.sectionHeading, className)}>
+    <div className={clsx(styles.sectionHeading, styles[tone], className)}>
       <div className={styles.main}>
         <h2 className={styles.title}>{title}</h2>
         {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}

@@ -3,13 +3,13 @@ import type {
   ProductAttributesDictionary,
 } from "./productAttributes";
 import { productAttributesDictionary } from "./productAttributes";
+import type { AttributeKey } from "./attributes";
 
 /**
- * Retourne le label traduit d'un attribut.
- * Fallback : la clé technique si introuvable.
+ * Label d’attribut
  */
 export function getProductAttributeLabel(
-  attributeKey: string,
+  attributeKey: AttributeKey,
   locale: Locale,
   dictionary: ProductAttributesDictionary = productAttributesDictionary
 ): string {
@@ -17,11 +17,10 @@ export function getProductAttributeLabel(
 }
 
 /**
- * Retourne le label traduit d'une valeur d'attribut.
- * Fallback : la clé technique si introuvable.
+ * Label de valeur
  */
 export function getProductAttributeValueLabel(
-  attributeKey: string,
+  attributeKey: AttributeKey,
   valueKey: string,
   locale: Locale,
   dictionary: ProductAttributesDictionary = productAttributesDictionary

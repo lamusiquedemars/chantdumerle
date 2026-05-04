@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import styles from "./SelectionProducts.module.css";
 import ProductGrid from "@/components/product/ProductGrid/ProductGrid";
-import type { ProductCardItem } from "@/components/ui/ProductCard/ProductCard";
+import type { ProductCardItem } from "@/components/product/ProductCard/ProductCard";
 
 type SelectionProductsProps = {
   title?: string;

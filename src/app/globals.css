@@ -42,7 +42,7 @@ h2 { font-size: var(--fs-h2); }
 h3 { font-size: var(--fs-h3); }
 
 p {
-  max-width: 70ch;
+  /*max-width: 70ch;*/ /* pour éviter les lignes trop longues, on peut limiter la largeur du texte courant */
 }
 
 /* layout */

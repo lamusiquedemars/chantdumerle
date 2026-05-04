@@ -1,61 +1,81 @@
-/* MobileMenu
-   ----------
-   Menu mobile simple et lisible.
-   Objectif :
-   - panneau clair, bien séparé du header
-   - lecture immédiate
-   - aucune décoration inutile
-   - base propre pour laisser MainNav gérer la liste/liens
+/* 
+  Menu mobile :
+  - boîte plus étroite
+  - alignée à droite
+  - transition douce
+  - origine de transformation en haut à droite
 */
-
 .mobileMenu {
-  /* positionnement */
   position: absolute;
-  top: calc(100% + var(--space-8));
-  left: 0;
+  top: calc(60% + 0.5rem);
   right: 0;
   z-index: 1000;
-
-  /* boîte */
-  width: 100%;
-  padding: var(--space-16);
+  width: min(14rem, calc(100vw - 2rem));
+  padding: 0.85rem 1rem;
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius);
   background: var(--color-white);
-
-  /* rendu */
   box-shadow: 0 10px 30px rgba(26, 26, 26, 0.08);
+
+  transform-origin: top right;
+  transition:
+    opacity 220ms ease,
+    transform 240ms ease,
+    visibility 220ms ease;
 }
 
-/* état visuel interne :
-   on force un conteneur vertical calme pour la nav injectée */
+/* Etat fermé :
+   on garde le menu dans le DOM,
+   mais on le rend invisible et non cliquable */
+.closed {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-0.45rem) scale(0.98);
+}
+
+/* Etat ouvert */
+.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* La nav interne n'a pas besoin de prendre toute la largeur */
 .mobileMenu :global(nav) {
-  width: 100%;
+  width: auto;
 }
 
-/* liste principale */
+/* Liste verticale, alignée à droite */
 .mobileMenu :global(ul) {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: var(--space-8);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* items */
+/* Items */
 .mobileMenu :global(li) {
   margin: 0;
   padding: 0;
 }
 
-/* liens :
-   grande zone cliquable, lisible au doigt */
+/* Liens :
+   - largeur visuelle contenue
+   - texte à droite
+   - aspect plus chic et moins brutal
+*/
 .mobileMenu :global(a) {
-  display: block;
-  width: 100%;
-  padding: 0.875rem 0;
+  display: inline-flex;
+  justify-content: flex-end;
+  min-width: 10rem;
+  padding: 0.7rem 0;
   border-bottom: 1px solid var(--color-beige);
+  text-align: right;
   font-family: var(--font-body);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
@@ -66,20 +86,16 @@
     transform 160ms ease;
 }
 
-/* dernier lien sans trait inutile */
 .mobileMenu :global(li:last-child a) {
   border-bottom: 0;
 }
 
-/* hover / focus :
-   discret, premium, cohérent avec la charte */
 .mobileMenu :global(a:hover),
 .mobileMenu :global(a:focus-visible) {
   color: var(--color-primary);
   border-color: var(--color-accent);
 }
 
-/* petit retour tactile */
 .mobileMenu :global(a:active) {
   transform: translateY(1px);
 }

@@ -11,20 +11,16 @@
   /* Le lien devient un vrai bloc de carte */
   display: flex;
   flex-direction: column;
-
   /* La carte doit pouvoir remplir sa colonne proprement */
   height: 100%;
-
+  width: 100%;
   /* Fond clair pour garder un rendu net et produit-first */
   background: var(--color-white);
-
   /* Bordure discrète mais structurante */
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius);
-
+  border: none;
+  border-radius:  0;
   /* On masque les débordements de l’image */
   overflow: hidden;
-
   /* Transition douce, sans effet gadget */
   transition:
     border-color 0.2s ease,
