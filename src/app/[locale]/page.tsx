@@ -217,7 +217,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
             tone="light"
             action={<LinkButton href="/fr/cordes">Voir les cordes</LinkButton>}
           />
-          <ProductGrid items={featuredProducts} />
+          <ProductCarousel items={featuredProducts} />
         </Container>
       </Section>
 
