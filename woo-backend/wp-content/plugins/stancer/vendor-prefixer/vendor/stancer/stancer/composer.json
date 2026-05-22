@@ -1,0 +1,71 @@
+{
+    "name": "stancer\/stancer",
+    "description": "Stancer PHP library",
+    "homepage": "https:\/\/stancer.com",
+    "type": "library",
+    "keywords": [
+        "payments",
+        "payment solution",
+        "card",
+        "sepa"
+    ],
+    "license": "MIT",
+    "autoload": {
+        "files": [
+            "src\/polyfill.php"
+        ],
+        "psr-4": {
+            "Stancer\\Scoped\\Isolated\\Stancer\\": "src\/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Stancer\\Scoped\\Isolated\\Stancer\\PHPStan\\": "tests\/stan",
+            "Stancer\\Scoped\\Isolated\\Stancer\\Stub\\": "tests\/Stub",
+            "Stancer\\Scoped\\Isolated\\Stancer\\Tests\\": "tests\/"
+        }
+    },
+    "require": {
+        "php": ">=8.1",
+        "psr\/http-message": "^2.0",
+        "psr\/log": "^3.0"
+    },
+    "require-dev": {
+        "atoum\/atoum": "^4.4",
+        "atoum\/stubs": "^2.6",
+        "atoum\/visibility-extension": "^2.0",
+        "fakerphp\/faker": "^1.13",
+        "friendsofphp\/php-cs-fixer": "^3.68",
+        "guzzlehttp\/guzzle": "^7.2",
+        "jdslv\/atoum-report-cobertura": "^1.1",
+        "phpstan\/extension-installer": "^1.0",
+        "phpstan\/phpstan": "^1.2",
+        "phpstan\/phpstan-deprecation-rules": "^1.0",
+        "phpstan\/phpstan-strict-rules": "^1.0"
+    },
+    "scripts": {
+        "create-doc": "php scripts\/phpdoc.php",
+        "php-cs-check": "php-cs-fixer check -v --diff",
+        "php-cs-fixer": "php-cs-fixer fix -v",
+        "phpstan": "phpstan analyse --no-progress",
+        "test": "atoum",
+        "test:watch": [
+            "Composer\\Config::disableProcessTimeout",
+            "atoum --debug --loop"
+        ]
+    },
+    "suggest": {
+        "monolog\/monolog": "Allows to log interaction with the API"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan\/extension-installer": true
+        },
+        "sort-packages": true
+    },
+    "support": {
+        "docs": "https:\/\/stancer.com\/documentation\/api\/",
+        "issues": "https:\/\/gitlab.com\/wearestancer\/library\/lib-php\/-\/issues",
+        "source": "https:\/\/gitlab.com\/wearestancer\/library\/lib-php"
+    }
+}

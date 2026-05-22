@@ -1,0 +1,24 @@
+<?php
+
+declare (strict_types=1);
+namespace Stancer\Scoped\Isolated\Stancer\Interfaces;
+
+use Stancer\Scoped\Isolated\Psr;
+/**
+ * HTTP client requirement.
+ * @internal
+ */
+interface HttpClientInterface
+{
+    /**
+     * Create and send an HTTP request.
+     *
+     * @param string $method HTTP method.
+     * @param string $uri URI string.
+     * @param mixed[] $options Request options to apply.
+     *
+     * @phpstan-param array{body?: string, headers?: array<string, string|string[]>, timeout?: int} $options
+     *   Request options to apply.
+     */
+    public function request(string $method, string $uri, array $options = []) : Psr\Http\Message\ResponseInterface;
+}

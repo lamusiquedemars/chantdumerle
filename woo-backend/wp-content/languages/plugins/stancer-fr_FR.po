@@ -1,0 +1,449 @@
+# Translation of Plugins - Stancer for WooCommerce - Stable (latest release) in French (France)
+# This file is distributed under the same license as the Plugins - Stancer for WooCommerce - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-04-07 14:15:55+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: GlotPress/4.0.3\n"
+"Language: fr\n"
+"Project-Id-Version: Plugins - Stancer for WooCommerce - Stable (latest release)\n"
+
+#. translators: "%1$s": Stancer payment status. "%2$s": Stancer payment
+#. identifier.
+#: includes/class-stancer-cron.php:253
+msgid "Payment %1$s via Stancer (Transaction ID: %2$s)"
+msgstr "Paiement %1$s via Stancer (ID Transaction : %2$s)"
+
+#. translators: "%s": Stancer payment identifier.
+#: includes/class-stancer-cron.php:231
+msgid "Payment confirmed via Stancer reconciliation (Transaction ID: %s)"
+msgstr "Le paiement a été confirmé via réconciliation Stancer (ID Transaction : %s)"
+
+#: includes/class-stancer-cron.php:78
+msgid "Every 15 minutes (Stancer reconciliation)"
+msgstr "Toutes les 15 minutes (réconciliation Stancer)"
+
+#: subscription/change-payment-method.php:169
+msgid "Incorrect action"
+msgstr "Action incorrecte"
+
+#. translators: $1 Card brand. $2 Last 4. $3 Expiration month. $4 Expiration
+#. year.
+#: includes/class-stancer-gateway.php:283
+msgid "%1$s ending with %2$s"
+msgstr "%1$s finissant par %2$s"
+
+#: includes/class-stancer.php:203
+msgid "plugin settings"
+msgstr "réglages de l’extension"
+
+#. translators: "%s": Link to plugin settings.
+#: includes/class-stancer.php:199
+msgid "Stancer payment by popup is deprecated since 31st July 2024, it will be deleted in the next major version (1.3.0). We advise you to change the option in your %s."
+msgstr "Le paiement Stancer via fenêtre surgissante est obsolète depuis le 31 juillet 2024 et sera supprimé dans la prochaine version majeure (1.3.0). Nous vous conseillons de modifier cette option dans vos %s."
+
+#. translators: "%s": The order ID.
+#: includes/class-stancer-payment-builder.php:83
+msgid "Payment for order n°%s"
+msgstr "Payment pour la commande n°%s"
+
+#. translators: "$1%d": The minimum description size. "$2%d": The maximum
+#. description size. "$3%s": The default description message already
+#. translated.
+#: includes/class-stancer-gateway.php:963
+msgid "Your payment description is not between %1$d and %2$d characters, it could result in the use of default description: %3$s"
+msgstr "Votre description de paiement n’est pas comprise entre %1$d et %2$d caractères, ce qui peut entraîner l’utilisation de la description par défaut : %3$s"
+
+#: includes/class-stancer-gateway.php:675
+#: includes/class-stancer-gateway.php:990
+msgid "Payment for order n°ORDER_ID"
+msgstr "Paiement pour la commande n°ORDER_ID"
+
+#: includes/class-stancer-gateway.php:604
+msgid "Description shown to the user on renewal payment"
+msgstr "Description affichée à l’internaute lors du paiement de renouvellement"
+
+#: includes/class-stancer-gateway.php:602
+#: includes/class-stancer-gateway.php:1008
+msgid "Renewal for subscription n°SUBSCRIPTION_ID"
+msgstr "Renouvellement de l’abonnement n°SUBSCRIPTION_ID"
+
+#: includes/class-stancer-gateway.php:591
+msgid "Will be used as description for every renewal made."
+msgstr "Sera utilisé comme description pour chaque renouvellement effectué."
+
+#: includes/class-stancer-gateway.php:586
+#: includes/class-stancer-gateway.php:597
+msgid "Subscription identifier"
+msgstr "Identifiant de l’abonnement"
+
+#: includes/class-stancer-gateway.php:583
+msgid "Order number for renewal payments"
+msgstr "Numéro de commande pour les paiements de renouvellement"
+
+#: includes/class-stancer-gateway.php:539
+#: includes/class-stancer-gateway.php:587
+msgid "Order identifier"
+msgstr "Identifiant de la commande"
+
+#. Translators: "%1$d": the minimum size of the description "%2$d": the maximum
+#. size of the description.
+#: includes/class-stancer-gateway.php:529
+msgid "The description must be between %1$d and %2$d characters."
+msgstr "La description doit être comprise entre %1$d et %2$d caractères."
+
+#: includes/class-stancer-gateway.php:327
+#: includes/class-stancer-gateway.php:605
+msgid "Renewal payment description"
+msgstr "Description du paiement de renouvellement"
+
+#. Translators: "%1$d": The minimum size of the description. "%2$d": The
+#. maximum size of the description.
+#: includes/class-stancer-gateway.php:323
+msgid "The description must be between %1$d and %2$d characters after variable replacement. Do you still wish to submit your settings?"
+msgstr "La description doit contenir entre %1$d et %2$d caractères après le remplacement des variables. Souhaitez-vous toujours enregistrer vos réglages ?"
+
+#. translators: "%1$s": the reason for the refund process.
+#: includes/traits/trait-stancer-refunds.php:133
+msgid "Reason for refund: %1$s"
+msgstr "Raison du remboursement : %1$s"
+
+#. translators: "%1$.2f": the amount refunded. "%2$s": the currency.
+#: includes/traits/trait-stancer-refunds.php:121
+msgid "The payment has been fully refunded of %1$.2f %2$s via Stancer."
+msgstr "Le paiement de %1$.2f %2$s a été intégralement remboursé via Stancer."
+
+#. translators: "%1$.2f": Amount refunded. "%2$s": Currency. "%3$.2f": Total
+#. amount after all refunds.
+#: includes/traits/trait-stancer-refunds.php:110
+msgid "The payment has been partially refunded of %1$.2f %2$s, the payment is now of: %3$.2f %2$s."
+msgstr "Le paiement de %1$.2f %2$s a été partiellement remboursé, son montant est désormais de %3$.2f %2$s."
+
+#: includes/class-stancer-gateway.php:183
+msgid "Stancer plugin is not properly configured."
+msgstr "L’extension Stancer n’est pas correctement configurée."
+
+#: includes/class-stancer-gateway.php:177
+msgid "Payments can not be done with Stancer. Please setup your API keys."
+msgstr "Les paiements ne peuvent pas être effectués avec Stancer. Veuillez configurer vos clés de l’API."
+
+#. translators: "%1$s": the mode in which our API is (test mode or Live mode).
+#: includes/class-stancer-gateway.php:166
+msgid "You are on %1$s mode but your %1$s keys are not properly setup."
+msgstr "Vous êtes en mode %1$s, mais vos clés %1$s ne sont pas correctement configurées."
+
+#. translators: "%1f$.02f": refunded payment sums. "%2$.02f": the amount still
+#. refundable. "%3$s":  the currency of the transaction.
+#: includes/class-stancer-api.php:112
+msgid "You cannot refund %1$.02f %3$s, the order total with the already accounted refund is %2$.02f %3$s."
+msgstr "Vous ne pouvez pas rembourser %1$.02f %3$s, le total de la commande après prise en compte des remboursements déjà effectués est de %2$.02f %3$s."
+
+#: includes/class-stancer-api.php:91
+msgid "A refund must be above 50 cents"
+msgstr "Le montant du remboursement doit être supérieur à 50 centimes"
+
+#: includes/class-stancer-api.php:87
+msgid "You cannot refund a null amount"
+msgstr "Vous ne pouvez pas effectuer un remboursement d’un montant nul"
+
+#: includes/Controller/class-stancer-change-payment-method.php:154
+#: subscription/change-payment-method.php:142
+msgid "Payment method changed successfully."
+msgstr "Moyen de paiement modifié avec succès."
+
+#: includes/Controller/class-stancer-change-payment-method.php:151
+#: subscription/change-payment-method.php:139
+msgid "This method has not been validated. Please try a new one."
+msgstr "Ce moyen de paiement n’a pas été validé. Veuillez en essayer un autre."
+
+#: stancer.php:107
+msgid "Customer Account"
+msgstr "Compte client"
+
+#: stancer.php:106
+msgid "Go to Stancer Customer Account"
+msgstr "Accéder au compte client Stancer"
+
+#: stancer.php:98
+msgid "View Stancer module settings"
+msgstr "Voir les réglages du module Stancer"
+
+#: includes/traits/trait-stancer-subscription.php:263
+msgid "Your subscription renewal transaction has been successfully submitted."
+msgstr "La transaction de renouvellement de votre abonnement a été soumise avec succès."
+
+#. translators: "%1$s": Error code. "%2$s": Error message.
+#: includes/traits/trait-stancer-subscription.php:249
+msgid "The transaction for renewing your subscription has failed. (%1$s: %2$s)"
+msgstr "La transaction de renouvellement de votre abonnement a échoué. (%1$s : %2$s)"
+
+#. translators: "%1$s": Error code. "%2$s": Error message. "%3$s". Exception
+#. name.
+#: includes/traits/trait-stancer-subscription.php:237
+msgid "The transaction for renewing your subscription has failed. (%3$s: [%1$s] %2$s)"
+msgstr "La transaction de renouvellement de votre abonnement a échoué. (%3$s : [%1$s] %2$s)"
+
+#: includes/traits/trait-stancer-subscription.php:222
+msgid "We regret to inform you that the payment has been declined. Please consider using an alternative card."
+msgstr "Nous sommes désolés de vous informer que le paiement a été refusé. Veuillez utiliser une autre carte."
+
+#. translators: "%s": Payment status.
+#: includes/traits/trait-stancer-subscription.php:220
+msgid "The payment is not in a valid status (%s)."
+msgstr "Le paiement ne semble pas avoir un statut valide (%s)."
+
+#. translators: "%s": Payment id or transaction id.
+#: includes/traits/trait-stancer-subscription.php:207
+msgid "Your payment has been successfully processed through Stancer. (Transaction ID: %s)"
+msgstr "Votre paiement a été traité avec succès via Stancer. (ID de transaction : %s)"
+
+#: includes/traits/trait-stancer-subscription.php:194
+msgid "Something went wrong, the renewal payment is incomplete."
+msgstr "Une erreur est survenue, le paiement de renouvellement est incomplet."
+
+#. translators: "%1$d": Subscription ID. "%2$d": Current order ID. This text
+#. shouldn't be longer than 64 characters!
+#: includes/subscriptions/class-stancer-renewal-builder.php:124
+msgid "Renewal payment for subscription n°%1$d, order n°%2$d"
+msgstr "Renouvellement de l'abonnement n°%1$d, commande n°%2$d"
+
+#: includes/subscriptions/class-stancer-renewal-builder.php:104
+msgid "No card found for this subscription."
+msgstr "Aucune carte trouvé pour cet abonnement."
+
+#: includes/traits/trait-stancer-subscription.php:170
+msgid "We were unable to find the subscription."
+msgstr "Nous n’avons pas pu trouver l’abonnement."
+
+#. translators: "%s": Currency.
+#: includes/traits/trait-stancer-subscription.php:183
+msgid "In order to use this payment method, the minimum required order total is 0.50 %s."
+msgstr "Pour utiliser ce mode de paiement, le minimum de commande requis est de 0,50 %s."
+
+#: includes/class-stancer-gateway.php:841
+#: includes/traits/trait-stancer-refunds.php:92
+#: includes/traits/trait-stancer-subscription.php:164
+msgid "The module is not correctly configured."
+msgstr "Le module n’est pas correctement configuré."
+
+#: includes/class-stancer-gateway.php:660
+msgid "Inside the page"
+msgstr "Intégré à la page"
+
+#: includes/class-stancer-gateway.php:651
+msgid "Behavior"
+msgstr "Comportement"
+
+#: includes/class-stancer-gateway.php:626
+msgid "Authentication"
+msgstr "Authentification"
+
+#: includes/class-stancer-gateway.php:620 includes/class-stancer.php:324
+msgid "An authorization request without an amount will be made in order to validate the new method."
+msgstr "Une demande d’autorisation sans montant sera effectuée afin de valider le nouveau moyen de paiement."
+
+#: includes/class-stancer-gateway.php:579
+msgid "Payment method change description"
+msgstr "Description du changement de moyen de paiement"
+
+#: includes/class-stancer-gateway.php:578
+msgid "Description shown to the customer during payment method change."
+msgstr "La description présentée au client lors du changement de moyen de paiement."
+
+#: includes/class-stancer-gateway.php:567
+msgid "Payment option logo"
+msgstr "Logo de l’option de paiement"
+
+#: includes/class-stancer-gateway.php:566
+msgid "Card logos displayed to the customer during checkout."
+msgstr "Les logos des cartes sont affichés au client lors du paiement."
+
+#: includes/class-stancer-gateway.php:560
+msgid "Payment option description"
+msgstr "Description de l’option de paiement"
+
+#: includes/class-stancer-gateway.php:559
+msgid "Payment method description shown to the customer during checkout."
+msgstr "La description présentée au client lors de la commande."
+
+#: includes/class-stancer-gateway.php:553
+msgid "Payment method title shown to the customer during checkout."
+msgstr "Le titre est présenté au client lors de la commande."
+
+#: includes/class-stancer-gateway.php:552
+msgid "Credit card / Debit card"
+msgstr "Carte de crédit/Carte de débit"
+
+#: includes/class-stancer-gateway.php:365
+msgid "Every supported schemes logos with full Stancer logo."
+msgstr "Tous les types de cartes supportés suivi du logo complet Stancer."
+
+#: includes/class-stancer-gateway.php:364
+msgid "Every supported schemes logos suffixed with Stancer logo."
+msgstr "Tous les types de cartes supportés suivi du logo Stancer."
+
+#: includes/class-stancer-gateway.php:363
+msgid "Every supported schemes logos."
+msgstr "Tous les types de cartes supportés."
+
+#: includes/class-stancer-gateway.php:362
+msgid "Every supported schemes logos prefixed with Stancer logo."
+msgstr "Tous les types de cartes supportés préfixé par le logo Stancer."
+
+#: includes/class-stancer-gateway.php:361
+msgid "Main schemes logos with full Stancer logo."
+msgstr "Les principaux types de cartes suivi de logo complet Stancer."
+
+#: includes/class-stancer-gateway.php:360
+msgid "Main schemes logos suffixed with Stancer logo."
+msgstr "Les principaux types de cartes suivi de logo Stancer."
+
+#: includes/class-stancer-gateway.php:359
+msgid "Main schemes logos."
+msgstr "Les principaux types de cartes."
+
+#: includes/class-stancer-gateway.php:358
+msgid "Main schemes logos prefixed with Stancer logo."
+msgstr "Les principaux types de cartes préfixé par le logo Stancer."
+
+#: includes/class-stancer-gateway.php:357
+msgid "Stancer logo."
+msgstr "Logo Stancer."
+
+#: includes/class-stancer-gateway.php:356
+msgid "No logo."
+msgstr "Aucun logo."
+
+#: includes/class-stancer-gateway.php:778
+msgid "You will be redirected to our partner's portal to make the payment."
+msgstr "Vous allez être redirigé vers le portail de notre partenaire de paiement."
+
+#. translators: "%1$s": Card brand. "%2$s": Last 4.
+#: includes/Controller/class-stancer-change-payment-method.php:219
+#: subscription/change-payment-method.php:34
+msgid "%1$s finishing with %2$s"
+msgstr "%1$s finissant par %2$s"
+
+#. translators: "%s": Stancer payment identifier.
+#: includes/class-stancer-gateway.php:904
+msgid "Payment was completed via Stancer (Transaction ID: %s)"
+msgstr "Le paiement a été complété via Stancer (ID Transaction : %s)"
+
+#: includes/class-stancer-gateway.php:877
+msgid "The payment attempt failed."
+msgstr "La tentative de paiement a échouée."
+
+#: includes/class-stancer-gateway.php:790
+msgid "Place order"
+msgstr "Commander"
+
+#: includes/class-stancer-gateway.php:328
+#: includes/class-stancer-gateway.php:676
+msgid "Description"
+msgstr "Description"
+
+#: includes/class-stancer-gateway.php:538
+msgid "Currency of the order"
+msgstr "Devise de la commande"
+
+#: includes/class-stancer-gateway.php:537
+msgid "Total amount"
+msgstr "Montant total"
+
+#: includes/class-stancer-gateway.php:536
+msgid "Shop name configured in WooCommerce"
+msgstr "Nom de la boutique configuré dans WooCommerce"
+
+#: includes/class-stancer-gateway.php:520
+msgid "List of available variables:"
+msgstr "Liste des variables disponibles :"
+
+#: includes/class-stancer-gateway.php:666
+msgid "Will be used as description for every payment made, and will be visible to your customer in redirect mode."
+msgstr "Sera utilisé comme description pour chaque paiement, celle-ci sera visible pour vos clients en mode redirection."
+
+#: includes/class-stancer-gateway.php:661
+msgid "Redirect to an external page"
+msgstr "Rediriger vers une page externe"
+
+#: includes/class-stancer-gateway.php:657
+#: includes/class-stancer-gateway.php:658
+msgid "Page type"
+msgstr "Type de page"
+
+#: includes/class-stancer-gateway.php:646
+msgid "Test mode"
+msgstr "Mode test"
+
+#: includes/class-stancer-gateway.php:645
+msgid "Enable test mode"
+msgstr "Activer le mode test"
+
+#: includes/class-stancer-gateway.php:641
+msgid "In test mode, no payment will be sent to a bank, only test card can be used."
+msgstr "En mode test, aucun paiement ne sera envoyé à une banque, seules les cartes de test sont utilisables."
+
+#: stancer.php:99
+msgid "Settings"
+msgstr "Réglages"
+
+#: includes/class-stancer-gateway.php:547
+msgid "Enable/Disable"
+msgstr "Activer/Désactiver"
+
+#: includes/class-stancer-gateway.php:546
+msgid "Enable Stancer"
+msgstr "Activer Stancer"
+
+#: includes/class-stancer-gateway.php:554
+msgid "Title"
+msgstr "Titre"
+
+#: includes/class-stancer-gateway-block-support.php:91
+msgid "Pay by card"
+msgstr "Payer par carte"
+
+#: includes/class-stancer-gateway.php:491
+msgid "Secret test API key"
+msgstr "Clé de l’API secrète (test)"
+
+#: includes/class-stancer-gateway.php:496
+msgid "Public test API key"
+msgstr "Clé de l’API publique (test)"
+
+#: includes/class-stancer-gateway.php:481
+msgid "Secret live API key"
+msgstr "Clé de l’API secrète (production)"
+
+#: includes/class-stancer-gateway.php:486
+msgid "Public live API key"
+msgstr "Clé de l’API publique (production)"
+
+#. translators: "%s": Key prefixes (aka sprod, pprod, stest or ptest).
+#: includes/class-stancer-gateway.php:475
+msgid "Starts with \"%s\""
+msgstr "Commence avec \"%s\""
+
+#. Author URI of the plugin
+#: stancer.php
+msgid "https://www.stancer.com/"
+msgstr "https://www.stancer.com/fr/"
+
+#. Description of the plugin
+#: stancer.php includes/class-stancer-gateway.php:76
+msgid "Simple payment solution at low prices."
+msgstr "La solution de paiement simple à petit prix."
+
+#. Plugin URI of the plugin
+#: stancer.php
+msgid "https://gitlab.com/wearestancer/cms/woocommerce"
+msgstr "https://gitlab.com/wearestancer/cms/woocommerce"
+
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: stancer.php
+msgid "Stancer"
+msgstr "Stancer"

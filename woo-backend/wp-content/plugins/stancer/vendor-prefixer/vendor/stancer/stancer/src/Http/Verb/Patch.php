@@ -1,0 +1,13 @@
+<?php
+
+declare (strict_types=1);
+namespace Stancer\Scoped\Isolated\Stancer\Http\Verb;
+
+/**
+ * HTTP PATCH.
+ * @internal
+ */
+class Patch extends AbstractVerb
+{
+    protected bool $isAllowed = \true;
+}

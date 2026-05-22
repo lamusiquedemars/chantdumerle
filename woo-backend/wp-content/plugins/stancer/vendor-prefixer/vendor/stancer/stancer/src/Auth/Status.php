@@ -1,0 +1,21 @@
+<?php
+
+declare (strict_types=1);
+namespace Stancer\Scoped\Isolated\Stancer\Auth;
+
+/**
+ * List of a auth status.
+ * @internal
+ */
+enum Status : string
+{
+    case ATTEMPTED = 'attempted';
+    case AVAILABLE = 'available';
+    case DECLINED = 'declined';
+    case EXPIRED = 'expired';
+    case FAILED = 'failed';
+    case REQUEST = 'request';
+    case REQUESTED = 'requested';
+    case SUCCESS = 'success';
+    case UNAVAILABLE = 'unavailable';
+}
