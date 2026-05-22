@@ -2,13 +2,7 @@ import Container from "@/components/layout/Container/Container";
 import Section from "@/components/layout/Section/Section";
 import SectionHeading from "@/components/ui/SectionHeading/SectionHeading";
 
-type SelectionsPageProps = {
-  params: {
-    locale: string;
-  };
-};
-
-export default function SelectionsPage({ params }: SelectionsPageProps) {
+export default function SelectionsPage() {
   return (
     <Section>
       <Container>

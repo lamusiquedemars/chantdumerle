@@ -3,6 +3,7 @@ import Header from "@/components/layout/Header/Header";
 import { mainNavItems } from "@/data/navigation";
 import Footer from "@/components/layout/Footer/Footer";
 import { footerLinks } from "@/data/footer";
+import type { ReactNode } from "react";
 import "./globals.css";
 
 // Police de titres.
@@ -15,7 +16,11 @@ const sourceSans = Source_Sans_3({ subsets: ["latin"] });
 
 // Layout racine de l'application.
 // Il enveloppe toutes les pages avec la structure HTML commune.
-export default function RootLayout({ children }: any) {
+type RootLayoutProps = {
+  children: ReactNode;
+};
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="fr">
       <body className={`${cormorant.className} ${sourceSans.className}`}>

@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import styles from "./EntryGrid.module.css";
 import LinkCard from "@/components/ui/LinkCard/LinkCard";
-import type { ReactNode } from "react";
 
 export type EntryGridItem = {
   label: string;

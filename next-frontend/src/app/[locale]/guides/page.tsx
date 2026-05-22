@@ -12,8 +12,14 @@ import GuideList from "@/components/guide/GuideList/GuideList";
 
 import { guideItems } from "@/data/guides";
 
-export default function GuidesPage({ params }: { params: { locale: string } }) {
-  const { locale } = params;
+type GuidesPageProps = {
+  params: Promise<{
+    locale: string;
+  }>;
+};
+
+export default async function GuidesPage({ params }: GuidesPageProps) {
+  const { locale } = await params;
 
   const entryItems = [
     {

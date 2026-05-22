@@ -1,4 +1,4 @@
-import { getFeaturedStringProducts, getFeaturedProducts } from "@/lib/wordpress/products";
+import { getFeaturedProducts } from "@/lib/wordpress/products";
 import Hero from "@/components/blocks/Hero/Hero";
 import TextBlock from "@/components/blocks/TextBlock/TextBlock";
 import EntryGrid from "@/components/blocks/EntryGrid/EntryGrid";
@@ -12,11 +12,16 @@ import LinkButton from "@/components/ui/LinkButton/LinkButton";
 
 import SelectionGrid from "@/components/selection/SelectionGrid/SelectionGrid";
 import GuideList from "@/components/guide/GuideList/GuideList";
-import ProductGrid from "@/components/product/ProductGrid/ProductGrid";
 import ProductCarousel from "@/components/product/ProductCarousel/ProductCarousel"; 
 
-export default async function HomePage({ params }: { params: { locale: string } }) {
-  const { locale } = params;
+type HomePageProps = {
+  params: Promise<{
+    locale: string;
+  }>;
+};
+
+export default async function HomePage({ params }: HomePageProps) {
+  const { locale } = await params;
   const instrumentEntries = [
     {
       label: "Violon",

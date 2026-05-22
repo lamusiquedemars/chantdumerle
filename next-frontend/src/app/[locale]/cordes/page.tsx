@@ -13,13 +13,13 @@ import SectionHeading from "@/components/ui/SectionHeading/SectionHeading";
 import { getFeaturedStringProducts } from "@/lib/wordpress/products";
 
 type CordesPageProps = {
-  params: {
+  params: Promise<{
     locale: string;
-  };
+  }>;
 };
 
 export default async function CordesPage({ params }: CordesPageProps) {
-  const { locale } = params;
+  const { locale } = await params;
 
   /*
    * Petite fonction locale pour construire les liens avec la langue active.
