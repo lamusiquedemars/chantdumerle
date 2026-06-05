@@ -89,6 +89,13 @@ type ProductsResponse = {
   };
 };
 
+type ProductsByCategoryAliasResponse = Record<
+  string,
+  {
+    nodes: GraphQLProductNode[];
+  }
+>;
+
 const PRODUCT_DETAIL_BASE_PATH = "produits";
 
 function logWordPressProductError(context: string, error: unknown) {
@@ -217,6 +224,63 @@ export async function getProductsByCategory(
   }
 }
 
+async function getProductsByCategories(
+  locale: string = "fr",
+  categorySlugs: string[],
+  first = 12
+): Promise<ProductCardItem[]> {
+  try {
+    const variables = Object.fromEntries(
+      categorySlugs.map((categorySlug, index) => [`categorySlug${index}`, categorySlug])
+    );
+    const categoryQueries = categorySlugs
+      .map(
+        (_categorySlug, index) => `
+          category${index}: products(
+            first: $first
+            where: { category: $categorySlug${index} }
+          ) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
+          }
+        `
+      )
+      .join("\n");
+    const categoryVariables = categorySlugs
+      .map((_categorySlug, index) => `$categorySlug${index}: String!`)
+      .join(", ");
+
+    const data = (await fetchGraphQL(
+      `
+        query GetProductsByCategories($first: Int!, ${categoryVariables}) {
+          ${categoryQueries}
+        }
+      `,
+      { first, ...variables }
+    )) as ProductsByCategoryAliasResponse;
+
+    const productsByHref = new Map<string, ProductCardItem>();
+
+    for (const category of Object.values(data)) {
+      for (const product of category.nodes) {
+        const productCard = mapProductToCard(product, locale);
+        productsByHref.set(productCard.href, productCard);
+      }
+    }
+
+    return [...productsByHref.values()].slice(0, first);
+  } catch (error) {
+    logWordPressProductError(
+      `Unable to load WooCommerce products for categories "${categorySlugs.join(
+        ", "
+      )}"`,
+      error
+    );
+    return [];
+  }
+}
+
 /*
  * Sécurise la locale pour éviter de générer des URLs en /undefined/...
  */
@@ -270,6 +334,66 @@ export async function getFeaturedProductsByCategory(
   }
 }
 
+async function getFeaturedProductsByCategories(
+  locale: string = "fr",
+  categorySlugs: string[],
+  first = 8
+): Promise<ProductCardItem[]> {
+  try {
+    const variables = Object.fromEntries(
+      categorySlugs.map((categorySlug, index) => [`categorySlug${index}`, categorySlug])
+    );
+    const categoryQueries = categorySlugs
+      .map(
+        (_categorySlug, index) => `
+          category${index}: products(
+            first: $first
+            where: {
+              featured: true
+              category: $categorySlug${index}
+            }
+          ) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
+          }
+        `
+      )
+      .join("\n");
+    const categoryVariables = categorySlugs
+      .map((_categorySlug, index) => `$categorySlug${index}: String!`)
+      .join(", ");
+
+    const data = (await fetchGraphQL(
+      `
+        query GetFeaturedProductsByCategories($first: Int!, ${categoryVariables}) {
+          ${categoryQueries}
+        }
+      `,
+      { first, ...variables }
+    )) as ProductsByCategoryAliasResponse;
+
+    const productsByHref = new Map<string, ProductCardItem>();
+
+    for (const category of Object.values(data)) {
+      for (const product of category.nodes) {
+        const productCard = mapProductToCard(product, locale);
+        productsByHref.set(productCard.href, productCard);
+      }
+    }
+
+    return [...productsByHref.values()].slice(0, first);
+  } catch (error) {
+    logWordPressProductError(
+      `Unable to load featured WooCommerce products for categories "${categorySlugs.join(
+        ", "
+      )}"`,
+      error
+    );
+    return [];
+  }
+}
+
 /*
  * Cordes mises en avant.
  */
@@ -277,7 +401,7 @@ export async function getFeaturedStringProducts(
   locale: string = "fr",
   first = 8
 ): Promise<ProductCardItem[]> {
-  return getFeaturedProductsByCategory(locale, "cordes", first);
+  return getFeaturedProductsByCategories(locale, STRING_CATEGORY_SLUGS, first);
 }
 
 /*
@@ -287,8 +411,10 @@ export async function getStringProducts(
   locale: string = "fr",
   first = 24
 ): Promise<ProductCardItem[]> {
-  return getProductsByCategory(locale, "cordes", first);
+  return getProductsByCategories(locale, STRING_CATEGORY_SLUGS, first);
 }
+
+const STRING_CATEGORY_SLUGS = ["violon", "alto", "violoncelle", "contrebasse"];
 
 const STRING_INSTRUMENT_CATEGORY_SLUGS: Record<string, string> = {
   violon: "violon",
