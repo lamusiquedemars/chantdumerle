@@ -1,12 +1,5 @@
 import type { ProductCardItem } from "@/modules/catalog/components/ProductCard/ProductCard";
-import {
-  fetchGraphQL,
-  hasWordPressEndpoint,
-} from "@/lib/wordpress/client";
-import {
-  getExampleProductCards,
-  getExampleProductPageBySlug,
-} from "@/modules/catalog/content/exampleProducts";
+import { fetchGraphQL } from "@/lib/wordpress/client";
 
 /*
  * Champs communs aux produits simples et variables.
@@ -131,18 +124,12 @@ type ProductsResponse = {
 
 const PRODUCT_DETAIL_BASE_PATH = "produits";
 
-function fallbackProductCards(
-  locale: string,
-  first: number,
-  error: unknown
-): ProductCardItem[] {
-  console.warn(
+function logWordPressProductError(context: string, error: unknown) {
+  console.error(
     error instanceof Error
-      ? `WordPress products unavailable, using local fallback: ${error.message}`
-      : "WordPress products unavailable, using local fallback."
+      ? `${context}: ${error.message}`
+      : context
   );
-
-  return getExampleProductCards(locale, first);
 }
 
 /*
@@ -173,10 +160,6 @@ export async function getProducts(
   locale: string = "fr",
   first = 12
 ): Promise<ProductCardItem[]> {
-  if (!hasWordPressEndpoint) {
-    return getExampleProductCards(locale, first);
-  }
-
   try {
     const data = (await fetchGraphQL(
       `
@@ -195,7 +178,8 @@ export async function getProducts(
       mapProductToCard(product, locale)
     );
   } catch (error) {
-    return fallbackProductCards(locale, first, error);
+    logWordPressProductError("Unable to load WooCommerce products", error);
+    return [];
   }
 }
 
@@ -206,10 +190,6 @@ export async function getFeaturedProducts(
   locale: string = "fr",
   first = 8
 ): Promise<ProductCardItem[]> {
-  if (!hasWordPressEndpoint) {
-    return getExampleProductCards(locale, first);
-  }
-
   try {
     const data = (await fetchGraphQL(
       `
@@ -228,7 +208,11 @@ export async function getFeaturedProducts(
       mapProductToCard(product, locale)
     );
   } catch (error) {
-    return fallbackProductCards(locale, first, error);
+    logWordPressProductError(
+      "Unable to load featured WooCommerce products",
+      error
+    );
+    return [];
   }
 }
 
@@ -240,10 +224,6 @@ export async function getProductsByCategory(
   categorySlug: string,
   first = 12
 ): Promise<ProductCardItem[]> {
-  if (!hasWordPressEndpoint) {
-    return getExampleProductCards(locale, first);
-  }
-
   try {
     const data = (await fetchGraphQL(
       `
@@ -262,7 +242,11 @@ export async function getProductsByCategory(
       mapProductToCard(product, locale)
     );
   } catch (error) {
-    return fallbackProductCards(locale, first, error);
+    logWordPressProductError(
+      `Unable to load WooCommerce products for category "${categorySlug}"`,
+      error
+    );
+    return [];
   }
 }
 
@@ -284,10 +268,6 @@ export async function getFeaturedProductsByCategory(
   categorySlug: string,
   first = 8
 ): Promise<ProductCardItem[]> {
-  if (!hasWordPressEndpoint) {
-    return getExampleProductCards(locale, first);
-  }
-
   try {
     const data = (await fetchGraphQL(
       `
@@ -315,7 +295,11 @@ export async function getFeaturedProductsByCategory(
       mapProductToCard(product, locale)
     );
   } catch (error) {
-    return fallbackProductCards(locale, first, error);
+    logWordPressProductError(
+      `Unable to load featured WooCommerce products for category "${categorySlug}"`,
+      error
+    );
+    return [];
   }
 }
 
@@ -348,10 +332,6 @@ export async function getStringProductsByInstrument(
   instrumentSlug: string,
   first = 48
 ): Promise<ProductCardItem[]> {
-  if (!hasWordPressEndpoint) {
-    return getExampleProductCards(locale, first);
-  }
-
   try {
     const data = (await fetchGraphQL(
       `
@@ -374,7 +354,11 @@ export async function getStringProductsByInstrument(
       )
       .map((product) => mapProductToCard(product, locale));
   } catch (error) {
-    return fallbackProductCards(locale, first, error);
+    logWordPressProductError(
+      `Unable to load WooCommerce string products for instrument "${instrumentSlug}"`,
+      error
+    );
+    return [];
   }
 }
 
@@ -762,32 +746,36 @@ export function mapProductToPageItem(
 export async function getProductPageBySlug(
   slug: string
 ): Promise<ProductPageItem | null> {
-  if (!hasWordPressEndpoint) {
-    return getExampleProductPageBySlug(slug);
-  }
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetProductPageBySlug($slug: ID!) {
+          product(id: $slug, idType: SLUG) {
+            __typename
 
-  const data = (await fetchGraphQL(
-    `
-      query GetProductPageBySlug($slug: ID!) {
-        product(id: $slug, idType: SLUG) {
-          __typename
+            ... on SimpleProduct {
+              ${PRODUCT_PAGE_FIELDS}
+            }
 
-          ... on SimpleProduct {
-            ${PRODUCT_PAGE_FIELDS}
-          }
-
-          ... on VariableProduct {
-            ${PRODUCT_PAGE_FIELDS}
+            ... on VariableProduct {
+              ${PRODUCT_PAGE_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { slug }
-  )) as ProductPageResponse;
+      `,
+      { slug }
+    )) as ProductPageResponse;
 
-  if (!data.product) {
+    if (!data.product) {
+      return null;
+    }
+
+    return mapProductToPageItem(data.product);
+  } catch (error) {
+    logWordPressProductError(
+      `Unable to load WooCommerce product "${slug}"`,
+      error
+    );
     return null;
   }
-
-  return mapProductToPageItem(data.product);
 }
