@@ -1,0 +1,40 @@
+/* ProductGrid
+   -------------------------------------------------------------------------- */
+/* Grille responsive pour lister des cartes produit.
+   Objectif :
+   - structure simple et propre
+   - bonne densité visuelle
+   - réutilisable sur pages catalogue, sélections, produits liés
+*/
+
+.grid {
+  display: grid;
+
+  /* 1 colonne mobile, puis colonnes fluides dès que l’espace le permet */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+
+  /* Espacement cohérent avec les tokens du design system */
+  gap: var(--space-24);
+
+  /* La grille prend toute la largeur disponible */
+  width: 100%;
+
+  /* Alignement visuel propre entre cartes de hauteurs différentes */
+  align-items: start;
+}
+
+/* Tablet / petit desktop :
+   on aère légèrement la grille */
+@media (min-width: 768px) {
+  .grid {
+    gap: var(--space-32);
+  }
+}
+
+/* Grand desktop :
+   seuil minimal un peu plus confortable pour garder une vraie présence produit */
+@media (min-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}

@@ -1,0 +1,39 @@
+/* Block root
+   Wrapper simple et lisible autour de la grille produits d'une sélection */
+.selectionProducts {
+  display: grid;
+  gap: var(--space-24);
+}
+
+/* Section title
+   Titre éditorial sobre, avec hiérarchie nette mais sans effet décoratif excessif */
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-tight);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+/* Large screens
+   On laisse un peu plus respirer le bloc quand la grille prend de l'ampleur */
+@media (min-width: 768px) {
+  .selectionProducts {
+    gap: var(--space-32);
+  }
+}
+
+/* Small screens
+   On resserre légèrement le rythme vertical sans casser la lisibilité */
+@media (max-width: 767px) {
+  .selectionProducts {
+    gap: var(--space-16);
+  }
+
+  .title {
+    font-size: clamp(1.5rem, 4vw, var(--fs-h2));
+  }
+}

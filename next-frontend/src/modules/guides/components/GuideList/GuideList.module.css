@@ -1,0 +1,45 @@
+/* GuideList
+   ----------
+   Rôle :
+   conteneur de cartes de guides.
+
+   Principes :
+   - grille simple et stable
+   - lisibilité immédiate
+   - espacement cohérent avec les tokens
+   - responsive sans effet décoratif inutile
+*/
+
+.list {
+  /* grille responsive propre :
+     chaque carte prend toute la largeur disponible
+     avec une base confortable pour desktop */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-24);
+
+  /* sécurité :
+     évite qu'un parent flex ou grid provoque un débordement */
+  width: 100%;
+  min-width: 0;
+
+  /* alignement homogène des cartes si leurs hauteurs diffèrent */
+  align-items: stretch;
+}
+
+/* breakpoint intermédiaire :
+   on laisse respirer un peu plus la grille sur écran large */
+@media (min-width: 768px) {
+  .list {
+    gap: var(--space-32);
+  }
+}
+
+/* mobile :
+   une seule colonne nette pour garder une lecture simple */
+@media (max-width: 639px) {
+  .list {
+    grid-template-columns: 1fr;
+    gap: var(--space-24);
+  }
+}

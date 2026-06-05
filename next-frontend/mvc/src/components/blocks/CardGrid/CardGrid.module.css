@@ -1,0 +1,48 @@
+/* 
+  Conteneur principal du composant.
+  Utilise une grille responsive simple, propre et réutilisable.
+*/
+.grid {
+  display: grid;
+
+  /* 
+    Colonnes adaptatives :
+    chaque carte garde une largeur minimale confortable,
+    puis la grille remplit l’espace disponible.
+  */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+
+  /* 
+    Espacement cohérent entre les cartes.
+    Correspond à la charte : aéré mais sans excès.
+  */
+  gap: var(--space-24);
+
+  /* 
+    Les cartes doivent s’aligner naturellement en haut,
+    surtout si certaines descriptions sont plus longues.
+  */
+  align-items: start;
+}
+
+/* 
+  Variante tablette / petit desktop.
+  On resserre légèrement si nécessaire pour garder
+  une densité élégante.
+*/
+@media (max-width: 900px) {
+  .grid {
+    gap: var(--space-16);
+  }
+}
+
+/* 
+  Variante mobile.
+  Une seule colonne lisible et stable,
+  sans effet “cartes écrasées”.
+*/
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

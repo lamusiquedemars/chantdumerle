@@ -1,0 +1,43 @@
+/* Root block
+   Section wrapper for related products.
+   Keeps the component clean, readable, and easy to reuse in other templates.
+*/
+.relatedProducts {
+  display: grid;
+  gap: var(--space-24);
+  padding-block: var(--space-32);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* Section title
+   Serif heading to mark a content transition without creating a heavy visual break.
+*/
+.title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-tight);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-text);
+  text-wrap: balance;
+}
+
+/* Comfortable rhythm on larger screens
+   Gives the block a bit more air when space allows it.
+*/
+@media (min-width: 768px) {
+  .relatedProducts {
+    gap: var(--space-32);
+    padding-block: var(--space-48);
+  }
+}
+
+/* Slightly more presence for the heading on desktop
+   Keeps hierarchy elegant in wider layouts.
+*/
+@media (min-width: 1024px) {
+  .title {
+    max-width: 20ch;
+  }
+}

@@ -13,7 +13,7 @@ type HeaderProps = {
 
   // Données de marque affichées dans le header.
   // logoSrc est optionnel : si aucun logo n'est fourni, on affiche seulement le texte.
-  brand?: {
+  brand: {
     label: string;
     href: string;
     logoSrc?: string;
@@ -25,12 +25,7 @@ type HeaderProps = {
 
 export default function Header({
   navItems,
-  brand = {
-    label: "Le Chant du Merle",
-    href: "/",
-    logoSrc: "/images/brand/logo-cdm.png",
-    logoAlt: "Le Chant du Merle",
-  },
+  brand,
   className,
 }: HeaderProps) {
   // État d'ouverture du menu mobile.

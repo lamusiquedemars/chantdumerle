@@ -1,0 +1,79 @@
+/* ProductCarousel.module.css */
+
+/* Carousel produit simple, manuel, sans autoplay. */
+.carousel {
+  width: 100%;
+}
+
+/* Boutons de navigation. */
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-8);
+  margin-bottom: var(--space-16);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.5rem;
+  height: 2.5rem;
+
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+
+  background: var(--color-white);
+  color: var(--color-text);
+
+  font-size: 1.25rem;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(26, 26, 26, 0.12);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* Piste horizontale scrollable. */
+.track {
+  display: flex;
+  gap: var(--space-24);
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+
+  padding-bottom: var(--space-8);
+
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Une carte = une slide. */
+.item {
+  flex: 0 0 clamp(240px, 78vw, 400px);
+  scroll-snap-align: start;
+}
+
+/* On masque sobrement la scrollbar sur navigateurs compatibles. */
+.track {
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
