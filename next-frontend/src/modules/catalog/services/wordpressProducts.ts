@@ -131,6 +131,20 @@ type ProductsResponse = {
 
 const PRODUCT_DETAIL_BASE_PATH = "produits";
 
+function fallbackProductCards(
+  locale: string,
+  first: number,
+  error: unknown
+): ProductCardItem[] {
+  console.warn(
+    error instanceof Error
+      ? `WordPress products unavailable, using local fallback: ${error.message}`
+      : "WordPress products unavailable, using local fallback."
+  );
+
+  return getExampleProductCards(locale, first);
+}
+
 /*
  * Transforme un produit WooGraphQL en ProductCardItem.
  * La marque vient de pa_marque, pas des catégories.
@@ -163,20 +177,26 @@ export async function getProducts(
     return getExampleProductCards(locale, first);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetProducts($first: Int!) {
-        products(first: $first) {
-          nodes {
-            ${PRODUCT_CARD_FIELDS}
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetProducts($first: Int!) {
+          products(first: $first) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { first }
-  )) as ProductsResponse;
+      `,
+      { first }
+    )) as ProductsResponse;
 
-  return data.products.nodes.map((product) => mapProductToCard(product, locale));
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    return fallbackProductCards(locale, first, error);
+  }
 }
 
 /*
@@ -190,20 +210,26 @@ export async function getFeaturedProducts(
     return getExampleProductCards(locale, first);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetFeaturedProducts($first: Int!) {
-        products(first: $first, where: { featured: true }) {
-          nodes {
-            ${PRODUCT_CARD_FIELDS}
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetFeaturedProducts($first: Int!) {
+          products(first: $first, where: { featured: true }) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { first }
-  )) as ProductsResponse;
+      `,
+      { first }
+    )) as ProductsResponse;
 
-  return data.products.nodes.map((product) => mapProductToCard(product, locale));
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    return fallbackProductCards(locale, first, error);
+  }
 }
 
 /*
@@ -218,20 +244,26 @@ export async function getProductsByCategory(
     return getExampleProductCards(locale, first);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetProductsByCategory($first: Int!, $categorySlug: String!) {
-        products(first: $first, where: { category: $categorySlug }) {
-          nodes {
-            ${PRODUCT_CARD_FIELDS}
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetProductsByCategory($first: Int!, $categorySlug: String!) {
+          products(first: $first, where: { category: $categorySlug }) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { first, categorySlug }
-  )) as ProductsResponse;
+      `,
+      { first, categorySlug }
+    )) as ProductsResponse;
 
-  return data.products.nodes.map((product) => mapProductToCard(product, locale));
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    return fallbackProductCards(locale, first, error);
+  }
 }
 
 /*
@@ -256,29 +288,35 @@ export async function getFeaturedProductsByCategory(
     return getExampleProductCards(locale, first);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetFeaturedProductsByCategory(
-        $first: Int!
-        $categorySlug: String!
-      ) {
-        products(
-          first: $first
-          where: {
-            featured: true
-            category: $categorySlug
-          }
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetFeaturedProductsByCategory(
+          $first: Int!
+          $categorySlug: String!
         ) {
-          nodes {
-            ${PRODUCT_CARD_FIELDS}
+          products(
+            first: $first
+            where: {
+              featured: true
+              category: $categorySlug
+            }
+          ) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { first, categorySlug }
-  )) as ProductsResponse;
+      `,
+      { first, categorySlug }
+    )) as ProductsResponse;
 
-  return data.products.nodes.map((product) => mapProductToCard(product, locale));
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    return fallbackProductCards(locale, first, error);
+  }
 }
 
 /*
@@ -314,26 +352,30 @@ export async function getStringProductsByInstrument(
     return getExampleProductCards(locale, first);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetStringProductsByInstrument($first: Int!) {
-        products(first: $first, where: { category: "cordes" }) {
-          nodes {
-            ${PRODUCT_CARD_WITH_INSTRUMENT_FIELDS}
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetStringProductsByInstrument($first: Int!) {
+          products(first: $first, where: { category: "cordes" }) {
+            nodes {
+              ${PRODUCT_CARD_WITH_INSTRUMENT_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { first }
-  )) as ProductsResponse;
+      `,
+      { first }
+    )) as ProductsResponse;
 
-  return data.products.nodes
-    .filter((product) =>
-      product.allPaInstrument?.nodes.some(
-        (instrument) => instrument.slug === instrumentSlug
+    return data.products.nodes
+      .filter((product) =>
+        product.allPaInstrument?.nodes.some(
+          (instrument) => instrument.slug === instrumentSlug
+        )
       )
-    )
-    .map((product) => mapProductToCard(product, locale));
+      .map((product) => mapProductToCard(product, locale));
+  } catch (error) {
+    return fallbackProductCards(locale, first, error);
+  }
 }
 
 /*

@@ -1,4 +1,5 @@
 const endpoint = process.env.WP_GRAPHQL_URL;
+const WORDPRESS_FETCH_TIMEOUT_MS = 3500;
 
 export const hasWordPressEndpoint = Boolean(endpoint);
 
@@ -10,17 +11,40 @@ export async function fetchGraphQL(query: string, variables = {}) {
     throw new Error("WP_GRAPHQL_URL is not defined");
   }
 
-  const res = await fetch(endpoint!, {
-    method: "POST",
-    headers: {  
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-    next: { revalidate: 60 },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    WORDPRESS_FETCH_TIMEOUT_MS
+  );
+
+  let res: Response;
+
+  try {
+    res = await fetch(endpoint!, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+      next: { revalidate: 60 },
+      signal: controller.signal,
+    });
+  } catch (error) {
+    throw new Error(
+      error instanceof Error
+        ? `WordPress GraphQL request failed: ${error.message}`
+        : "WordPress GraphQL request failed"
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!res.ok) {
+    throw new Error(`WordPress GraphQL HTTP ${res.status}`);
+  }
 
   const json = await res.json();
 
