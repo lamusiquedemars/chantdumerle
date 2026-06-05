@@ -8,6 +8,7 @@
   display: grid;
   gap: var(--space-16);
   align-items: end;
+  margin-bottom: var(--space-32);
 }
 
 /*

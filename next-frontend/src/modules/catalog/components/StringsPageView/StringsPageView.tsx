@@ -5,20 +5,37 @@ import Section from "@/components/layout/Section/Section";
 import SectionHeading from "@/components/ui/SectionHeading/SectionHeading";
 import ProductGrid from "@/modules/catalog/components/ProductGrid/ProductGrid";
 import type { ProductCardItem } from "@/modules/catalog/components/ProductCard/ProductCard";
+import ProductFilters, {
+  type ProductFilterGroup,
+} from "@/modules/catalog/components/ProductFilters/ProductFilters";
 import type { StringsContent } from "@/modules/catalog/types";
 import GuideList from "@/modules/guides/components/GuideList/GuideList";
 import SelectionGrid from "@/modules/selections/components/SelectionGrid/SelectionGrid";
 
 type StringsPageViewProps = {
   content: StringsContent;
-  featuredProducts: ProductCardItem[];
+  products: ProductCardItem[];
+  filters?: ProductFilterGroup[];
+  activeFilters?: Record<string, string>;
+  activeInstrumentLabel?: string;
 };
 
 // Vue de l'univers cordes, gardee dans le module catalogue.
 export default function StringsPageView({
   content,
-  featuredProducts,
+  products,
+  filters = [],
+  activeFilters = {},
+  activeInstrumentLabel,
 }: StringsPageViewProps) {
+  const productsTitle = activeInstrumentLabel
+    ? `Cordes pour ${activeInstrumentLabel.toLowerCase()}`
+    : content.products.title;
+
+  const productsSubtitle = activeInstrumentLabel
+    ? `La sélection adaptée aux cordes ${activeInstrumentLabel.toLowerCase()}, avec les mêmes repères de choix et de comparaison.`
+    : content.products.subtitle;
+
   return (
     <>
       <Hero
@@ -30,11 +47,19 @@ export default function StringsPageView({
       <Section>
         <Container>
           <SectionHeading
-            title={content.products.title}
-            subtitle={content.products.subtitle}
+            title={productsTitle}
+            subtitle={productsSubtitle}
           />
 
-          <ProductGrid items={featuredProducts} />
+          {filters.length > 0 ? (
+            <ProductFilters filters={filters} values={activeFilters} />
+          ) : null}
+
+          {products.length > 0 ? (
+            <ProductGrid items={products} />
+          ) : (
+            <p>Aucune corde ne correspond encore à ce filtre.</p>
+          )}
         </Container>
       </Section>
 
