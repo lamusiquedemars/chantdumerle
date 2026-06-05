@@ -1,1 +1,0 @@
-/Users/ivocorreiademelo/Sites/chantdumerle/wp/wp-content/plugins/query-monitor/wp-content/db.php

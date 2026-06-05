@@ -51,39 +51,6 @@ const PRODUCT_CARD_FIELDS = `
   }
 `;
 
-/*
- * Fragment utilisé quand on doit aussi connaître l’instrument.
- */
-const PRODUCT_CARD_WITH_INSTRUMENT_FIELDS = `
-  __typename
-
-  ... on SimpleProduct {
-    ${PRODUCT_CARD_CORE_FIELDS}
-    allPaInstrument {
-      nodes {
-        name
-        slug
-      }
-    }
-    price
-    regularPrice
-    salePrice
-  }
-
-  ... on VariableProduct {
-    ${PRODUCT_CARD_CORE_FIELDS}
-    allPaInstrument {
-      nodes {
-        name
-        slug
-      }
-    }
-    price
-    regularPrice
-    salePrice
-  }
-`;
-
 type GraphQLProductNode = {
   __typename: "SimpleProduct" | "VariableProduct" | string;
   name: string;
@@ -323,43 +290,30 @@ export async function getStringProducts(
   return getProductsByCategory(locale, "cordes", first);
 }
 
+const STRING_INSTRUMENT_CATEGORY_SLUGS: Record<string, string> = {
+  violon: "violon",
+  alto: "alto",
+  cello: "violoncelle",
+  contrebasse: "contrebasse",
+};
+
 /*
  * Cordes filtrées par instrument.
- * Filtrage côté Next.js, car attributeTerm attend un ID de terme.
+ * Les produits Woo actuels sont classés par catégories instrument
+ * plutôt que par attributs globaux pa_instrument.
  */
 export async function getStringProductsByInstrument(
   locale: string = "fr",
   instrumentSlug: string,
   first = 48
 ): Promise<ProductCardItem[]> {
-  try {
-    const data = (await fetchGraphQL(
-      `
-        query GetStringProductsByInstrument($first: Int!) {
-          products(first: $first, where: { category: "cordes" }) {
-            nodes {
-              ${PRODUCT_CARD_WITH_INSTRUMENT_FIELDS}
-            }
-          }
-        }
-      `,
-      { first }
-    )) as ProductsResponse;
+  const categorySlug = STRING_INSTRUMENT_CATEGORY_SLUGS[instrumentSlug];
 
-    return data.products.nodes
-      .filter((product) =>
-        product.allPaInstrument?.nodes.some(
-          (instrument) => instrument.slug === instrumentSlug
-        )
-      )
-      .map((product) => mapProductToCard(product, locale));
-  } catch (error) {
-    logWordPressProductError(
-      `Unable to load WooCommerce string products for instrument "${instrumentSlug}"`,
-      error
-    );
+  if (!categorySlug) {
     return [];
   }
+
+  return getProductsByCategory(locale, categorySlug, first);
 }
 
 /*

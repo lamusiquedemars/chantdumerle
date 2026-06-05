@@ -1,5 +1,5 @@
 const endpoint = process.env.WP_GRAPHQL_URL;
-const WORDPRESS_FETCH_TIMEOUT_MS = 3500;
+const WORDPRESS_FETCH_TIMEOUT_MS = 25000;
 
 export const hasWordPressEndpoint = Boolean(endpoint);
 
