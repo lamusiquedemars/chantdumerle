@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 import styles from "./ProductFilters.module.css";
 
 export type ProductFilterOption = {
@@ -29,22 +30,64 @@ export default function ProductFilters({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryKey = searchParams.toString();
+  const [, startTransition] = useTransition();
+  const urlValues = useMemo(() => {
+    const nextValues: Record<string, string> = {};
+
+    for (const filter of filters) {
+      nextValues[filter.name] =
+        searchParams.get(filter.name) ?? values[filter.name] ?? "";
+    }
+
+    return nextValues;
+  }, [filters, searchParams, values]);
+  const [optimisticState, setOptimisticState] = useState<{
+    sourceQuery: string;
+    targetQuery: string;
+    values: Record<string, string>;
+  } | null>(null);
+  const displayedValues =
+    optimisticState &&
+    (optimisticState.sourceQuery === queryKey ||
+      optimisticState.targetQuery === queryKey)
+      ? optimisticState.values
+      : urlValues;
 
   function updateFilter(name: string, value: string) {
-    const nextParams = new URLSearchParams(searchParams.toString());
+    const nextValues = {
+      ...displayedValues,
+      [name]: value,
+    };
+    const nextParams = new URLSearchParams();
 
-    if (value) {
-      nextParams.set(name, value);
-    } else {
-      nextParams.delete(name);
+    for (const filter of filters) {
+      const nextValue = nextValues[filter.name];
+
+      if (nextValue) {
+        nextParams.set(filter.name, nextValue);
+      }
     }
 
     const query = nextParams.toString();
-    router.push(query ? `${pathname}?${query}` : pathname);
+    setOptimisticState({
+      sourceQuery: queryKey,
+      targetQuery: query,
+      values: nextValues,
+    });
+
+    startTransition(() => {
+      router.push(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
+    });
   }
 
   return (
-    <form className={clsx(styles.filters, className)}>
+    <form
+      className={clsx(styles.filters, className)}
+      onSubmit={(event) => event.preventDefault()}
+    >
       {filters.map((filter) => (
         <div key={filter.name} className={styles.group}>
           <label htmlFor={filter.name} className={styles.label}>
@@ -54,7 +97,7 @@ export default function ProductFilters({
             id={filter.name}
             name={filter.name}
             className={styles.select}
-            value={values[filter.name] ?? ""}
+            value={displayedValues[filter.name] ?? ""}
             onChange={(event) => updateFilter(filter.name, event.target.value)}
           >
             <option value="">Tous</option>
