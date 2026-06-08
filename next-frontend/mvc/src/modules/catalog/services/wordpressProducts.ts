@@ -79,6 +79,13 @@ const PRODUCT_CARD_CORE_FIELDS = `
       slug
     }
   }
+
+  allPaTypeProduit {
+    nodes {
+      name
+      slug
+    }
+  }
 `;
 
 /*
@@ -153,6 +160,12 @@ type GraphQLProductNode = {
       slug: string;
     }[];
   } | null;
+  allPaTypeProduit?: {
+    nodes: {
+      name: string;
+      slug: string;
+    }[];
+  } | null;
   price?: string | null;
   regularPrice?: string | null;
   salePrice?: string | null;
@@ -212,11 +225,6 @@ const STRING_PRODUCT_BASE_FILTERS: ProductTaxonomyFilter[] = [
     taxonomy: "PA_INSTRUMENT",
     terms: ["violon", "alto", "violoncelle", "contrebasse"],
     operator: "IN",
-  },
-  {
-    taxonomy: "PA_TYPE_PRODUIT",
-    terms: ["colophane"],
-    operator: "NOT_IN",
   },
 ];
 
@@ -298,7 +306,12 @@ function buildProductTaxonomyFilter(
   filters: StringProductFilters = {},
   extraFilters: ProductTaxonomyFilter[] = []
 ): string {
-  const productFilters = [...STRING_PRODUCT_BASE_FILTERS, ...extraFilters];
+  const baseFilters = filters.instrument
+    ? STRING_PRODUCT_BASE_FILTERS.filter(
+        (filter) => filter.taxonomy !== "PA_INSTRUMENT"
+      )
+    : STRING_PRODUCT_BASE_FILTERS;
+  const productFilters = [...baseFilters, ...extraFilters];
 
   for (const [key, taxonomy] of Object.entries(
     STRING_PRODUCT_FILTER_TAXONOMIES
@@ -587,6 +600,12 @@ function mapStringProductMetadata(product: GraphQLProductNode) {
   ].filter((item): item is { label: string; value: string } => Boolean(item));
 }
 
+function isStringProductCard(product: GraphQLProductNode): boolean {
+  return !product.allPaTypeProduit?.nodes.some(
+    (term) => term.slug === "colophane"
+  );
+}
+
 /*
  * Transforme un produit WooGraphQL en ProductCardItem.
  * La marque vient de pa_marque, pas des catégories.
@@ -813,9 +832,11 @@ export async function getFeaturedStringProducts(
       { first }
     )) as ProductsResponse;
 
-    return data.products.nodes.map((product) =>
-      mapProductToCard(product, locale, { includeStringMetadata: true })
-    );
+    return data.products.nodes
+      .filter(isStringProductCard)
+      .map((product) =>
+        mapProductToCard(product, locale, { includeStringMetadata: true })
+      );
   } catch (error) {
     logWordPressProductError(
       "Unable to load featured WooCommerce string products",
@@ -857,9 +878,11 @@ export async function getStringProducts(
       { first }
     )) as ProductsResponse;
 
-    return data.products.nodes.map((product) =>
-      mapProductToCard(product, locale, { includeStringMetadata: true })
-    );
+    return data.products.nodes
+      .filter(isStringProductCard)
+      .map((product) =>
+        mapProductToCard(product, locale, { includeStringMetadata: true })
+      );
   } catch (error) {
     logWordPressProductError("Unable to load WooCommerce string products", error);
     return [];
@@ -911,7 +934,7 @@ export async function getStringProductsPageData(
       { first: pageSize }
     )) as StringProductsPageResponse;
 
-    let productNodes = data.products.nodes;
+    let productNodes = data.products.nodes.filter(isStringProductCard);
 
     if (hasBusinessFilters) {
       productNodes = productNodes

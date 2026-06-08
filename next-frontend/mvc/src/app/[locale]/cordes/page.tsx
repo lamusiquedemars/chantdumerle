@@ -68,7 +68,7 @@ export default async function CordesPage({
 
   const { products, filters: filterGroups } = await getStringProductsPageData(
     locale,
-    48,
+    24,
     filters,
     businessFilters
   );

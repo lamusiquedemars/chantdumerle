@@ -1,8 +1,8 @@
 "use client";
 
 import clsx from "clsx";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 import styles from "./ProductFilters.module.css";
 
 export type ProductFilterOption = {
@@ -28,11 +28,8 @@ export default function ProductFilters({
   className,
 }: ProductFiltersProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const queryKey = searchParams.toString();
-  const [, startTransition] = useTransition();
-  const urlValues = useMemo(() => {
+  const currentValues = useMemo(() => {
     const nextValues: Record<string, string> = {};
 
     for (const filter of filters) {
@@ -42,21 +39,10 @@ export default function ProductFilters({
 
     return nextValues;
   }, [filters, searchParams, values]);
-  const [optimisticState, setOptimisticState] = useState<{
-    sourceQuery: string;
-    targetQuery: string;
-    values: Record<string, string>;
-  } | null>(null);
-  const displayedValues =
-    optimisticState &&
-    (optimisticState.sourceQuery === queryKey ||
-      optimisticState.targetQuery === queryKey)
-      ? optimisticState.values
-      : urlValues;
 
   function updateFilter(name: string, value: string) {
     const nextValues = {
-      ...displayedValues,
+      ...currentValues,
       [name]: value,
     };
     const nextParams = new URLSearchParams();
@@ -70,17 +56,7 @@ export default function ProductFilters({
     }
 
     const query = nextParams.toString();
-    setOptimisticState({
-      sourceQuery: queryKey,
-      targetQuery: query,
-      values: nextValues,
-    });
-
-    startTransition(() => {
-      router.push(query ? `${pathname}?${query}` : pathname, {
-        scroll: false,
-      });
-    });
+    window.location.assign(query ? `${pathname}?${query}` : pathname);
   }
 
   return (
@@ -97,7 +73,7 @@ export default function ProductFilters({
             id={filter.name}
             name={filter.name}
             className={styles.select}
-            value={displayedValues[filter.name] ?? ""}
+            value={currentValues[filter.name] ?? ""}
             onChange={(event) => updateFilter(filter.name, event.target.value)}
           >
             <option value="">Tous</option>

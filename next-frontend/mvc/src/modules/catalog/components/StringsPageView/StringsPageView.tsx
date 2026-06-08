@@ -30,12 +30,18 @@ export default function StringsPageView({
   activeInstrumentLabel,
   activeSoundLabel,
 }: StringsPageViewProps) {
-  const activeTitle = [
-    activeSoundLabel ? `Cordes au son ${activeSoundLabel.toLowerCase()}` : null,
-    activeInstrumentLabel ? `pour ${activeInstrumentLabel.toLowerCase()}` : null,
-  ]
-    .filter((part): part is string => Boolean(part))
-    .join(" ");
+  const activeTitle = activeSoundLabel
+    ? [
+        `Cordes au son ${activeSoundLabel.toLowerCase()}`,
+        activeInstrumentLabel
+          ? `pour ${activeInstrumentLabel.toLowerCase()}`
+          : null,
+      ]
+        .filter((part): part is string => Boolean(part))
+        .join(" ")
+    : activeInstrumentLabel
+      ? `Cordes pour ${activeInstrumentLabel.toLowerCase()}`
+      : "";
   const productsTitle = activeTitle || content.products.title;
 
   const productsSubtitle = activeSoundLabel
