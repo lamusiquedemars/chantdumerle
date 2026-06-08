@@ -10,6 +10,12 @@ export type ProductCardItem = {
   price?: string;
   image?: string;
   brand?: string;
+  metadata?: ProductCardMetadataItem[];
+};
+
+export type ProductCardMetadataItem = {
+  label: string;
+  value: string;
 };
 
 type ProductCardProps = ProductCardItem & {
@@ -23,10 +29,17 @@ export default function ProductCard({
   price,
   image,
   brand,
+  metadata = [],
   className,
 }: ProductCardProps) {
   const cleanDescription = htmlToPlainText(description);
   const cleanPrice = htmlToPlainText(price);
+  const cleanMetadata = metadata
+    .map((item) => ({
+      label: htmlToPlainText(item.label),
+      value: htmlToPlainText(item.value),
+    }))
+    .filter((item) => item.label && item.value);
 
   return (
     <Link href={href} className={clsx(styles.card, className)}>
@@ -43,6 +56,18 @@ export default function ProductCard({
         {cleanDescription ? (
           <p className={styles.description}>{cleanDescription}</p>
         ) : null}
+
+        {cleanMetadata.length > 0 ? (
+          <dl className={styles.metadata}>
+            {cleanMetadata.map((item) => (
+              <div key={`${item.label}-${item.value}`} className={styles.metaItem}>
+                <dt className={styles.metaLabel}>{item.label}</dt>
+                <dd className={styles.metaValue}>{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
+
         {cleanPrice ? <p className={styles.price}>{cleanPrice}</p> : null}
       </div>
     </Link>

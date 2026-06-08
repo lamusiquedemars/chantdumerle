@@ -393,6 +393,9 @@ perdre le fil.
   `instrument`, `corde`, `taille`, `tension` ;
 - options de filtres chargees depuis les termes Woo ;
 - colophanes exclues du listing cordes via `pa_type_produit=colophane` ;
+- cartes produit enrichies par des metadonnees optionnelles et generiques ;
+- les listings cordes Chant du Merle alimentent ces metadonnees avec
+  instrument, corde, taille et tension sans specialiser le composant de carte ;
 - `npm run build` valide dans `next-frontend/mvc`.
 
 ### A Faire Maintenant
@@ -403,19 +406,16 @@ perdre le fil.
    voulues, puis faire un commit de sauvegarde coherent.
 2. Verifier visuellement `/fr/cordes` et les filtres principaux :
    instrument, corde, taille, tension, fiche produit depuis une carte.
-3. Ameliorer les cartes de listing :
-   afficher quelques attributs utiles sous le titre, par exemple instrument,
-   corde, taille, tension, sans surcharger la grille.
-4. Brancher les pages de listing par intention metier :
+3. Brancher les pages de listing par intention metier :
    son recherche, niveau, budget, usage, a partir du referentiel modele.
-5. Construire le referentiel modele :
+4. Construire le referentiel modele :
    cle `marque + modele`, attributs sonores et pedagogiques, puis liaison avec
    les produits Woo par `pa_marque` + `pa_modele`.
-6. Decider le mode de stockage du referentiel modele :
+5. Decider le mode de stockage du referentiel modele :
    CSV maintenable au depart, puis table dediee ou CPT WordPress si besoin.
-7. Preparer les produits composes/curations :
+6. Preparer les produits composes/curations :
    jeux recommandes, panachages de cordes, selections par besoin musical.
-8. Revoir les performances GraphQL :
+7. Revoir les performances GraphQL :
    la page est rapide apres cache Next, mais le premier rendu depend encore de
    WPGraphQL local ; a surveiller avant mise en production.
 

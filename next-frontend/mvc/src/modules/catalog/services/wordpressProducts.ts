@@ -37,6 +37,34 @@ const PRODUCT_CARD_CORE_FIELDS = `
       slug
     }
   }
+
+  allPaInstrument {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaCorde {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaTaille {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaTension {
+    nodes {
+      name
+      slug
+    }
+  }
 `;
 
 /*
@@ -87,6 +115,24 @@ type GraphQLProductNode = {
       slug: string;
     }[];
   } | null;
+  allPaCorde?: {
+    nodes: {
+      name: string;
+      slug: string;
+    }[];
+  } | null;
+  allPaTaille?: {
+    nodes: {
+      name: string;
+      slug: string;
+    }[];
+  } | null;
+  allPaTension?: {
+    nodes: {
+      name: string;
+      slug: string;
+    }[];
+  } | null;
   price?: string | null;
   regularPrice?: string | null;
   salePrice?: string | null;
@@ -103,13 +149,6 @@ type ProductsResponse = {
     nodes: GraphQLProductNode[];
   };
 };
-
-type ProductsByCategoryAliasResponse = Record<
-  string,
-  {
-    nodes: GraphQLProductNode[];
-  }
->;
 
 type StringProductFilterKey = "instrument" | "corde" | "taille" | "tension";
 
@@ -373,16 +412,53 @@ const STRING_FILTER_GROUPS_FIELDS = `
   }
 `;
 
+function firstTermName(
+  connection?: {
+    nodes: {
+      name: string;
+      slug: string;
+    }[];
+  } | null
+): string | undefined {
+  return connection?.nodes[0]?.name;
+}
+
+function makeCardMetadataItem(label: string, value?: string) {
+  if (!value) {
+    return undefined;
+  }
+
+  return {
+    label,
+    value,
+  };
+}
+
+function mapStringProductMetadata(product: GraphQLProductNode) {
+  return [
+    makeCardMetadataItem("Instrument", firstTermName(product.allPaInstrument)),
+    makeCardMetadataItem("Corde", firstTermName(product.allPaCorde)),
+    makeCardMetadataItem("Taille", firstTermName(product.allPaTaille)),
+    makeCardMetadataItem("Tension", firstTermName(product.allPaTension)),
+  ].filter((item): item is { label: string; value: string } => Boolean(item));
+}
+
 /*
  * Transforme un produit WooGraphQL en ProductCardItem.
  * La marque vient de pa_marque, pas des catégories.
  */
 export function mapProductToCard(
   product: GraphQLProductNode,
-  locale: string = "fr"
+  locale: string = "fr",
+  options: {
+    includeStringMetadata?: boolean;
+  } = {}
 ): ProductCardItem {
   const brand = product.allPaMarque?.nodes[0]?.name;
   const safeLocale = normalizeLocale(locale);
+  const metadata = options.includeStringMetadata
+    ? mapStringProductMetadata(product)
+    : undefined;
 
   return {
     title: product.name,
@@ -391,6 +467,7 @@ export function mapProductToCard(
     price: htmlToPlainText(product.price ?? product.regularPrice),
     image: product.image?.sourceUrl ?? undefined,
     brand,
+    metadata,
   };
 }
 
@@ -503,67 +580,6 @@ export async function getProductsByCategory(
   }
 }
 
-async function getProductsByCategories(
-  locale: string = "fr",
-  categorySlugs: string[],
-  first = 12
-): Promise<ProductCardItem[]> {
-  if (!hasWordPressEndpoint) {
-    return getExampleProductCards(locale, first);
-  }
-
-  try {
-    const variables = Object.fromEntries(
-      categorySlugs.map((categorySlug, index) => [`categorySlug${index}`, categorySlug])
-    );
-    const categoryQueries = categorySlugs
-      .map(
-        (_categorySlug, index) => `
-          category${index}: products(
-            first: $first
-            where: { category: $categorySlug${index} }
-          ) {
-            nodes {
-              ${PRODUCT_CARD_FIELDS}
-            }
-          }
-        `
-      )
-      .join("\n");
-    const categoryVariables = categorySlugs
-      .map((_categorySlug, index) => `$categorySlug${index}: String!`)
-      .join(", ");
-
-    const data = (await fetchGraphQL(
-      `
-        query GetProductsByCategories($first: Int!, ${categoryVariables}) {
-          ${categoryQueries}
-        }
-      `,
-      { first, ...variables }
-    )) as ProductsByCategoryAliasResponse;
-
-    const productsByHref = new Map<string, ProductCardItem>();
-
-    for (const category of Object.values(data)) {
-      for (const product of category.nodes) {
-        const productCard = mapProductToCard(product, locale);
-        productsByHref.set(productCard.href, productCard);
-      }
-    }
-
-    return [...productsByHref.values()].slice(0, first);
-  } catch (error) {
-    logWordPressProductError(
-      `Unable to load WooCommerce products for categories "${categorySlugs.join(
-        ", "
-      )}"`,
-      error
-    );
-    return [];
-  }
-}
-
 /*
  * Sécurise la locale pour éviter de générer des URLs en /undefined/...
  */
@@ -621,70 +637,6 @@ export async function getFeaturedProductsByCategory(
   }
 }
 
-async function getFeaturedProductsByCategories(
-  locale: string = "fr",
-  categorySlugs: string[],
-  first = 8
-): Promise<ProductCardItem[]> {
-  if (!hasWordPressEndpoint) {
-    return getExampleProductCards(locale, first);
-  }
-
-  try {
-    const variables = Object.fromEntries(
-      categorySlugs.map((categorySlug, index) => [`categorySlug${index}`, categorySlug])
-    );
-    const categoryQueries = categorySlugs
-      .map(
-        (_categorySlug, index) => `
-          category${index}: products(
-            first: $first
-            where: {
-              featured: true
-              category: $categorySlug${index}
-            }
-          ) {
-            nodes {
-              ${PRODUCT_CARD_FIELDS}
-            }
-          }
-        `
-      )
-      .join("\n");
-    const categoryVariables = categorySlugs
-      .map((_categorySlug, index) => `$categorySlug${index}: String!`)
-      .join(", ");
-
-    const data = (await fetchGraphQL(
-      `
-        query GetFeaturedProductsByCategories($first: Int!, ${categoryVariables}) {
-          ${categoryQueries}
-        }
-      `,
-      { first, ...variables }
-    )) as ProductsByCategoryAliasResponse;
-
-    const productsByHref = new Map<string, ProductCardItem>();
-
-    for (const category of Object.values(data)) {
-      for (const product of category.nodes) {
-        const productCard = mapProductToCard(product, locale);
-        productsByHref.set(productCard.href, productCard);
-      }
-    }
-
-    return [...productsByHref.values()].slice(0, first);
-  } catch (error) {
-    logWordPressProductError(
-      `Unable to load featured WooCommerce products for categories "${categorySlugs.join(
-        ", "
-      )}"`,
-      error
-    );
-    return [];
-  }
-}
-
 /*
  * Cordes mises en avant.
  */
@@ -718,7 +670,7 @@ export async function getFeaturedStringProducts(
     )) as ProductsResponse;
 
     return data.products.nodes.map((product) =>
-      mapProductToCard(product, locale)
+      mapProductToCard(product, locale, { includeStringMetadata: true })
     );
   } catch (error) {
     logWordPressProductError(
@@ -762,7 +714,7 @@ export async function getStringProducts(
     )) as ProductsResponse;
 
     return data.products.nodes.map((product) =>
-      mapProductToCard(product, locale)
+      mapProductToCard(product, locale, { includeStringMetadata: true })
     );
   } catch (error) {
     logWordPressProductError("Unable to load WooCommerce string products", error);
@@ -811,7 +763,7 @@ export async function getStringProductsPageData(
 
     return {
       products: data.products.nodes.map((product) =>
-        mapProductToCard(product, locale)
+        mapProductToCard(product, locale, { includeStringMetadata: true })
       ),
       filters: mapStringFilterGroups(data),
     };
@@ -828,8 +780,6 @@ export async function getStringProductsPageData(
   }
 }
 
-const STRING_CATEGORY_SLUGS = ["violon", "alto", "violoncelle", "contrebasse"];
-
 const STRING_INSTRUMENT_CATEGORY_SLUGS: Record<string, string> = {
   violon: "violon",
   alto: "alto",
@@ -839,8 +789,7 @@ const STRING_INSTRUMENT_CATEGORY_SLUGS: Record<string, string> = {
 
 /*
  * Cordes filtrées par instrument.
- * Les produits Woo actuels sont classés par catégories instrument
- * plutôt que par attributs globaux pa_instrument.
+ * Compatibilité avec les anciennes valeurs d'URL, puis filtre par pa_instrument.
  */
 export async function getStringProductsByInstrument(
   locale: string = "fr",
