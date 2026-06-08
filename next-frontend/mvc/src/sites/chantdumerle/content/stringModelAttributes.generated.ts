@@ -1460,24 +1460,6 @@ export const chantDuMerleStringModelAttributes = [
     {
         "status": "complete",
         "brand": "Pirastro",
-        "model": "Original Flat Chorme Orchestra",
-        "key": "pirastro|original flat chrome orchestra",
-        "productCount": 1,
-        "soundProfile": "brillant",
-        "complexity": "pur",
-        "power": "modéré",
-        "response": "rapide",
-        "musicianUsage": [
-            "orchestre"
-        ],
-        "pricePositioning": "entrée",
-        "durability": "élevée",
-        "tuningStability": "excellente",
-        "breakInTime": "court"
-    },
-    {
-        "status": "complete",
-        "brand": "Pirastro",
         "model": "Original Flat Soloist",
         "key": "pirastro|original flat soloist",
         "productCount": 1,
@@ -1498,7 +1480,7 @@ export const chantDuMerleStringModelAttributes = [
         "brand": "Pirastro",
         "model": "Original Flat-Chrome Orchestra",
         "key": "pirastro|original flat chrome orchestra",
-        "productCount": 6,
+        "productCount": 7,
         "soundProfile": "brillant",
         "complexity": "pur",
         "power": "modéré",
@@ -2072,46 +2054,10 @@ export const chantDuMerleStringModelAttributes = [
     {
         "status": "complete",
         "brand": "Thomastik",
-        "model": "Infeld azul",
-        "key": "thomastik|infeld bleu",
-        "productCount": 4,
-        "soundProfile": "brillant",
-        "complexity": "équilibré",
-        "power": "modéré",
-        "response": "rapide",
-        "musicianUsage": [
-            "soliste"
-        ],
-        "pricePositioning": "intermédiaire",
-        "durability": "moyenne",
-        "tuningStability": "bonne",
-        "breakInTime": "moyen"
-    },
-    {
-        "status": "complete",
-        "brand": "Thomastik",
         "model": "Infeld bleu",
         "key": "thomastik|infeld bleu",
-        "productCount": 1,
+        "productCount": 5,
         "soundProfile": "brillant",
-        "complexity": "équilibré",
-        "power": "modéré",
-        "response": "rapide",
-        "musicianUsage": [
-            "soliste"
-        ],
-        "pricePositioning": "intermédiaire",
-        "durability": "moyenne",
-        "tuningStability": "bonne",
-        "breakInTime": "moyen"
-    },
-    {
-        "status": "complete",
-        "brand": "Thomastik",
-        "model": "Infeld roja",
-        "key": "thomastik|infeld rouge",
-        "productCount": 4,
-        "soundProfile": "chaud",
         "complexity": "équilibré",
         "power": "modéré",
         "response": "rapide",
@@ -2128,7 +2074,7 @@ export const chantDuMerleStringModelAttributes = [
         "brand": "Thomastik",
         "model": "Infeld rouge",
         "key": "thomastik|infeld rouge",
-        "productCount": 1,
+        "productCount": 5,
         "soundProfile": "chaud",
         "complexity": "équilibré",
         "power": "modéré",

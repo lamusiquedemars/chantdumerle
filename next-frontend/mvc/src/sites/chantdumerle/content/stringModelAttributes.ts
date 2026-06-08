@@ -24,15 +24,7 @@ function normalizeStringModelText(value: string): string {
     .trim()
     .replace(/\s+/g, " ");
 
-  return normalized
-    .split(" ")
-    .map((word) => {
-      if (word === "chorme") return "chrome";
-      if (word === "azul") return "bleu";
-      if (word === "roja" || word === "rojo") return "rouge";
-      return word;
-    })
-    .join(" ");
+  return normalized;
 }
 
 export function makeStringModelAttributeKey(

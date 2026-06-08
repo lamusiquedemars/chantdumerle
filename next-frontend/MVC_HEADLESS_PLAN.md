@@ -399,8 +399,12 @@ perdre le fil.
 - AB testing a prevoir sur les cartes produit pour decider si toutes les
   metadonnees doivent rester visibles dans la grille ;
 - referentiel modele construit depuis `cordes_attributs.csv` et les produits
-  Woo reels : `145` couples marque + modele de cordes, `143` complets,
+  Woo reels : `142` couples marque + modele de cordes, `140` complets,
   `2` Aquila a completer ;
+- valeurs Woo corrigees a la source : `Infeld azul` devient `Infeld bleu`,
+  `Infeld roja` devient `Infeld rouge`, et `Original Flat Chorme Orchestra`
+  devient `Original Flat-Chrome Orchestra` ; les alias applicatifs ont ete
+  retires ;
 - module TypeScript genere pour exposer le referentiel modele au front Chant du
   Merle, avec lookup par `marque + modele` ;
 - `npm run build` valide dans `next-frontend/mvc`.

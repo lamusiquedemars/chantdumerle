@@ -86,20 +86,7 @@ function normalize_text(string $value): string
     $value = preg_replace('/[^a-z0-9]+/', ' ', $value) ?: '';
     $value = trim(preg_replace('/\s+/', ' ', $value) ?: '');
 
-    $aliases = [
-        'chorme' => 'chrome',
-        'azul' => 'bleu',
-        'roja' => 'rouge',
-        'rojo' => 'rouge',
-    ];
-
-    $words = explode(' ', $value);
-    $words = array_map(
-        static fn (string $word): string => $aliases[$word] ?? $word,
-        $words
-    );
-
-    return implode(' ', $words);
+    return $value;
 }
 
 function model_key(string $brand, string $model): string
