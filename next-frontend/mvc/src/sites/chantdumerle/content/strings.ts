@@ -44,18 +44,18 @@ export function getStringsContent(locale: string): StringsContent {
   const selectionItems: SelectionCardItem[] = [
     {
       title: "Son chaud",
-      href: href("/selections"),
+      href: href("/cordes?son=chaud"),
       description:
         "Pour arrondir le timbre, adoucir l’instrument ou chercher plus de souplesse sonore.",
     },
     {
       title: "Projection",
-      href: href("/selections"),
+      href: href("/cordes?son=brillant"),
       description: "Pour gagner en présence, en clarté et en portée sonore.",
     },
     {
       title: "Confort de jeu",
-      href: href("/selections"),
+      href: href("/cordes?son=equilibre"),
       description:
         "Pour trouver des cordes faciles à mettre en vibration et agréables sous les doigts.",
     },

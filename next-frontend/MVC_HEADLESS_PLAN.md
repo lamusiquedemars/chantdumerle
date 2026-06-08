@@ -407,27 +407,29 @@ perdre le fil.
   retires ;
 - module TypeScript genere pour exposer le referentiel modele au front Chant du
   Merle, avec lookup par `marque + modele` ;
+- filtre metier `son` branche sur `/[locale]/cordes` avec les valeurs du
+  referentiel modele (`chaud`, `brillant`, `equilibre`) et croisement final par
+  `marque + modele` ;
+- les cartes "Choisir selon votre besoin" pointent maintenant vers les listings
+  sonores quand le besoin correspond deja au referentiel ;
+- controle visuel `/fr/cordes` valide par Ivo ;
 - `npm run build` valide dans `next-frontend/mvc`.
 
 ### A Faire Maintenant
 
-1. Stabiliser le chantier Git du deplacement `mvc` :
-   ajouter les fichiers encore non suivis qui appartiennent au nouveau projet,
-   verifier que les suppressions de l'ancien `next-frontend/src` sont bien
-   voulues, puis faire un commit de sauvegarde coherent.
-2. Verifier visuellement `/fr/cordes` et les filtres principaux :
-   instrument, corde, taille, tension, fiche produit depuis une carte.
-3. Completer les deux lignes Aquila du referentiel si elles doivent etre
+1. Completer les deux lignes Aquila du referentiel si elles doivent etre
    exposees dans les pages par besoin musical.
-4. Brancher les pages de listing par intention metier :
-   son recherche, niveau, budget, usage, a partir du referentiel modele.
-5. Decider le mode de stockage long terme du referentiel modele :
+2. Etendre les listings par intention metier :
+   niveau, budget, usage, reponse, puissance, a partir du referentiel modele.
+3. Decider le mode de stockage long terme du referentiel modele :
    CSV maintenable au depart, puis table dediee ou CPT WordPress si besoin.
-6. Preparer les produits composes/curations :
+4. Preparer les produits composes/curations :
    jeux recommandes, panachages de cordes, selections par besoin musical.
-7. Revoir les performances GraphQL :
-   la page est rapide apres cache Next, mais le premier rendu depend encore de
-   WPGraphQL local ; a surveiller avant mise en production.
+5. Revoir les performances GraphQL des listings metier :
+   les pages repondent en 200 et deviennent rapides apres cache Next, mais le
+   premier rendu de certaines valeurs `son` depend encore fortement de
+   WPGraphQL local ; prevoir requete allegee, cache dedie ou endpoint metier
+   avant mise en production.
 
 ### Prochaine Decision
 

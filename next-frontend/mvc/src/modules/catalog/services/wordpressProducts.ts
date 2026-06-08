@@ -6,6 +6,13 @@ import {
   hasWordPressEndpoint,
 } from "@/lib/wordpress/client";
 import {
+  chantDuMerleStringModelAttributes,
+  getStringModelAttributeValues,
+  getStringModelAttributes,
+  stringModelMatchesAttribute,
+  type StringModelAttributeKey,
+} from "@/sites/chantdumerle/content/stringModelAttributes";
+import {
   getExampleProductCards,
   getExampleProductPageBySlug,
 } from "@/modules/catalog/content/exampleProducts";
@@ -160,13 +167,22 @@ type GraphQLProductAttributeTerm = {
 type ProductsResponse = {
   products: {
     nodes: GraphQLProductNode[];
+    pageInfo?: {
+      hasNextPage: boolean;
+      endCursor?: string | null;
+    };
   };
 };
 
 type StringProductFilterKey = "instrument" | "corde" | "taille" | "tension";
+type StringProductBusinessFilterKey = "son";
 
 export type StringProductFilters = Partial<
   Record<StringProductFilterKey, string>
+>;
+
+export type StringProductBusinessFilters = Partial<
+  Record<StringProductBusinessFilterKey, string>
 >;
 
 type StringProductTermsResponse = {
@@ -214,7 +230,15 @@ const STRING_PRODUCT_FILTER_TAXONOMIES: Record<
   tension: "PA_TENSION",
 };
 
+const STRING_BUSINESS_FILTER_ATTRIBUTES: Record<
+  StringProductBusinessFilterKey,
+  StringModelAttributeKey
+> = {
+  son: "soundProfile",
+};
+
 const STRING_FILTER_FALLBACKS: ProductFilterGroup[] = [
+  makeStringBusinessFilterGroup("son", "Son recherché"),
   {
     name: "instrument",
     label: "Instrument",
@@ -270,8 +294,11 @@ function graphQLString(value: string): string {
   return JSON.stringify(value);
 }
 
-function buildProductTaxonomyFilter(filters: StringProductFilters = {}): string {
-  const productFilters = [...STRING_PRODUCT_BASE_FILTERS];
+function buildProductTaxonomyFilter(
+  filters: StringProductFilters = {},
+  extraFilters: ProductTaxonomyFilter[] = []
+): string {
+  const productFilters = [...STRING_PRODUCT_BASE_FILTERS, ...extraFilters];
 
   for (const [key, taxonomy] of Object.entries(
     STRING_PRODUCT_FILTER_TAXONOMIES
@@ -339,6 +366,7 @@ function mapStringFilterGroups(
   data: StringProductTermsResponse
 ): ProductFilterGroup[] {
   return [
+    makeStringBusinessFilterGroup("son", "Son recherché"),
     {
       name: "instrument",
       label: "Instrument",
@@ -391,6 +419,39 @@ function mapStringFilterGroups(
   ].filter((filter) => filter.options.length > 0);
 }
 
+function makeBusinessFilterValue(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function makeStringModelTermSlug(value: string) {
+  return makeBusinessFilterValue(value);
+}
+
+function makeBusinessFilterLabel(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function makeStringBusinessFilterGroup(
+  name: StringProductBusinessFilterKey,
+  label: string
+): ProductFilterGroup {
+  const attribute = STRING_BUSINESS_FILTER_ATTRIBUTES[name];
+
+  return {
+    name,
+    label,
+    options: getStringModelAttributeValues(attribute).map((value) => ({
+      label: makeBusinessFilterLabel(value),
+      value: makeBusinessFilterValue(value),
+    })),
+  };
+}
+
 const STRING_FILTER_GROUPS_FIELDS = `
   allPaInstrument(first: 20) {
     nodes {
@@ -434,6 +495,76 @@ function firstTermName(
   } | null
 ): string | undefined {
   return connection?.nodes[0]?.name;
+}
+
+function productMatchesStringBusinessFilters(
+  product: GraphQLProductNode,
+  businessFilters: StringProductBusinessFilters = {}
+): boolean {
+  const activeFilters = Object.entries(businessFilters).filter(([, value]) =>
+    Boolean(value)
+  ) as [StringProductBusinessFilterKey, string][];
+
+  if (activeFilters.length === 0) {
+    return true;
+  }
+
+  const attributes = getStringModelAttributes(
+    firstTermName(product.allPaMarque),
+    firstTermName(product.allPaModele)
+  );
+
+  return activeFilters.every(([filterKey, expectedValue]) => {
+    const attribute = STRING_BUSINESS_FILTER_ATTRIBUTES[filterKey];
+
+    return getStringModelAttributeValues(attribute).some(
+      (value) =>
+        makeBusinessFilterValue(value) === expectedValue &&
+        stringModelMatchesAttribute(attributes, attribute, value)
+    );
+  });
+}
+
+function buildStringBusinessTaxonomyFilters(
+  businessFilters: StringProductBusinessFilters = {}
+): ProductTaxonomyFilter[] {
+  const modelSlugs = new Set<string>();
+
+  for (const [filterKey, expectedValue] of Object.entries(businessFilters) as [
+    StringProductBusinessFilterKey,
+    string | undefined,
+  ][]) {
+    if (!expectedValue) {
+      continue;
+    }
+
+    const attribute = STRING_BUSINESS_FILTER_ATTRIBUTES[filterKey];
+
+    for (const item of chantDuMerleStringModelAttributes) {
+      const value = item[attribute];
+      const values = Array.isArray(value) ? value : [value];
+
+      if (
+        values.some(
+          (entry) => entry && makeBusinessFilterValue(entry) === expectedValue
+        )
+      ) {
+        modelSlugs.add(makeStringModelTermSlug(item.model));
+      }
+    }
+  }
+
+  if (modelSlugs.size === 0) {
+    return [];
+  }
+
+  return [
+    {
+      taxonomy: "PA_MODELE",
+      terms: [...modelSlugs],
+      operator: "IN",
+    },
+  ];
 }
 
 function makeCardMetadataItem(label: string, value?: string) {
@@ -743,7 +874,8 @@ export async function getStringProducts(
 export async function getStringProductsPageData(
   locale: string = "fr",
   first = 48,
-  filters: StringProductFilters = {}
+  filters: StringProductFilters = {},
+  businessFilters: StringProductBusinessFilters = {}
 ): Promise<StringProductsPageData> {
   if (!hasWordPressEndpoint) {
     return {
@@ -753,29 +885,44 @@ export async function getStringProductsPageData(
   }
 
   try {
-    const taxonomyFilter = buildProductTaxonomyFilter(filters);
+    const hasBusinessFilters = Object.values(businessFilters).some(Boolean);
+    const taxonomyFilter = buildProductTaxonomyFilter(
+      filters,
+      buildStringBusinessTaxonomyFilters(businessFilters)
+    );
+    const pageSize = first;
     const data = (await fetchGraphQL(
       `
-        query GetStringProductsPageData($first: Int!) {
-          products(
-            first: $first
-            where: {
-              ${taxonomyFilter}
-            }
-          ) {
-            nodes {
-              ${PRODUCT_CARD_FIELDS}
-            }
+      query GetStringProductsPageData($first: Int!) {
+        products(
+          first: $first
+          where: {
+            ${taxonomyFilter}
           }
-
-          ${STRING_FILTER_GROUPS_FIELDS}
+        ) {
+          nodes {
+            ${PRODUCT_CARD_FIELDS}
+          }
         }
-      `,
-      { first }
+
+        ${STRING_FILTER_GROUPS_FIELDS}
+      }
+    `,
+      { first: pageSize }
     )) as StringProductsPageResponse;
 
+    let productNodes = data.products.nodes;
+
+    if (hasBusinessFilters) {
+      productNodes = productNodes
+        .filter((product) =>
+          productMatchesStringBusinessFilters(product, businessFilters)
+        )
+        .slice(0, first);
+    }
+
     return {
-      products: data.products.nodes.map((product) =>
+      products: productNodes.map((product) =>
         mapProductToCard(product, locale, { includeStringMetadata: true })
       ),
       filters: mapStringFilterGroups(data),

@@ -2,6 +2,7 @@ import StringsPageView from "@/modules/catalog/components/StringsPageView/String
 import { getStringsContent } from "@/sites/chantdumerle/content/strings";
 import {
   getStringProductsPageData,
+  type StringProductBusinessFilters,
   type StringProductFilters,
 } from "@/modules/catalog/services/wordpressProducts";
 
@@ -27,6 +28,7 @@ type CordesPageProps = {
     corde?: string | string[];
     taille?: string | string[];
     tension?: string | string[];
+    son?: string | string[];
   }>;
 };
 
@@ -59,16 +61,25 @@ export default async function CordesPage({
     taille: readSingleParam(query.taille),
     tension: readSingleParam(query.tension),
   };
+  const businessFilters: StringProductBusinessFilters = {
+    son: readSingleParam(query.son),
+  };
   const content = getStringsContent(locale);
 
   const { products, filters: filterGroups } = await getStringProductsPageData(
     locale,
     48,
-    filters
+    filters,
+    businessFilters
   );
 
   const activeInstrumentLabel = instrument
     ? instrumentLabels.get(instrument)
+    : undefined;
+  const activeSoundLabel = businessFilters.son
+    ? filterGroups
+        .find((filter) => filter.name === "son")
+        ?.options.find((option) => option.value === businessFilters.son)?.label
     : undefined;
 
   return (
@@ -81,8 +92,10 @@ export default async function CordesPage({
         corde: filters.corde ?? "",
         taille: filters.taille ?? "",
         tension: filters.tension ?? "",
+        son: businessFilters.son ?? "",
       }}
       activeInstrumentLabel={activeInstrumentLabel}
+      activeSoundLabel={activeSoundLabel}
     />
   );
 }

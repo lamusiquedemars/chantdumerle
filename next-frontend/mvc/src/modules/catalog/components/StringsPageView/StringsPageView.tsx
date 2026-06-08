@@ -18,6 +18,7 @@ type StringsPageViewProps = {
   filters?: ProductFilterGroup[];
   activeFilters?: Record<string, string>;
   activeInstrumentLabel?: string;
+  activeSoundLabel?: string;
 };
 
 // Vue de l'univers cordes, gardee dans le module catalogue.
@@ -27,12 +28,19 @@ export default function StringsPageView({
   filters = [],
   activeFilters = {},
   activeInstrumentLabel,
+  activeSoundLabel,
 }: StringsPageViewProps) {
-  const productsTitle = activeInstrumentLabel
-    ? `Cordes pour ${activeInstrumentLabel.toLowerCase()}`
-    : content.products.title;
+  const activeTitle = [
+    activeSoundLabel ? `Cordes au son ${activeSoundLabel.toLowerCase()}` : null,
+    activeInstrumentLabel ? `pour ${activeInstrumentLabel.toLowerCase()}` : null,
+  ]
+    .filter((part): part is string => Boolean(part))
+    .join(" ");
+  const productsTitle = activeTitle || content.products.title;
 
-  const productsSubtitle = activeInstrumentLabel
+  const productsSubtitle = activeSoundLabel
+    ? "Une sélection issue du référentiel modèle, croisée avec les produits Woo réellement disponibles."
+    : activeInstrumentLabel
     ? `La sélection adaptée aux cordes ${activeInstrumentLabel.toLowerCase()}, avec les mêmes repères de choix et de comparaison.`
     : content.products.subtitle;
 
