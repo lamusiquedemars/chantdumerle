@@ -38,6 +38,13 @@ const PRODUCT_CARD_CORE_FIELDS = `
     }
   }
 
+  allPaModele {
+    nodes {
+      name
+      slug
+    }
+  }
+
   allPaInstrument {
     nodes {
       name
@@ -110,6 +117,12 @@ type GraphQLProductNode = {
     }[];
   } | null;
   allPaInstrument?: {
+    nodes: {
+      name: string;
+      slug: string;
+    }[];
+  } | null;
+  allPaModele?: {
     nodes: {
       name: string;
       slug: string;

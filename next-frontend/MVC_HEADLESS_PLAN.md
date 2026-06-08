@@ -396,6 +396,13 @@ perdre le fil.
 - cartes produit enrichies par des metadonnees optionnelles et generiques ;
 - les listings cordes Chant du Merle alimentent ces metadonnees avec
   instrument, corde, taille et tension sans specialiser le composant de carte ;
+- AB testing a prevoir sur les cartes produit pour decider si toutes les
+  metadonnees doivent rester visibles dans la grille ;
+- referentiel modele construit depuis `cordes_attributs.csv` et les produits
+  Woo reels : `145` couples marque + modele de cordes, `143` complets,
+  `2` Aquila a completer ;
+- module TypeScript genere pour exposer le referentiel modele au front Chant du
+  Merle, avec lookup par `marque + modele` ;
 - `npm run build` valide dans `next-frontend/mvc`.
 
 ### A Faire Maintenant
@@ -406,12 +413,11 @@ perdre le fil.
    voulues, puis faire un commit de sauvegarde coherent.
 2. Verifier visuellement `/fr/cordes` et les filtres principaux :
    instrument, corde, taille, tension, fiche produit depuis une carte.
-3. Brancher les pages de listing par intention metier :
+3. Completer les deux lignes Aquila du referentiel si elles doivent etre
+   exposees dans les pages par besoin musical.
+4. Brancher les pages de listing par intention metier :
    son recherche, niveau, budget, usage, a partir du referentiel modele.
-4. Construire le referentiel modele :
-   cle `marque + modele`, attributs sonores et pedagogiques, puis liaison avec
-   les produits Woo par `pa_marque` + `pa_modele`.
-5. Decider le mode de stockage du referentiel modele :
+5. Decider le mode de stockage long terme du referentiel modele :
    CSV maintenable au depart, puis table dediee ou CPT WordPress si besoin.
 6. Preparer les produits composes/curations :
    jeux recommandes, panachages de cordes, selections par besoin musical.
