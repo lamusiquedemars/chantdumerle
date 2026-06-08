@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["localhost"],
   images: {
+    // Le WordPress local sert les images via chantdumerle-wp.local -> 127.0.0.1.
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
         protocol: "https",

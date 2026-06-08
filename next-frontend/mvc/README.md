@@ -1,11 +1,14 @@
-# Headless MVC Starter
+# Headless MVC Front
 
-Starter Next.js modulaire avec une lecture MVC legere : routes fines, modules
+Front Next.js modulaire avec une lecture MVC legere : routes fines, modules
 reutilisables, configuration client separee et donnees locales exemple.
 
-Le projet peut tourner sans backend. Si `WP_GRAPHQL_URL` est renseigne, les
-adaptateurs WordPress/WooGraphQL peuvent prendre le relais pour le catalogue et
-le panier.
+`chantdumerle` est le client actif. `example` reste disponible comme contenu
+neutre pour verifier que le moule n'est pas lie a un seul site.
+
+Le projet peut tourner sans backend. Si `WP_GRAPHQL_URL` est renseigne,
+les adaptateurs WordPress/WooGraphQL prennent le relais pour le catalogue et le
+panier.
 
 ## Lecture MVC
 
@@ -20,13 +23,16 @@ le panier.
 | Route | Usage |
 | --- | --- |
 | `/` | redirection vers la locale par defaut |
-| `/[locale]` | home exemple |
-| `/[locale]/catalogue` | univers catalogue |
+| `/[locale]` | home Chant du Merle |
+| `/[locale]/cordes` | univers catalogue des cordes |
 | `/[locale]/produits/[slug]` | fiche produit generique |
 | `/[locale]/guides` | liste de guides |
-| `/[locale]/guides/premier-guide` | guide detaille exemple |
+| `/[locale]/guides/comment-choisir-ses-cordes` | guide detaille Chant du Merle |
 | `/[locale]/selections` | page de selections |
 | `/api/cart/add` | ajout panier WooCommerce optionnel |
+
+Les routes demo `/[locale]/catalogue` et `/[locale]/guides/premier-guide`
+restent disponibles pour le contenu `example`.
 
 ## Structure
 
@@ -50,6 +56,32 @@ cp .env.example .env.local
 npm run dev
 ```
 
+## Creer Un Nouveau Site
+
+Depuis un nouveau dossier de projet, copier le moule :
+
+```bash
+cp -R /chemin/vers/chantdumerle/next-frontend/mvc ./frontend
+cd frontend
+npm install
+cp .env.example .env.local
+```
+
+Puis adapter le client :
+
+1. Renommer le package dans `package.json`.
+2. Creer `src/sites/<client>`.
+3. Copier `src/sites/example` comme base neutre, ou `src/sites/chantdumerle`
+   si le nouveau site ressemble a Chant du Merle.
+4. Modifier `src/config/site.ts` pour importer la configuration du nouveau
+   client.
+5. Adapter les contenus dans `src/sites/<client>/content`.
+6. Ajouter les images dans `public`.
+7. Lancer `npm run lint` puis `npm run build`.
+
+Pour un site sans backend, laisser `WP_GRAPHQL_URL` vide. Le catalogue utilisera
+les donnees exemple locales.
+
 ## Variables D'Environnement
 
 | Variable | Requise | Usage |
@@ -69,7 +101,5 @@ npm run start
 
 ## Adapter A Un Client
 
-1. Remplacer `src/sites/example/config/site.ts`.
-2. Remplacer les contenus dans `src/sites/example/content`.
-3. Garder les routes fines dans `src/app`.
-4. Brancher un backend seulement si le projet en a besoin.
+Voir la section "Creer Un Nouveau Site". Garder les routes fines dans
+`src/app` et brancher un backend seulement si le projet en a besoin.

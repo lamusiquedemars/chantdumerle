@@ -8,7 +8,7 @@ export type ContentAction = {
   href: string;
 };
 
-export type CatalogContent = {
+type CatalogPageContent = {
   hero: {
     title: string;
     subtitle: string;
@@ -39,4 +39,6 @@ export type CatalogContent = {
   };
 };
 
+export type CatalogContent = CatalogPageContent;
+export type StringsContent = CatalogPageContent;
 export type ProductList = ProductCardItem[];

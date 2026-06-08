@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
+import { htmlToPlainText } from "@/lib/text/htmlToPlainText";
 import styles from "./ProductCard.module.css";
 
 export type ProductCardItem = {
@@ -25,25 +25,25 @@ export default function ProductCard({
   brand,
   className,
 }: ProductCardProps) {
+  const cleanDescription = htmlToPlainText(description);
+  const cleanPrice = htmlToPlainText(price);
+
   return (
     <Link href={href} className={clsx(styles.card, className)}>
       {image ? (
         <div className={styles.media}>
-          <Image
-            src={image}
-            alt={title}
-            fill
-            sizes="(max-width: 820px) 100vw, 33vw"
-            className={styles.image}
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={image} alt={title} className={styles.image} />
         </div>
       ) : null}
 
       <div className={styles.body}>
         {brand ? <p className={styles.brand}>{brand}</p> : null}
         <h3 className={styles.title}>{title}</h3>
-        {description ? <p className={styles.description}>{description}</p> : null}
-        {price ? <p className={styles.price}>{price}</p> : null}
+        {cleanDescription ? (
+          <p className={styles.description}>{cleanDescription}</p>
+        ) : null}
+        {cleanPrice ? <p className={styles.price}>{cleanPrice}</p> : null}
       </div>
     </Link>
   );

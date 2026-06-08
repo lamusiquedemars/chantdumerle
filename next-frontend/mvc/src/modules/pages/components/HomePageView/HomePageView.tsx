@@ -9,7 +9,7 @@ import ProductCarousel from "@/modules/catalog/components/ProductCarousel/Produc
 import type { ProductCardItem } from "@/modules/catalog/components/ProductCard/ProductCard";
 import GuideList from "@/modules/guides/components/GuideList/GuideList";
 import SelectionGrid from "@/modules/selections/components/SelectionGrid/SelectionGrid";
-import type { HomeContent } from "@/sites/example/content/home";
+import type { HomeContent } from "@/sites/chantdumerle/content/home";
 
 type HomePageViewProps = {
   content: HomeContent;

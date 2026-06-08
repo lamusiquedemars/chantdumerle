@@ -1,6 +1,6 @@
-import { getFeaturedProducts } from "@/modules/catalog/services/wordpressProducts";
+import { getFeaturedStringProducts } from "@/modules/catalog/services/wordpressProducts";
 import HomePageView from "@/modules/pages/components/HomePageView/HomePageView";
-import { getHomeContent } from "@/sites/example/content/home";
+import { getHomeContent } from "@/sites/chantdumerle/content/home";
 
 type HomePageProps = {
   params: Promise<{
@@ -13,7 +13,7 @@ export default async function HomePage({ params }: HomePageProps) {
   const content = getHomeContent(locale);
 
   // Les produits restent dynamiques pendant que les textes vivent dans le contenu client.
-  const featuredProducts = (await getFeaturedProducts(locale, 4)).map(
+  const featuredProducts = (await getFeaturedStringProducts(locale, 4)).map(
     (product) => ({
       title: product.title,
       href: product.href,

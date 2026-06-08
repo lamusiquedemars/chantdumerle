@@ -1,7 +1,7 @@
 import Container from "@/components/layout/Container/Container";
 import Section from "@/components/layout/Section/Section";
 import SectionHeading from "@/components/ui/SectionHeading/SectionHeading";
-import { selectionsPageContent } from "@/sites/example/content/selections";
+import { selectionsPageContent } from "@/sites/chantdumerle/content/selections";
 
 export default function SelectionsPage() {
   return (

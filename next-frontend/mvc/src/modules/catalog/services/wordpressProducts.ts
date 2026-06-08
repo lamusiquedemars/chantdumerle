@@ -1,4 +1,6 @@
 import type { ProductCardItem } from "@/modules/catalog/components/ProductCard/ProductCard";
+import type { ProductFilterGroup } from "@/modules/catalog/components/ProductFilters/ProductFilters";
+import { htmlToPlainText } from "@/lib/text/htmlToPlainText";
 import {
   fetchGraphQL,
   hasWordPressEndpoint,
@@ -90,13 +92,286 @@ type GraphQLProductNode = {
   salePrice?: string | null;
 };
 
+type GraphQLProductAttributeTerm = {
+  name: string;
+  slug: string;
+  count?: number | null;
+};
+
 type ProductsResponse = {
   products: {
     nodes: GraphQLProductNode[];
   };
 };
 
+type ProductsByCategoryAliasResponse = Record<
+  string,
+  {
+    nodes: GraphQLProductNode[];
+  }
+>;
+
+type StringProductFilterKey = "instrument" | "corde" | "taille" | "tension";
+
+export type StringProductFilters = Partial<
+  Record<StringProductFilterKey, string>
+>;
+
+type StringProductTermsResponse = {
+  allPaInstrument: { nodes: GraphQLProductAttributeTerm[] };
+  allPaCorde: { nodes: GraphQLProductAttributeTerm[] };
+  allPaTaille: { nodes: GraphQLProductAttributeTerm[] };
+  allPaTension: { nodes: GraphQLProductAttributeTerm[] };
+};
+
+type StringProductsPageResponse = ProductsResponse & StringProductTermsResponse;
+
+export type StringProductsPageData = {
+  products: ProductCardItem[];
+  filters: ProductFilterGroup[];
+};
+
+type ProductTaxonomyFilter = {
+  taxonomy: string;
+  terms: string[];
+  operator: "AND" | "EXISTS" | "IN" | "NOT_EXISTS" | "NOT_IN";
+};
+
 const PRODUCT_DETAIL_BASE_PATH = "produits";
+
+const STRING_PRODUCT_BASE_FILTERS: ProductTaxonomyFilter[] = [
+  {
+    taxonomy: "PA_INSTRUMENT",
+    terms: ["violon", "alto", "violoncelle", "contrebasse"],
+    operator: "IN",
+  },
+  {
+    taxonomy: "PA_TYPE_PRODUIT",
+    terms: ["colophane"],
+    operator: "NOT_IN",
+  },
+];
+
+const STRING_PRODUCT_FILTER_TAXONOMIES: Record<
+  StringProductFilterKey,
+  string
+> = {
+  instrument: "PA_INSTRUMENT",
+  corde: "PA_CORDE",
+  taille: "PA_TAILLE",
+  tension: "PA_TENSION",
+};
+
+const STRING_FILTER_FALLBACKS: ProductFilterGroup[] = [
+  {
+    name: "instrument",
+    label: "Instrument",
+    options: [
+      { label: "Violon", value: "violon" },
+      { label: "Alto", value: "alto" },
+      { label: "Violoncelle", value: "violoncelle" },
+      { label: "Contrebasse", value: "contrebasse" },
+    ],
+  },
+  {
+    name: "corde",
+    label: "Corde",
+    options: [
+      { label: "jeu", value: "jeu" },
+      { label: "Mi", value: "mi" },
+      { label: "La", value: "la" },
+      { label: "Ré", value: "re" },
+      { label: "Sol", value: "sol" },
+      { label: "Do", value: "do" },
+    ],
+  },
+  {
+    name: "taille",
+    label: "Taille",
+    options: [
+      { label: "4/4", value: "4-4" },
+      { label: "3/4", value: "3-4" },
+      { label: "1/2", value: "1-2" },
+      { label: "1/4", value: "1-4" },
+    ],
+  },
+  {
+    name: "tension",
+    label: "Tension",
+    options: [
+      { label: "Light", value: "light" },
+      { label: "Medium", value: "medium" },
+      { label: "Heavy", value: "heavy" },
+    ],
+  },
+];
+
+function logWordPressProductError(context: string, error: unknown) {
+  console.error(
+    error instanceof Error
+      ? `${context}: ${error.message}`
+      : context
+  );
+}
+
+function graphQLString(value: string): string {
+  return JSON.stringify(value);
+}
+
+function buildProductTaxonomyFilter(filters: StringProductFilters = {}): string {
+  const productFilters = [...STRING_PRODUCT_BASE_FILTERS];
+
+  for (const [key, taxonomy] of Object.entries(
+    STRING_PRODUCT_FILTER_TAXONOMIES
+  ) as [StringProductFilterKey, string][]) {
+    const value = filters[key];
+
+    if (!value) {
+      continue;
+    }
+
+    productFilters.push({
+      taxonomy,
+      terms: [value],
+      operator: "IN",
+    });
+  }
+
+  const filterText = productFilters
+    .map(
+      (filter) => `{
+        taxonomy: ${filter.taxonomy}
+        terms: [${filter.terms.map(graphQLString).join(", ")}]
+        operator: ${filter.operator}
+      }`
+    )
+    .join("\n");
+
+  return `taxonomyFilter: { relation: AND, filters: [${filterText}] }`;
+}
+
+function termToFilterOption(term: GraphQLProductAttributeTerm) {
+  return {
+    label: term.name,
+    value: term.slug,
+  };
+}
+
+function termHasProducts(term: GraphQLProductAttributeTerm): boolean {
+  return term.count === undefined || term.count === null || term.count > 0;
+}
+
+function sortTerms(
+  terms: GraphQLProductAttributeTerm[],
+  preferredOrder: string[] = []
+): GraphQLProductAttributeTerm[] {
+  const order = new Map(
+    preferredOrder.map((slug, index) => [slug, index])
+  );
+
+  return [...terms]
+    .filter(termHasProducts)
+    .sort((left, right) => {
+      const leftOrder = order.get(left.slug) ?? Number.MAX_SAFE_INTEGER;
+      const rightOrder = order.get(right.slug) ?? Number.MAX_SAFE_INTEGER;
+
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
+      return left.name.localeCompare(right.name, "fr");
+    });
+}
+
+function mapStringFilterGroups(
+  data: StringProductTermsResponse
+): ProductFilterGroup[] {
+  return [
+    {
+      name: "instrument",
+      label: "Instrument",
+      options: sortTerms(data.allPaInstrument.nodes, [
+        "violon",
+        "alto",
+        "violoncelle",
+        "contrebasse",
+      ]).map(termToFilterOption),
+    },
+    {
+      name: "corde",
+      label: "Corde",
+      options: sortTerms(data.allPaCorde.nodes, [
+        "jeu",
+        "mi",
+        "la",
+        "re",
+        "sol",
+        "do",
+        "si",
+        "fa",
+        "fa-diese",
+        "do-diese",
+      ]).map(termToFilterOption),
+    },
+    {
+      name: "taille",
+      label: "Taille",
+      options: sortTerms(data.allPaTaille.nodes, [
+        "4-4",
+        "3-4",
+        "1-2",
+        "1-4",
+        "1-8",
+        "1-16",
+      ]).map(termToFilterOption),
+    },
+    {
+      name: "tension",
+      label: "Tension",
+      options: sortTerms(data.allPaTension.nodes, [
+        "light",
+        "medium-light",
+        "medium",
+        "medium-heavy",
+        "heavy",
+      ]).map(termToFilterOption),
+    },
+  ].filter((filter) => filter.options.length > 0);
+}
+
+const STRING_FILTER_GROUPS_FIELDS = `
+  allPaInstrument(first: 20) {
+    nodes {
+      name
+      slug
+      count
+    }
+  }
+
+  allPaCorde(first: 30) {
+    nodes {
+      name
+      slug
+      count
+    }
+  }
+
+  allPaTaille(first: 60) {
+    nodes {
+      name
+      slug
+      count
+    }
+  }
+
+  allPaTension(first: 20) {
+    nodes {
+      name
+      slug
+      count
+    }
+  }
+`;
 
 /*
  * Transforme un produit WooGraphQL en ProductCardItem.
@@ -112,8 +387,8 @@ export function mapProductToCard(
   return {
     title: product.name,
     href: `/${safeLocale}/${PRODUCT_DETAIL_BASE_PATH}/${product.slug}`,
-    description: product.shortDescription ?? undefined,
-    price: product.price ?? product.regularPrice ?? undefined,
+    description: htmlToPlainText(product.shortDescription),
+    price: htmlToPlainText(product.price ?? product.regularPrice),
     image: product.image?.sourceUrl ?? undefined,
     brand,
   };
@@ -130,20 +405,27 @@ export async function getProducts(
     return getExampleProductCards(locale, first);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetProducts($first: Int!) {
-        products(first: $first) {
-          nodes {
-            ${PRODUCT_CARD_FIELDS}
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetProducts($first: Int!) {
+          products(first: $first) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { first }
-  )) as ProductsResponse;
+      `,
+      { first }
+    )) as ProductsResponse;
 
-  return data.products.nodes.map((product) => mapProductToCard(product, locale));
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    logWordPressProductError("Unable to load WooCommerce products", error);
+    return [];
+  }
 }
 
 /*
@@ -157,20 +439,30 @@ export async function getFeaturedProducts(
     return getExampleProductCards(locale, first);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetFeaturedProducts($first: Int!) {
-        products(first: $first, where: { featured: true }) {
-          nodes {
-            ${PRODUCT_CARD_FIELDS}
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetFeaturedProducts($first: Int!) {
+          products(first: $first, where: { featured: true }) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { first }
-  )) as ProductsResponse;
+      `,
+      { first }
+    )) as ProductsResponse;
 
-  return data.products.nodes.map((product) => mapProductToCard(product, locale));
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    logWordPressProductError(
+      "Unable to load featured WooCommerce products",
+      error
+    );
+    return [];
+  }
 }
 
 /*
@@ -185,20 +477,91 @@ export async function getProductsByCategory(
     return getExampleProductCards(locale, first);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetProductsByCategory($first: Int!, $categorySlug: String!) {
-        products(first: $first, where: { category: $categorySlug }) {
-          nodes {
-            ${PRODUCT_CARD_FIELDS}
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetProductsByCategory($first: Int!, $categorySlug: String!) {
+          products(first: $first, where: { category: $categorySlug }) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { first, categorySlug }
-  )) as ProductsResponse;
+      `,
+      { first, categorySlug }
+    )) as ProductsResponse;
 
-  return data.products.nodes.map((product) => mapProductToCard(product, locale));
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    logWordPressProductError(
+      `Unable to load WooCommerce products for category "${categorySlug}"`,
+      error
+    );
+    return [];
+  }
+}
+
+async function getProductsByCategories(
+  locale: string = "fr",
+  categorySlugs: string[],
+  first = 12
+): Promise<ProductCardItem[]> {
+  if (!hasWordPressEndpoint) {
+    return getExampleProductCards(locale, first);
+  }
+
+  try {
+    const variables = Object.fromEntries(
+      categorySlugs.map((categorySlug, index) => [`categorySlug${index}`, categorySlug])
+    );
+    const categoryQueries = categorySlugs
+      .map(
+        (_categorySlug, index) => `
+          category${index}: products(
+            first: $first
+            where: { category: $categorySlug${index} }
+          ) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
+          }
+        `
+      )
+      .join("\n");
+    const categoryVariables = categorySlugs
+      .map((_categorySlug, index) => `$categorySlug${index}: String!`)
+      .join(", ");
+
+    const data = (await fetchGraphQL(
+      `
+        query GetProductsByCategories($first: Int!, ${categoryVariables}) {
+          ${categoryQueries}
+        }
+      `,
+      { first, ...variables }
+    )) as ProductsByCategoryAliasResponse;
+
+    const productsByHref = new Map<string, ProductCardItem>();
+
+    for (const category of Object.values(data)) {
+      for (const product of category.nodes) {
+        const productCard = mapProductToCard(product, locale);
+        productsByHref.set(productCard.href, productCard);
+      }
+    }
+
+    return [...productsByHref.values()].slice(0, first);
+  } catch (error) {
+    logWordPressProductError(
+      `Unable to load WooCommerce products for categories "${categorySlugs.join(
+        ", "
+      )}"`,
+      error
+    );
+    return [];
+  }
 }
 
 /*
@@ -223,29 +586,304 @@ export async function getFeaturedProductsByCategory(
     return getExampleProductCards(locale, first);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetFeaturedProductsByCategory(
-        $first: Int!
-        $categorySlug: String!
-      ) {
-        products(
-          first: $first
-          where: {
-            featured: true
-            category: $categorySlug
-          }
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetFeaturedProductsByCategory(
+          $first: Int!
+          $categorySlug: String!
         ) {
-          nodes {
-            ${PRODUCT_CARD_FIELDS}
+          products(
+            first: $first
+            where: {
+              featured: true
+              category: $categorySlug
+            }
+          ) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { first, categorySlug }
-  )) as ProductsResponse;
+      `,
+      { first, categorySlug }
+    )) as ProductsResponse;
 
-  return data.products.nodes.map((product) => mapProductToCard(product, locale));
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    logWordPressProductError(
+      `Unable to load featured WooCommerce products for category "${categorySlug}"`,
+      error
+    );
+    return [];
+  }
+}
+
+async function getFeaturedProductsByCategories(
+  locale: string = "fr",
+  categorySlugs: string[],
+  first = 8
+): Promise<ProductCardItem[]> {
+  if (!hasWordPressEndpoint) {
+    return getExampleProductCards(locale, first);
+  }
+
+  try {
+    const variables = Object.fromEntries(
+      categorySlugs.map((categorySlug, index) => [`categorySlug${index}`, categorySlug])
+    );
+    const categoryQueries = categorySlugs
+      .map(
+        (_categorySlug, index) => `
+          category${index}: products(
+            first: $first
+            where: {
+              featured: true
+              category: $categorySlug${index}
+            }
+          ) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
+          }
+        `
+      )
+      .join("\n");
+    const categoryVariables = categorySlugs
+      .map((_categorySlug, index) => `$categorySlug${index}: String!`)
+      .join(", ");
+
+    const data = (await fetchGraphQL(
+      `
+        query GetFeaturedProductsByCategories($first: Int!, ${categoryVariables}) {
+          ${categoryQueries}
+        }
+      `,
+      { first, ...variables }
+    )) as ProductsByCategoryAliasResponse;
+
+    const productsByHref = new Map<string, ProductCardItem>();
+
+    for (const category of Object.values(data)) {
+      for (const product of category.nodes) {
+        const productCard = mapProductToCard(product, locale);
+        productsByHref.set(productCard.href, productCard);
+      }
+    }
+
+    return [...productsByHref.values()].slice(0, first);
+  } catch (error) {
+    logWordPressProductError(
+      `Unable to load featured WooCommerce products for categories "${categorySlugs.join(
+        ", "
+      )}"`,
+      error
+    );
+    return [];
+  }
+}
+
+/*
+ * Cordes mises en avant.
+ */
+export async function getFeaturedStringProducts(
+  locale: string = "fr",
+  first = 8
+): Promise<ProductCardItem[]> {
+  if (!hasWordPressEndpoint) {
+    return getExampleProductCards(locale, first);
+  }
+
+  try {
+    const taxonomyFilter = buildProductTaxonomyFilter();
+    const data = (await fetchGraphQL(
+      `
+        query GetFeaturedStringProducts($first: Int!) {
+          products(
+            first: $first
+            where: {
+              featured: true
+              ${taxonomyFilter}
+            }
+          ) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
+          }
+        }
+      `,
+      { first }
+    )) as ProductsResponse;
+
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    logWordPressProductError(
+      "Unable to load featured WooCommerce string products",
+      error
+    );
+    return [];
+  }
+}
+
+/*
+ * Toutes les cordes.
+ */
+export async function getStringProducts(
+  locale: string = "fr",
+  first = 24,
+  filters: StringProductFilters = {}
+): Promise<ProductCardItem[]> {
+  if (!hasWordPressEndpoint) {
+    return getExampleProductCards(locale, first);
+  }
+
+  try {
+    const taxonomyFilter = buildProductTaxonomyFilter(filters);
+    const data = (await fetchGraphQL(
+      `
+        query GetStringProducts($first: Int!) {
+          products(
+            first: $first
+            where: {
+              ${taxonomyFilter}
+            }
+          ) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
+          }
+        }
+      `,
+      { first }
+    )) as ProductsResponse;
+
+    return data.products.nodes.map((product) =>
+      mapProductToCard(product, locale)
+    );
+  } catch (error) {
+    logWordPressProductError("Unable to load WooCommerce string products", error);
+    return [];
+  }
+}
+
+/*
+ * Données complètes de la page cordes.
+ * Produits et options de filtre sont récupérés en une seule requête GraphQL,
+ * ce qui évite deux appels WooCommerce coûteux pendant le rendu serveur.
+ */
+export async function getStringProductsPageData(
+  locale: string = "fr",
+  first = 48,
+  filters: StringProductFilters = {}
+): Promise<StringProductsPageData> {
+  if (!hasWordPressEndpoint) {
+    return {
+      products: getExampleProductCards(locale, first),
+      filters: STRING_FILTER_FALLBACKS,
+    };
+  }
+
+  try {
+    const taxonomyFilter = buildProductTaxonomyFilter(filters);
+    const data = (await fetchGraphQL(
+      `
+        query GetStringProductsPageData($first: Int!) {
+          products(
+            first: $first
+            where: {
+              ${taxonomyFilter}
+            }
+          ) {
+            nodes {
+              ${PRODUCT_CARD_FIELDS}
+            }
+          }
+
+          ${STRING_FILTER_GROUPS_FIELDS}
+        }
+      `,
+      { first }
+    )) as StringProductsPageResponse;
+
+    return {
+      products: data.products.nodes.map((product) =>
+        mapProductToCard(product, locale)
+      ),
+      filters: mapStringFilterGroups(data),
+    };
+  } catch (error) {
+    logWordPressProductError(
+      "Unable to load WooCommerce string products page data",
+      error
+    );
+
+    return {
+      products: [],
+      filters: STRING_FILTER_FALLBACKS,
+    };
+  }
+}
+
+const STRING_CATEGORY_SLUGS = ["violon", "alto", "violoncelle", "contrebasse"];
+
+const STRING_INSTRUMENT_CATEGORY_SLUGS: Record<string, string> = {
+  violon: "violon",
+  alto: "alto",
+  cello: "violoncelle",
+  contrebasse: "contrebasse",
+};
+
+/*
+ * Cordes filtrées par instrument.
+ * Les produits Woo actuels sont classés par catégories instrument
+ * plutôt que par attributs globaux pa_instrument.
+ */
+export async function getStringProductsByInstrument(
+  locale: string = "fr",
+  instrumentSlug: string,
+  first = 48
+): Promise<ProductCardItem[]> {
+  const instrument = STRING_INSTRUMENT_CATEGORY_SLUGS[instrumentSlug];
+
+  if (!instrument) {
+    return [];
+  }
+
+  return getStringProducts(locale, first, { instrument });
+}
+
+/*
+ * Options de filtres disponibles pour les pages cordes.
+ * Elles viennent des termes Woo, donc elles suivent l'import.
+ */
+export async function getStringProductFilterGroups(): Promise<
+  ProductFilterGroup[]
+> {
+  if (!hasWordPressEndpoint) {
+    return STRING_FILTER_FALLBACKS;
+  }
+
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetStringProductFilterGroups {
+          ${STRING_FILTER_GROUPS_FIELDS}
+        }
+      `
+    )) as StringProductTermsResponse;
+
+    return mapStringFilterGroups(data);
+  } catch (error) {
+    logWordPressProductError(
+      "Unable to load WooCommerce string filter groups",
+      error
+    );
+    return STRING_FILTER_FALLBACKS;
+  }
 }
 
 /*
@@ -636,28 +1274,36 @@ export async function getProductPageBySlug(
     return getExampleProductPageBySlug(slug);
   }
 
-  const data = (await fetchGraphQL(
-    `
-      query GetProductPageBySlug($slug: ID!) {
-        product(id: $slug, idType: SLUG) {
-          __typename
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetProductPageBySlug($slug: ID!) {
+          product(id: $slug, idType: SLUG) {
+            __typename
 
-          ... on SimpleProduct {
-            ${PRODUCT_PAGE_FIELDS}
-          }
+            ... on SimpleProduct {
+              ${PRODUCT_PAGE_FIELDS}
+            }
 
-          ... on VariableProduct {
-            ${PRODUCT_PAGE_FIELDS}
+            ... on VariableProduct {
+              ${PRODUCT_PAGE_FIELDS}
+            }
           }
         }
-      }
-    `,
-    { slug }
-  )) as ProductPageResponse;
+      `,
+      { slug }
+    )) as ProductPageResponse;
 
-  if (!data.product) {
+    if (!data.product) {
+      return null;
+    }
+
+    return mapProductToPageItem(data.product);
+  } catch (error) {
+    logWordPressProductError(
+      `Unable to load WooCommerce product "${slug}"`,
+      error
+    );
     return null;
   }
-
-  return mapProductToPageItem(data.product);
 }

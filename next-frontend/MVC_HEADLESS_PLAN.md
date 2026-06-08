@@ -246,6 +246,21 @@ Objectif : valider le modele avec un vrai cas client.
 - conserver les choix metier propres au catalogue de cordes ;
 - verifier que les differences client restent dans les couches prevues.
 
+Etat :
+
+- `mvc/src/sites/chantdumerle` cree avec la configuration et les contenus du
+  site reel ;
+- `mvc/src/config/site.ts` pointe maintenant vers Chant du Merle ;
+- routes metier Chant du Merle ajoutees dans `mvc` :
+  `/[locale]/cordes` et `/[locale]/guides/comment-choisir-ses-cordes` ;
+- le module catalogue garde le fallback local du starter tout en exposant les
+  fonctions metier des cordes ;
+- les scripts racine `npm run dev|lint|build|start` ciblent maintenant
+  `next-frontend/mvc` ;
+- `npm run lint` et `npm run build` sont valides sur `mvc`.
+- apres verification navigateur, l'ancien laboratoire `next-frontend/src` et
+  les fichiers projet Next racine ont ete supprimes.
+
 ## Inventaire Des Routes Actuelles
 
 Dans l'App Router, un fichier `page` expose une route publique et un fichier
@@ -346,9 +361,66 @@ La stabilisation initiale de `next-frontend` a commence :
 
 ## Prochaine Etape
 
-Commencer la documentation du starter avant l'extraction :
+Continuer les changements frontend directement dans `next-frontend/mvc`.
+Le dossier `next-frontend` ne garde plus que la documentation de migration et
+le projet actif `mvc`.
 
-1. remplacer le README Next generique par un README de projet ;
-2. ajouter un `.env.example` qui distingue les besoins du socle et des
-   adaptateurs headless ;
-3. noter les conventions du futur dossier `mvc` dans son `AGENTS.md`.
+## Suivi Actif Chant Du Merle
+
+Cette section sert de memoire de travail apres l'import Woo et le rebranchement
+des listings. Elle doit etre mise a jour a chaque grosse etape pour ne pas
+perdre le fil.
+
+### Fait
+
+- import des produits Woo depuis `01-produits-woo.csv` effectue par
+  l'interface WooCommerce ;
+- sauvegarde DB post-import creee dans
+  `woo-backend/wp-content/uploads/db-backups/chantdumerle_wp_after_import_20260607.sql` ;
+- attributs commerciaux Woo normalises via
+  `tools/normalize-woo-product-attributes.php` ;
+- produits actifs rattaches aux taxonomies globales Woo :
+  `pa_marque`, `pa_modele`, `pa_instrument`, `pa_corde`, `pa_taille`,
+  `pa_tension`, `pa_attache`, `pa_ame`, `pa_filage`, `pa_type_produit` ;
+- variations converties de `attribute_*` vers `attribute_pa_*` ;
+- faux doublons de valeurs corriges, notamment `Do/do`, `Boule/boule`,
+  `Boucle/boucle` ;
+- slugs accentues nettoyes pour les filtres : `re`, `fa-diese`, `do-diese`,
+  `acier-chrome`, `tungstene` ;
+- page `/[locale]/cordes` branchee sur les vrais produits Woo via
+  `taxonomyFilter` WPGraphQL ;
+- filtres de premiere passe ajoutes sur `/cordes` :
+  `instrument`, `corde`, `taille`, `tension` ;
+- options de filtres chargees depuis les termes Woo ;
+- colophanes exclues du listing cordes via `pa_type_produit=colophane` ;
+- `npm run build` valide dans `next-frontend/mvc`.
+
+### A Faire Maintenant
+
+1. Stabiliser le chantier Git du deplacement `mvc` :
+   ajouter les fichiers encore non suivis qui appartiennent au nouveau projet,
+   verifier que les suppressions de l'ancien `next-frontend/src` sont bien
+   voulues, puis faire un commit de sauvegarde coherent.
+2. Verifier visuellement `/fr/cordes` et les filtres principaux :
+   instrument, corde, taille, tension, fiche produit depuis une carte.
+3. Ameliorer les cartes de listing :
+   afficher quelques attributs utiles sous le titre, par exemple instrument,
+   corde, taille, tension, sans surcharger la grille.
+4. Brancher les pages de listing par intention metier :
+   son recherche, niveau, budget, usage, a partir du referentiel modele.
+5. Construire le referentiel modele :
+   cle `marque + modele`, attributs sonores et pedagogiques, puis liaison avec
+   les produits Woo par `pa_marque` + `pa_modele`.
+6. Decider le mode de stockage du referentiel modele :
+   CSV maintenable au depart, puis table dediee ou CPT WordPress si besoin.
+7. Preparer les produits composes/curations :
+   jeux recommandes, panachages de cordes, selections par besoin musical.
+8. Revoir les performances GraphQL :
+   la page est rapide apres cache Next, mais le premier rendu depend encore de
+   WPGraphQL local ; a surveiller avant mise en production.
+
+### Prochaine Decision
+
+La prochaine action recommandee est la sauvegarde Git coherent du chantier
+`mvc`, avant d'ajouter de nouvelles pages metier. Ensuite seulement, avancer sur
+les listings par besoin musical avec le referentiel modele.

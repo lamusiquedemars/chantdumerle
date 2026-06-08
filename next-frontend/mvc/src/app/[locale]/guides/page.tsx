@@ -1,5 +1,5 @@
 import GuidesPageView from "@/modules/guides/components/GuidesPageView/GuidesPageView";
-import { getGuidesPageContent } from "@/sites/example/content/guides";
+import { getGuidesPageContent } from "@/sites/chantdumerle/content/guides";
 
 type GuidesPageProps = {
   params: Promise<{

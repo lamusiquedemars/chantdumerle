@@ -2,9 +2,9 @@
   "name": "chantdumerle-workspace",
   "private": true,
   "scripts": {
-    "dev": "npm --prefix next-frontend run dev",
-    "build": "npm --prefix next-frontend run build",
-    "start": "npm --prefix next-frontend run start",
-    "lint": "npm --prefix next-frontend run lint"
+    "dev": "npm --prefix next-frontend/mvc run dev",
+    "build": "npm --prefix next-frontend/mvc run build",
+    "start": "npm --prefix next-frontend/mvc run start",
+    "lint": "npm --prefix next-frontend/mvc run lint"
   }
 }
