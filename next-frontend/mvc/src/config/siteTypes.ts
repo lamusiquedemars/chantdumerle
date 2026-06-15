@@ -1,6 +1,8 @@
 export type SiteLink = {
   label: string;
   href: string;
+  icon?: "user" | "cart";
+  iconOnly?: boolean;
 };
 
 export type SiteBrand = {

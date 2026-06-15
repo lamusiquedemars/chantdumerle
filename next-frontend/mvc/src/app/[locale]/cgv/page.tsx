@@ -14,15 +14,15 @@ export default function TermsOfSalePage() {
   return (
     <SimplePage
       title="Conditions générales de vente"
-      intro="Version de travail à compléter avec les informations commerciales définitives."
+      intro="Conditions applicables aux commandes passées sur le site Le Chant du Merle."
     >
       <SimplePageSection title="Vendeur">
         <p>
           Le Chant du Merle est édité par Ivo Correia de Melo Neto,
           entrepreneur individuel, immatriculé au RCS de Lyon sous le numéro
           894 976 133, SIRET 894 976 133 00013, TVA intracommunautaire
-          FR33894976133, domicilié au 30 chemin de l'Ecully, 69660
-          Collonges-au-Mont-d'Or.
+          FR33894976133, domicilié au 30 chemin de l’Écully, 69660
+          Collonges-au-Mont-d’Or.
         </p>
       </SimplePageSection>
 
@@ -35,30 +35,58 @@ export default function TermsOfSalePage() {
       </SimplePageSection>
 
       <SimplePageSection title="Prix">
-        <p className={simplePageStyles.note}>
-          À compléter : préciser si les prix sont indiqués TTC, les frais de
-          livraison applicables et les éventuelles conditions particulières.
+        <p>
+          Les prix affichés sur le site sont indiqués toutes taxes comprises
+          (TTC), hors frais de livraison. Les frais de livraison sont indiqués
+          lors de la commande avant validation définitive.
         </p>
       </SimplePageSection>
 
       <SimplePageSection title="Commande et paiement">
-        <p className={simplePageStyles.note}>
-          À compléter : décrire le parcours de commande, les moyens de paiement
-          acceptés, la validation de commande et les conditions d'encaissement.
+        <p>
+          Le client valide sa commande après avoir vérifié le détail de son
+          panier, les informations de livraison et le montant total à payer. Le
+          paiement peut être effectué par virement bancaire ou par carte
+          bancaire via Stancer.
         </p>
       </SimplePageSection>
 
       <SimplePageSection title="Livraison">
-        <p className={simplePageStyles.note}>
-          À compléter : zones desservies, transporteurs, délais indicatifs,
-          frais de livraison et modalités de retrait éventuel.
+        <p>
+          Les produits sont livrés en Europe. Les expéditions peuvent être
+          réalisées directement depuis un fournisseur situé en Espagne, selon
+          les produits commandés et leur disponibilité.
+        </p>
+        <p>
+          Pour les produits en stock, les délais de livraison habituellement
+          constatés sont de 2 à 5 jours ouvrés. Ces délais sont indicatifs et
+          peuvent varier selon le transporteur, la destination et la
+          disponibilité effective des produits.
+        </p>
+        <p>
+          Les frais de livraison sont indicatifs : 10 € pour les petits objets
+          et à partir de 15 € pour les objets volumineux, notamment les étuis,
+          selon la taille et la destination.
         </p>
       </SimplePageSection>
 
       <SimplePageSection title="Droit de rétractation">
-        <p className={simplePageStyles.note}>
-          À compléter : durée, procédure, adresse de retour, exceptions
-          applicables et état attendu des produits retournés.
+        <p>
+          Le client consommateur dispose du droit de rétractation légal dans
+          les conditions prévues par le Code de la consommation. Pour exercer ce
+          droit, le client peut contacter Le Chant du Merle par e-mail à{" "}
+          <a
+            className={simplePageStyles.link}
+            href="mailto:contact@lechantdumerle.fr"
+          >
+            contact@lechantdumerle.fr
+          </a>
+          .
+        </p>
+        <p>
+          Les retours doivent être adressés à Ivo Correia de Melo Neto, 30
+          chemin de l’Écully, 69660 Collonges-au-Mont-d’Or, sauf indication
+          contraire transmise au client après sa demande de rétractation.
         </p>
       </SimplePageSection>
 
@@ -85,8 +113,18 @@ export default function TermsOfSalePage() {
 
       <SimplePageSection title="Médiation">
         <p className={simplePageStyles.note}>
-          À compléter : indiquer le médiateur de la consommation compétent et
-          ses coordonnées.
+          Médiateur de la consommation à désigner : les coordonnées du
+          médiateur choisi devront être ajoutées ici. Le tribunal compétent ne
+          remplace pas cette information de médiation préalable.
+        </p>
+      </SimplePageSection>
+
+      <SimplePageSection title="Litiges">
+        <p>
+          En cas de litige, le client est invité à contacter en priorité Le
+          Chant du Merle afin de rechercher une solution amiable. À défaut de
+          résolution amiable ou de médiation, les règles de compétence
+          juridictionnelle applicables seront celles prévues par la loi.
         </p>
       </SimplePageSection>
     </SimplePage>

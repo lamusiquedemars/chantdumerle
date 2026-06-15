@@ -38,6 +38,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  gap: var(--space-8);
   min-height: 44px;
   padding: var(--space-8) 0;
   font-family: var(--font-body);
@@ -48,6 +49,48 @@
   transition:
     color 160ms ease,
     opacity 160ms ease;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+  stroke-width: 1.8;
+}
+
+.iconLink {
+  justify-content: center;
+  width: 44px;
+  padding-inline: 0;
+}
+
+.badge {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.1rem;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  text-align: center;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
 }
 
 /* Soulignement fin, plus élégant qu'un simple hover brutal */

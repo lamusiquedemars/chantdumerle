@@ -2,24 +2,17 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import {
-  addWooProductToCart,
   getCartItemCount,
+  getWooCart,
   WOO_CART_TOKEN_COOKIE,
-} from "../services/wooCart";
+} from "@/modules/commerce/services/wooCart";
 
 const wooBaseUrl =
   process.env.WOO_BASE_URL ??
   process.env.NEXT_PUBLIC_WP_URL ??
   process.env.WP_GRAPHQL_URL?.replace(/\/graphql\/?$/, "");
 
-function readPositiveInteger(value: unknown) {
-  const number = Number(value);
-
-  return Number.isInteger(number) && number > 0 ? number : null;
-}
-
-// Handler Next.js fin : validation HTTP, session Woo et delegation au service.
-export async function POST(request: Request) {
+export async function GET() {
   if (!wooBaseUrl) {
     return NextResponse.json(
       { error: "WooCommerce URL is not defined" },
@@ -27,26 +20,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const body = await request.json();
-  const productId = readPositiveInteger(body.productId);
-  const quantity = readPositiveInteger(body.quantity ?? 1);
-
-  if (!productId) {
-    return NextResponse.json({ error: "Invalid productId" }, { status: 400 });
-  }
-
-  if (!quantity) {
-    return NextResponse.json({ error: "Invalid quantity" }, { status: 400 });
-  }
-
   const cookieStore = await cookies();
   const cartToken = cookieStore.get(WOO_CART_TOKEN_COOKIE)?.value;
 
   try {
-    const { json: cart, cartToken: nextCartToken } = await addWooProductToCart({
+    const { json: cart, cartToken: nextCartToken } = await getWooCart({
       baseUrl: wooBaseUrl,
-      productId,
-      quantity,
       cartToken,
     });
 

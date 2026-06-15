@@ -18,9 +18,15 @@ export default function AddToCartButton({
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
   );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function handleAddToCart() {
+    if (disabled) {
+      return;
+    }
+
     setStatus("loading");
+    setErrorMessage(null);
 
     try {
       const res = await fetch("/api/cart/add", {
@@ -35,11 +41,30 @@ export default function AddToCartButton({
       });
 
       if (!res.ok) {
-        throw new Error("Erreur lors de l’ajout au panier.");
+        const json = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+
+        throw new Error(json?.error ?? "Erreur lors de l’ajout au panier.");
       }
 
+      const json = (await res.json()) as { itemCount?: number };
+
+      window.dispatchEvent(
+        new CustomEvent("cdm:cart-updated", {
+          detail: {
+            itemCount: json.itemCount,
+          },
+        })
+      );
+
       setStatus("success");
-    } catch {
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Impossible d’ajouter ce produit au panier."
+      );
       setStatus("error");
     }
   }
@@ -57,6 +82,7 @@ export default function AddToCartButton({
         onChange={(event) => {
           setQuantity(Number(event.target.value));
           setStatus("idle");
+          setErrorMessage(null);
         }}
         className={styles.quantity}
       />
@@ -67,15 +93,27 @@ export default function AddToCartButton({
         disabled={disabled || status === "loading"}
         className={styles.cartButton}
       >
-        {status === "loading" ? "Ajout en cours…" : "Ajouter au panier"}
+        {disabled
+          ? "Produit indisponible"
+          : status === "loading"
+            ? "Ajout en cours…"
+            : "Ajouter au panier"}
       </button>
 
+      {disabled ? (
+        <p className={styles.noticeError}>
+          Ce produit n’est pas disponible à l’achat pour le moment.
+        </p>
+      ) : null}
+
       {status === "success" ? (
-        <p className={styles.notice}>Produit ajouté au panier.</p>
+        <p className={styles.notice}>Produit ajouté au panier. Le compteur est à jour.</p>
       ) : null}
 
       {status === "error" ? (
-        <p className={styles.notice}>Impossible d’ajouter ce produit au panier.</p>
+        <p className={styles.noticeError}>
+          {errorMessage ?? "Impossible d’ajouter ce produit au panier."}
+        </p>
       ) : null}
     </>
   );

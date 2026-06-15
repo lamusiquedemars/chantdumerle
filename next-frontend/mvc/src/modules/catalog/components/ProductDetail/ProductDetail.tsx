@@ -108,6 +108,7 @@ function buildProductBreadcrumbItems(
 export default function ProductDetail({ locale, product }: ProductDetailProps) {
   const categoryNames = product.categories.map((category) => category.name);
   const isInStock = product.stockStatus === "IN_STOCK";
+  const canAddToCart = product.purchasable !== false && isInStock;
   const productName = htmlToPlainText(product.name) ?? product.name;
   const breadcrumbItems = buildProductBreadcrumbItems(product, locale);
 
@@ -167,9 +168,7 @@ export default function ProductDetail({ locale, product }: ProductDetailProps) {
           <div className={styles.buyBox}>
             <AddToCartButton
               productId={product.databaseId}
-              disabled={
-                !product.purchasable || product.stockStatus !== "IN_STOCK"
-              }
+              disabled={!canAddToCart}
             />
           </div>
         </div>

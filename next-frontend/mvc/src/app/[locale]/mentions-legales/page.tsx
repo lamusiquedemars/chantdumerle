@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   SimplePageSection,
   simplePageStyles,
@@ -18,8 +19,8 @@ export default function LegalNoticePage() {
           Le Chant du Merle est édité par Ivo Correia de Melo Neto,
           entrepreneur individuel, immatriculé au RCS de Lyon sous le numéro
           894 976 133, SIRET 894 976 133 00013, TVA intracommunautaire
-          FR33894976133, domicilié au 30 chemin de l'Ecully, 69660
-          Collonges-au-Mont-d'Or.
+          FR33894976133, domicilié au 30 chemin de l’Écully, 69660
+          Collonges-au-Mont-d’Or.
         </p>
       </SimplePageSection>
 
@@ -31,7 +32,7 @@ export default function LegalNoticePage() {
             href="mailto:contact@lechantdumerle.fr"
           >
             contact@lechantdumerle.fr
-          </a>
+          </a> ou appeler le +33 7 86 43 15 83
           .
         </p>
       </SimplePageSection>
@@ -41,9 +42,25 @@ export default function LegalNoticePage() {
       </SimplePageSection>
 
       <SimplePageSection title="Hébergement">
-        <p className={simplePageStyles.note}>
-          Hébergeur à compléter : nom de l'hébergeur, forme juridique, adresse
-          postale et moyen de contact.
+        <p>
+          Le site est hébergé par LWS, Ligne Web Services, société immatriculée
+          au RCS de Paris sous le numéro 851 993 683.
+        </p>
+      </SimplePageSection>
+
+      <SimplePageSection title="Données personnelles">
+        <p>
+          Le Chant du Merle peut collecter et traiter des données personnelles
+          dans le cadre des demandes de contact, des commandes, du paiement, de
+          la livraison et du fonctionnement technique du site. Les informations
+          détaillées sont disponibles dans la{" "}
+          <Link
+            className={simplePageStyles.link}
+            href="/fr/politique-confidentialite"
+          >
+            politique de confidentialité
+          </Link>
+          .
         </p>
       </SimplePageSection>
     </SimplePage>

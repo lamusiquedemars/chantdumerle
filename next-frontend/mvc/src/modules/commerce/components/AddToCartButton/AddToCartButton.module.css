@@ -28,3 +28,10 @@
   color: #7b6f63;
   font-size: 0.9rem;
 }
+
+.noticeError {
+  margin: 0;
+  color: #8c2f1c;
+  font-size: 0.9rem;
+  font-weight: 600;
+}

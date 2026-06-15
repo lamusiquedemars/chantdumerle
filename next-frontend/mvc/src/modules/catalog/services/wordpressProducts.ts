@@ -293,6 +293,12 @@ type WooStoreProductAttribute = {
   }[];
 };
 
+type ProductPageStoreFieldDefinition = {
+  label: string;
+  taxonomies: string[];
+  names: string[];
+};
+
 type WooStoreAttributeTerm = {
   id: number;
   name: string;
@@ -1400,6 +1406,37 @@ function getStoreAttributeValues(
   );
 }
 
+function getStoreAttributeFieldValues(
+  product: WooStoreProduct,
+  definition: ProductPageStoreFieldDefinition
+): string[] {
+  const taxonomies = new Set(definition.taxonomies);
+  const names = new Set(definition.names.map(normalizeStoreAttributeName));
+
+  return [
+    ...new Set(
+      product.attributes
+        ?.filter(
+          (attribute) =>
+            (attribute.taxonomy !== null && taxonomies.has(attribute.taxonomy)) ||
+            names.has(normalizeStoreAttributeName(attribute.name))
+        )
+        .flatMap((attribute) => attribute.terms.map((term) => term.name))
+        .map((value) => value.trim())
+        .filter(Boolean) ?? []
+    ),
+  ];
+}
+
+function normalizeStoreAttributeName(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function mapStoreProductToCard(
   product: WooStoreProduct,
   locale: string
@@ -2087,6 +2124,126 @@ function cleanFields(
   return fields.filter((field): field is ProductPageField => Boolean(field));
 }
 
+const PRODUCT_PAGE_STORE_FIELD_GROUPS = {
+  identity: [
+    storeField("Marque", ["pa_marque"], ["Marque"]),
+    storeField("Instrument", ["pa_instrument"], ["Instrument"]),
+    storeField("Taille", ["pa_taille"], ["Taille"]),
+    storeField("Modèle", ["pa_modele"], ["Modèle", "Modele"]),
+    storeField("Corde", ["pa_corde"], ["Corde"]),
+    storeField("Tension", ["pa_tension"], ["Tension"]),
+    storeField("Type de produit", ["pa_type_produit"], [
+      "Type produit",
+      "Type de produit",
+    ]),
+  ],
+  sound: [
+    storeField("Profil sonore", ["pa_profil_sonore"], ["Profil sonore"]),
+    storeField("Complexité", ["pa_complexite_sonore", "pa_complexite"], [
+      "Complexité",
+      "Complexité sonore",
+    ]),
+    storeField("Puissance", ["pa_puissance_sonore", "pa_puissance"], [
+      "Puissance",
+      "Puissance sonore",
+    ]),
+    storeField("Réponse", ["pa_reponse"], ["Réponse", "Reponse"]),
+    storeField("Usage", ["pa_usage"], ["Usage"]),
+    storeField("Positionnement", [
+      "pa_positionnement_prix",
+      "pa_positionnement",
+    ], [
+      "Positionnement",
+      "Positionnement prix",
+    ]),
+  ],
+  technical: [
+    storeField("Âme", ["pa_ame"], ["Âme", "Ame"]),
+    storeField("Filage", ["pa_filage"], ["Filage"]),
+    storeField("Attache", ["pa_attache"], ["Attache"]),
+    storeField("Durabilité", ["pa_durabilite"], ["Durabilité", "Durabilite"]),
+    storeField("Stabilité d’accord", ["pa_stabilite_accord", "pa_stabilite"], [
+      "Stabilité d'accord",
+      "Stabilité d’accord",
+      "Stabilité",
+    ]),
+    storeField("Temps de rodage", ["pa_temps_rodage"], ["Temps de rodage"]),
+  ],
+} satisfies Record<
+  "identity" | "sound" | "technical",
+  ProductPageStoreFieldDefinition[]
+>;
+
+function storeField(
+  label: string,
+  taxonomies: string[],
+  names: string[]
+): ProductPageStoreFieldDefinition {
+  return { label, taxonomies, names };
+}
+
+function mergeProductPageStoreFields(
+  currentFields: ProductPageField[],
+  product: WooStoreProduct,
+  definitions: ProductPageStoreFieldDefinition[]
+): ProductPageField[] {
+  const fields = [...currentFields];
+  const existingLabels = new Set(fields.map((field) => field.label));
+
+  for (const definition of definitions) {
+    if (existingLabels.has(definition.label)) {
+      continue;
+    }
+
+    const values = getStoreAttributeFieldValues(product, definition);
+
+    if (values.length === 0) {
+      continue;
+    }
+
+    fields.push({
+      label: definition.label,
+      value: values.join(", "),
+    });
+    existingLabels.add(definition.label);
+  }
+
+  return fields;
+}
+
+function mergeProductPageWithStoreProduct(
+  pageItem: ProductPageItem,
+  storeProduct: WooStoreProduct
+): ProductPageItem {
+  return {
+    ...pageItem,
+    identity: mergeProductPageStoreFields(
+      pageItem.identity,
+      storeProduct,
+      PRODUCT_PAGE_STORE_FIELD_GROUPS.identity
+    ),
+    sound: mergeProductPageStoreFields(
+      pageItem.sound,
+      storeProduct,
+      PRODUCT_PAGE_STORE_FIELD_GROUPS.sound
+    ),
+    technical: mergeProductPageStoreFields(
+      pageItem.technical,
+      storeProduct,
+      PRODUCT_PAGE_STORE_FIELD_GROUPS.technical
+    ),
+  };
+}
+
+async function getStoreProductBySlug(
+  slug: string
+): Promise<WooStoreProduct | undefined> {
+  const params = new URLSearchParams({ slug });
+  const { data } = await fetchWooStore<WooStoreProduct[]>("products", params);
+
+  return data.find((product) => product.slug === slug);
+}
+
 /*
  * Transforme le produit GraphQL brut en objet propre pour la page produit.
  */
@@ -2182,7 +2339,22 @@ export async function getProductPageBySlug(
       return null;
     }
 
-    return mapProductToPageItem(data.product);
+    const pageItem = mapProductToPageItem(data.product);
+
+    try {
+      const storeProduct = await getStoreProductBySlug(slug);
+
+      if (storeProduct) {
+        return mergeProductPageWithStoreProduct(pageItem, storeProduct);
+      }
+    } catch (storeError) {
+      logWordPressProductError(
+        `Unable to enrich WooCommerce product "${slug}" from Store API`,
+        storeError
+      );
+    }
+
+    return pageItem;
   } catch (error) {
     logWordPressProductError(
       `Unable to load WooCommerce product "${slug}"`,
