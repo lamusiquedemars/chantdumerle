@@ -1,9 +1,9 @@
 === Stancer for WooCommerce ===
 Tags: stancer, payment, credit card, sepa, ecommerce
 Requires at least: 6.5.0
-Tested up to: 6.8.0
+Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.4.1
+Stable tag: 1.4.3
 License: MIT
 Contributors: stancer
 
@@ -85,6 +85,15 @@ Updates are done automatically. However, we recommend that you back up your site
 == Changelog ==
 
 [See complete changelog file on GitLab](https://gitlab.com/wearestancer/cms/woocommerce/-/blob/main/CHANGELOG.md).
+
+= Version 1.4.3 =
+* Fixes for retried payments display
+* Plugin tested up to WordPress 7.0
+
+= Version 1.4.2 =
+* Add a capture button in order view
+* Internationalization of payment page
+* Fix customer disappearing on captured payment
 
 = Version 1.4.1 =
 * Remove authorization option

@@ -12,7 +12,7 @@
  * Description:       Simple payment solution at low prices.
  * Requires at least: 6.5.0
  * Requires PHP:      8.1
- * Version:     1.4.1
+ * Version:     1.4.3
  * Author:            Stancer
  * Author URI:        https://www.stancer.com/
  * License:           MIT
@@ -28,8 +28,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Currently plugin version.
  */
-define( 'STANCER_WC_VERSION', '1.4.1' );
-define( 'STANCER_ASSETS_VERSION', '1773225976881' );
+define( 'STANCER_WC_VERSION', '1.4.3' );
+define( 'STANCER_ASSETS_VERSION', '1779289844020' );
 define( 'STANCER_FILE', __FILE__ );
 define( 'STANCER_DIRECTORY_PATH', plugin_dir_path( STANCER_FILE ) );
 
@@ -52,8 +52,11 @@ add_action(
 );
 
 
+
 // Add links on plugins.
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'plugin_action_links' );
+
+
 
 /**
  * Wrapper to load our translations.
@@ -76,7 +79,6 @@ if ( ! function_exists( 'is_woocommerce_activated' ) ) {
 		return class_exists( 'woocommerce' );
 	}
 }
-
 /**
  * Add links on plugins.
  *

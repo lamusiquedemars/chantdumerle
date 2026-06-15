@@ -154,6 +154,7 @@ class ComposerStaticInit7dc41c1d7b56011c1dd6a306b378528e
         'WC_Stancer' => __DIR__ . '/../..' . '/includes/class-stancer.php',
         'WC_Stancer_Abstract_Table' => __DIR__ . '/../..' . '/includes/class-stancer-abstract-table.php',
         'WC_Stancer_Api' => __DIR__ . '/../..' . '/includes/class-stancer-api.php',
+        'WC_Stancer_Capture' => __DIR__ . '/../..' . '/includes/class-stancer-capture.php',
         'WC_Stancer_Card' => __DIR__ . '/../..' . '/includes/class-stancer-card.php',
         'WC_Stancer_Config' => __DIR__ . '/../..' . '/includes/class-stancer-config.php',
         'WC_Stancer_Cron' => __DIR__ . '/../..' . '/includes/class-stancer-cron.php',

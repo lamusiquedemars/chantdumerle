@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -37,10 +37,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 /**
  * This function register the stancer payment method
-*/
+ */
 var main = function () {
+    // Declare Interfaces.
     var _a;
-    ;
     // Declare WordPress related globals.
     var wordPress = window.wp;
     var settings = window.wcSettings.paymentMethodData['stancer'];
@@ -63,38 +63,37 @@ var main = function () {
      * @param IsisClosed
      * @returns void
      */
-    var buttonListener = function (data) { return useEffect(function () {
-        var button = document.querySelector('.wc-block-components-checkout-place-order-button');
-        if (data().payment_method !== 'stancer' ||
-            settings.page_type !== 'pip' ||
-            button === null) {
-            return;
-        }
-        button.addEventListener('click', function (e) {
-            var _a;
-            var checkedPaymentMethod = document.querySelector('.wc-block-components-radio-control__option-checked');
-            if ((checkedPaymentMethod === null || checkedPaymentMethod === void 0 ? void 0 : checkedPaymentMethod.getAttribute('for')) !== null &&
-                !((_a = checkedPaymentMethod === null || checkedPaymentMethod === void 0 ? void 0 : checkedPaymentMethod.getAttribute('for')) === null || _a === void 0 ? void 0 : _a.includes('stancer')) &&
-                button.innerHTML !== wordPress.htmlEntities.decodeEntities(settings.label)) {
+    var buttonListener = function (data) {
+        return useEffect(function () {
+            var button = document.querySelector('.wc-block-components-checkout-place-order-button');
+            if (data().payment_method !== 'stancer' || settings.page_type !== 'pip' || button === null) {
                 return;
             }
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            callApi(data())
-                .then(function (response) {
+            button.addEventListener('click', function (e) {
                 var _a;
-                // Block checkout doesn't give us an easy acess to the checkout data that we sent.
-                var receipt = (_a = response.payment_result.payment_details.filter(function (object) {
-                    return object.key == 'receipt';
-                })[0].value) !== null && _a !== void 0 ? _a : '';
-                window.stancer_iframe({
-                    redirect: response.payment_result.redirect_url,
-                    result: response.payment_result.payment_status,
-                    receipt: receipt,
+                var checkedPaymentMethod = document.querySelector('.wc-block-components-radio-control__option-checked');
+                if ((checkedPaymentMethod === null || checkedPaymentMethod === void 0 ? void 0 : checkedPaymentMethod.getAttribute('for')) !== null &&
+                    !((_a = checkedPaymentMethod === null || checkedPaymentMethod === void 0 ? void 0 : checkedPaymentMethod.getAttribute('for')) === null || _a === void 0 ? void 0 : _a.includes('stancer')) &&
+                    button.innerHTML !== wordPress.htmlEntities.decodeEntities(settings.label)) {
+                    return;
+                }
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                callApi(data()).then(function (response) {
+                    var _a;
+                    // Block checkout doesn't give us an easy acess to the checkout data that we sent.
+                    var receipt = (_a = response.payment_result.payment_details.filter(function (object) {
+                        return object.key == 'receipt';
+                    })[0].value) !== null && _a !== void 0 ? _a : '';
+                    window.stancer_iframe({
+                        redirect: response.payment_result.redirect_url,
+                        result: response.payment_result.payment_status,
+                        receipt: receipt,
+                    });
                 });
             });
-        });
-    }, []); };
+        }, []);
+    };
     /**
      *
      * @param data CompletePaymentData the data needed for our api call in the good format.
@@ -134,14 +133,14 @@ var main = function () {
             return formdata;
         };
         buttonListener(formdata);
-        return React.createElement("div", null,
-            React.createElement(Description, null));
+        return (React.createElement("div", null,
+            React.createElement(Description, null)));
     };
     /**
-   * Get the description of our payment module
-   *
-   * @returns ReactNode
-   */
+     * Get the description of our payment module
+     *
+     * @returns ReactNode
+     */
     var Description = function () {
         return wordPress.htmlEntities.decodeEntities(settings.description);
     };
@@ -158,9 +157,9 @@ var main = function () {
         if (PaymentMethodLabel == undefined) {
             throw new Error('Label not Found');
         }
-        return React.createElement("div", { className: "payment_method_stancer" },
+        return (React.createElement("div", { className: "payment_method_stancer" },
             React.createElement(PaymentMethodLabel, { text: settings.title + ' ' }),
-            React.createElement("img", { className: settings.logo.class, src: settings.logo.url }));
+            React.createElement("img", { className: settings.logo.class, src: settings.logo.url })));
     };
     var options = {
         ariaLabel: (_a = settings.title) !== null && _a !== void 0 ? _a : 'stancer',

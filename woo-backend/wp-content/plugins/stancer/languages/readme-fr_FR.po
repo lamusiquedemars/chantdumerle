@@ -2,11 +2,11 @@
 # This file is distributed under the MIT.
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.4.1 - 795bc5461024115c5c52f80540d931bcd5d9fc9a\n"
+"Project-Id-Version: 1.4.3 - 8734ab5b26d9f160a9547d2ff4bda0dab9ff03e8\n"
 "Report-Msgid-Bugs-To: https://gitlab.com/wearestancer/cms/woocommerce/-/"
 "issues\n"
-"POT-Creation-Date: 2025-07-30 14:33+0000\n"
-"PO-Revision-Date: 2026-03-10 14:42+0100\n"
+"POT-Creation-Date: 2026-03-10 13:26+0000\n"
+"PO-Revision-Date: 2026-05-20 14:38+0000\n"
 "Last-Translator: Sebastien <sderen@stancer.com>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -278,6 +278,35 @@ msgid ""
 msgstr ""
 "<a href=\"https://gitlab.com/wearestancer/cms/woocommerce/-/blob/main/"
 "CHANGELOG.md\">Voir les changements complet sur GitLab</a>."
+
+#. Found in changelog header.
+msgid "Version 1.4.3"
+msgstr "Version 1.4.3"
+
+#. Found in changelog list item.
+msgid "Fixes for retried payments display"
+msgstr "Corrige des bugs concernant l'affichage des paiements réessayés"
+
+#. Found in changelog list item.
+msgid "Plugin tested up to WordPress 7.0"
+msgstr "Module testé jusqu'à WordPress 7.0"
+
+#. Found in changelog header.
+msgid "Version 1.4.2"
+msgstr "Version 1.4.2"
+
+#. Found in changelog list item.
+msgid "Add a capture button in order view"
+msgstr "Ajouter un bouton de capture dans la page de commande"
+
+#. Found in changelog list item.
+msgid "Internationalization of payment page"
+msgstr "Internationalisation de la page de paiement"
+
+#. Found in changelog list item.
+msgid "Fix customer disappearing on captured payment"
+msgstr ""
+"Corrige un bug où les clients n'apparaissent pas sur les paiements capturés"
 
 #. Found in changelog header.
 msgid "Version 1.4.1"

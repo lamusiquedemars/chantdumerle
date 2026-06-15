@@ -153,6 +153,7 @@ return array(
     'WC_Stancer' => $baseDir . '/includes/class-stancer.php',
     'WC_Stancer_Abstract_Table' => $baseDir . '/includes/class-stancer-abstract-table.php',
     'WC_Stancer_Api' => $baseDir . '/includes/class-stancer-api.php',
+    'WC_Stancer_Capture' => $baseDir . '/includes/class-stancer-capture.php',
     'WC_Stancer_Card' => $baseDir . '/includes/class-stancer-card.php',
     'WC_Stancer_Config' => $baseDir . '/includes/class-stancer-config.php',
     'WC_Stancer_Cron' => $baseDir . '/includes/class-stancer-cron.php',

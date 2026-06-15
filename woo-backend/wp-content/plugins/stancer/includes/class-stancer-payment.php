@@ -34,6 +34,16 @@ use Stancer\Scoped\Isolated\Stancer;
 class WC_Stancer_Payment extends WC_Stancer_Abstract_Table {
 
 	/**
+	 * Name of the refund status.
+	 * (this is a custom WooCommerce status as it doesn't exist in API)
+	 *
+	 * @since 1.4.2
+	 *
+	 * @var string
+	 */
+	public const STANCER_REFUNDED = 'refunded';
+
+	/**
 	 * Name of primary key.
 	 *
 	 * @since 1.0.0
@@ -132,6 +142,8 @@ class WC_Stancer_Payment extends WC_Stancer_Abstract_Table {
 	 * @param array $payment_data Payment data used to create a new payment.
 	 * @param bool $generate_api_payment Do we need to generate a new payment if not already present.
 	 * @param string[] $status Statuses to find.
+	 * @param ?string $order_by parameter to order by.
+	 * @param bool $desc Do we sort in descending order.
 	 *
 	 * @return ?WC_Stancer_Payment
 	 *
@@ -141,7 +153,9 @@ class WC_Stancer_Payment extends WC_Stancer_Abstract_Table {
 		WC_Order $order,
 		array $payment_data = [],
 		bool $generate_api_payment = false,
-		array $status = []
+		array $status = [],
+		?string $order_by = null,
+		bool $desc = false,
 	) {
 		global $wpdb;
 
@@ -157,6 +171,12 @@ class WC_Stancer_Payment extends WC_Stancer_Abstract_Table {
 			$sql .= ' AND status IN (' . $placeholder . ')';
 
 			array_push( $values, ...array_map( 'esc_sql', $status ) );
+		}
+		if ( ! empty( $order_by ) ) {
+			$sql .= ' ORDER BY ' . $order_by;
+			if ( $desc ) {
+				$sql .= ' DESC';
+			}
 		}
 
 		$row = $wpdb->get_row( $wpdb->prepare( $sql, $values ) );
@@ -235,6 +255,14 @@ class WC_Stancer_Payment extends WC_Stancer_Abstract_Table {
 	 * @return void
 	 */
 	public function mark_as( string $status ) {
+		/*
+		* Stancer payment doesn't have refund statuses
+		* We asign a refunded status when a payment is fully refunded
+		* For clarity purpose
+		*/
+		if ( self::STANCER_REFUNDED === $this->status ) {
+			return;
+		}
 		$this->status = $status;
 		$this->save();
 	}
