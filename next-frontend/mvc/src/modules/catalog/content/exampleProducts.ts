@@ -60,7 +60,7 @@ const exampleProductPages: ProductPageItem[] = [
     stockStatus: "IN_STOCK",
     purchasable: true,
     image: {
-      sourceUrl: "/images/brand/hero-home-drawer.png",
+      sourceUrl: "/images/brand/hero-home.png",
       altText: "Second produit exemple",
     },
     categories: [{ name: "Catalogue", slug: "catalogue" }],

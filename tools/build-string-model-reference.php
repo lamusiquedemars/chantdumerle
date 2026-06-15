@@ -5,8 +5,8 @@ declare(strict_types=1);
 $baseDir = dirname(__DIR__);
 $importDir = $baseDir . '/woo-backend/wp-content/uploads/wc-imports';
 
-$sourceFile = $importDir . '/cordes_attributs.csv';
 $referenceFile = $importDir . '/cordes_modeles_referentiel.csv';
+$sourceFile = $referenceFile;
 $missingFile = $importDir . '/cordes_modeles_a_completer.csv';
 $reportFile = $importDir . '/cordes_modeles_referentiel-report.json';
 $typescriptFile = $baseDir . '/next-frontend/mvc/src/sites/chantdumerle/content/stringModelAttributes.generated.ts';
@@ -284,7 +284,7 @@ foreach ($wooRows as $wooRow) {
         'Modèle' => $model,
         'model_key' => $key,
         'produits_woo' => (string) $wooRow['products'],
-        'source' => $sourceRow === null ? 'woo_only' : 'cordes_attributs.csv',
+        'source' => $sourceRow === null ? 'woo_only' : 'cordes_modeles_referentiel.csv',
     ];
 
     foreach ($attributeHeaders as $header) {
@@ -329,7 +329,7 @@ foreach ($sourceByKey as $key => $sourceRow) {
         'Modèle' => attr_value($sourceRow, 'Modèle'),
         'model_key' => $key,
         'produits_woo' => '0',
-        'source' => 'cordes_attributs.csv',
+        'source' => 'cordes_modeles_referentiel.csv',
     ] + array_intersect_key($sourceRow, array_flip($attributeHeaders));
 }
 

@@ -1,9 +1,10 @@
 import StringsPageView from "@/modules/catalog/components/StringsPageView/StringsPageView";
+import type { SelectionEntryKind } from "@/modules/catalog/types";
 import { getStringsContent } from "@/sites/chantdumerle/content/strings";
 import {
   getStringProductsPageData,
-  type StringProductBusinessFilters,
   type StringProductFilters,
+  type StringProductSortKey,
 } from "@/modules/catalog/services/wordpressProducts";
 
 const INSTRUMENT_FILTERS = [
@@ -15,20 +16,21 @@ const INSTRUMENT_FILTERS = [
 
 type InstrumentFilterValue = (typeof INSTRUMENT_FILTERS)[number]["value"];
 
-const instrumentLabels = new Map(
-  INSTRUMENT_FILTERS.map((instrument) => [instrument.value, instrument.label])
-);
-
 type CordesPageProps = {
   params: Promise<{
     locale: string;
   }>;
   searchParams?: Promise<{
     instrument?: string | string[];
+    marque?: string | string[];
     corde?: string | string[];
     taille?: string | string[];
     tension?: string | string[];
     son?: string | string[];
+    usage?: string | string[];
+    page?: string | string[];
+    sort?: string | string[];
+    prefilter?: string | string[];
   }>;
 };
 
@@ -45,6 +47,15 @@ function isInstrumentFilterValue(
   );
 }
 
+function isStringProductSortKey(value?: string): value is StringProductSortKey {
+  return (
+    value === "name-asc" ||
+    value === "name-desc" ||
+    value === "price-asc" ||
+    value === "price-desc"
+  );
+}
+
 export default async function CordesPage({
   params,
   searchParams,
@@ -55,47 +66,72 @@ export default async function CordesPage({
   const instrument = isInstrumentFilterValue(rawInstrument)
     ? rawInstrument
     : undefined;
+  const son = readSingleParam(query.son);
+  const usage = readSingleParam(query.usage);
+  const prefilter = readSingleParam(query.prefilter);
+  const activeEntryKind: SelectionEntryKind | undefined =
+    prefilter === "instrument" && instrument
+      ? "instrument"
+      : prefilter === "sound" && son
+        ? "sound"
+        : prefilter === "usage" && usage
+          ? "usage"
+          : undefined;
+  const completeSetsOnly =
+    activeEntryKind === "sound" || activeEntryKind === "usage";
   const filters: StringProductFilters = {
     instrument,
-    corde: readSingleParam(query.corde),
-    taille: readSingleParam(query.taille),
-    tension: readSingleParam(query.tension),
+    marque: readSingleParam(query.marque),
+    son,
+    usage,
+    corde: completeSetsOnly ? undefined : readSingleParam(query.corde),
+    taille: completeSetsOnly ? undefined : readSingleParam(query.taille),
+    tension: completeSetsOnly ? undefined : readSingleParam(query.tension),
   };
-  const businessFilters: StringProductBusinessFilters = {
-    son: readSingleParam(query.son),
-  };
+  const page = Number(readSingleParam(query.page) ?? "1");
+  const rawSort = readSingleParam(query.sort);
+  const sort = isStringProductSortKey(rawSort) ? rawSort : undefined;
   const content = getStringsContent(locale);
 
-  const { products, filters: filterGroups } = await getStringProductsPageData(
+  const stringProductsData = await getStringProductsPageData(
     locale,
-    24,
+    20,
     filters,
-    businessFilters
+    Number.isFinite(page) ? page : 1,
+    sort,
+    { completeSetsOnly }
   );
 
-  const activeInstrumentLabel = instrument
-    ? instrumentLabels.get(instrument)
-    : undefined;
-  const activeSoundLabel = businessFilters.son
-    ? filterGroups
-        .find((filter) => filter.name === "son")
-        ?.options.find((option) => option.value === businessFilters.son)?.label
-    : undefined;
+  // Une entree depuis une carte de navigation devient une page de selection,
+  // meme si techniquement elle repose encore sur des filtres d'URL.
+  const activeFilterIntro =
+    activeEntryKind === "instrument" && instrument
+    ? content.filterIntros?.instrument?.[instrument]
+      : activeEntryKind === "sound" && son
+        ? content.filterIntros?.sound?.[son]
+        : activeEntryKind === "usage" && usage
+          ? content.filterIntros?.usage?.[usage]
+          : undefined;
 
   return (
     <StringsPageView
+      locale={locale}
       content={content}
-      products={products}
-      filters={filterGroups}
+      products={stringProductsData.products}
+      filters={stringProductsData.filters}
+      pagination={stringProductsData.pagination}
       activeFilters={{
         instrument: instrument ?? "",
+        marque: filters.marque ?? "",
+        son: filters.son ?? "",
+        usage: filters.usage ?? "",
         corde: filters.corde ?? "",
         taille: filters.taille ?? "",
         tension: filters.tension ?? "",
-        son: businessFilters.son ?? "",
       }}
-      activeInstrumentLabel={activeInstrumentLabel}
-      activeSoundLabel={activeSoundLabel}
+      activeSort={sort ?? ""}
+      activeEntryKind={activeEntryKind}
+      activeFilterIntro={activeFilterIntro}
     />
   );
 }

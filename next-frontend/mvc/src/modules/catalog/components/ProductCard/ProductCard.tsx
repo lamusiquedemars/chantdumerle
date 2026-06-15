@@ -3,6 +3,9 @@ import clsx from "clsx";
 import { htmlToPlainText } from "@/lib/text/htmlToPlainText";
 import styles from "./ProductCard.module.css";
 
+const PRODUCT_IMAGE_PLACEHOLDER =
+  `${process.env.NEXT_PUBLIC_WP_URL ?? ""}/wp-content/uploads/woocommerce-placeholder-300x300.webp`;
+
 export type ProductCardItem = {
   title: string;
   href: string;
@@ -32,8 +35,11 @@ export default function ProductCard({
   metadata = [],
   className,
 }: ProductCardProps) {
+  const cleanTitle = htmlToPlainText(title) ?? title;
+  const cleanBrand = htmlToPlainText(brand);
   const cleanDescription = htmlToPlainText(description);
   const cleanPrice = htmlToPlainText(price);
+  const imageSrc = image || PRODUCT_IMAGE_PLACEHOLDER;
   const cleanMetadata = metadata
     .map((item) => ({
       label: htmlToPlainText(item.label),
@@ -43,16 +49,14 @@ export default function ProductCard({
 
   return (
     <Link href={href} className={clsx(styles.card, className)}>
-      {image ? (
-        <div className={styles.media}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt={title} className={styles.image} />
-        </div>
-      ) : null}
+      <div className={styles.media}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={imageSrc} alt={cleanTitle} className={styles.image} />
+      </div>
 
       <div className={styles.body}>
-        {brand ? <p className={styles.brand}>{brand}</p> : null}
-        <h3 className={styles.title}>{title}</h3>
+        {cleanBrand ? <p className={styles.brand}>{cleanBrand}</p> : null}
+        <h3 className={styles.title}>{cleanTitle}</h3>
         {cleanDescription ? (
           <p className={styles.description}>{cleanDescription}</p>
         ) : null}

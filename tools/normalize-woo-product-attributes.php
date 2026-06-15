@@ -27,6 +27,7 @@ $attributeMap = [
     'ame' => ['taxonomy' => 'pa_ame', 'variation' => true],
     'filage' => ['taxonomy' => 'pa_filage', 'variation' => true],
     'type-produit' => ['taxonomy' => 'pa_type_produit', 'variation' => true],
+    'type-de-produit' => ['taxonomy' => 'pa_type_produit', 'variation' => true],
     'type-pack' => ['taxonomy' => 'pa_type_pack', 'variation' => true],
 ];
 

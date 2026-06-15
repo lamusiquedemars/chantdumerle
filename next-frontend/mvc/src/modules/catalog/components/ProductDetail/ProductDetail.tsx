@@ -1,10 +1,16 @@
 import Image from "next/image";
 import AddToCartButton from "@/modules/commerce/components/AddToCartButton/AddToCartButton";
 import type { ProductPageItem } from "@/modules/catalog/services/wordpressProducts";
+import Breadcrumbs, {
+  type BreadcrumbItem,
+} from "@/components/ui/Breadcrumbs/Breadcrumbs";
+import { localizedHref } from "@/lib/i18n/routing/localizedHref";
+import { htmlToPlainText } from "@/lib/text/htmlToPlainText";
 
 import styles from "./ProductDetail.module.css";
 
 type ProductDetailProps = {
+  locale: string;
   product: ProductPageItem;
 };
 
@@ -40,10 +46,70 @@ function ProductFieldGroup({
   );
 }
 
+function findProductField(product: ProductPageItem, label: string) {
+  return product.identity.find((field) => field.label === label);
+}
+
+const ACCESSORY_TYPE_BREADCRUMBS: Record<string, string> = {
+  colophane: "Colophanes",
+  epauliere: "Épaulières",
+  sourdine: "Sourdines",
+  etui: "Étuis",
+  housse: "Housses",
+  "etui-pour-archet": "Étuis pour archet",
+  "support-de-pique": "Supports de pique",
+  entretien: "Entretien",
+};
+
+function buildProductBreadcrumbItems(
+  product: ProductPageItem,
+  locale: string
+): BreadcrumbItem[] {
+  const instrument = findProductField(product, "Instrument");
+  const productType = findProductField(product, "Type de produit");
+  const accessoryTypeLabel = productType?.slug
+    ? ACCESSORY_TYPE_BREADCRUMBS[productType.slug]
+    : undefined;
+  const items: BreadcrumbItem[] = [
+    { label: "Accueil", href: localizedHref(locale) },
+  ];
+
+  if (productType?.slug && accessoryTypeLabel) {
+    items.push(
+      { label: "Accessoires", href: localizedHref(locale, "/accessoires") },
+      {
+        label: accessoryTypeLabel,
+        href: localizedHref(locale, `/accessoires?type=${productType.slug}`),
+      },
+      { label: htmlToPlainText(product.name) ?? product.name }
+    );
+
+    return items;
+  }
+
+  items.push({ label: "Cordes", href: localizedHref(locale, "/cordes") });
+
+  if (instrument?.slug) {
+    items.push({
+      label: instrument.value,
+      href: localizedHref(
+        locale,
+        `/cordes?instrument=${instrument.slug}&prefilter=instrument`
+      ),
+    });
+  }
+
+  items.push({ label: htmlToPlainText(product.name) ?? product.name });
+
+  return items;
+}
+
 // Vue detail produit reutilisable, independante de la route Next.js.
-export default function ProductDetail({ product }: ProductDetailProps) {
+export default function ProductDetail({ locale, product }: ProductDetailProps) {
   const categoryNames = product.categories.map((category) => category.name);
   const isInStock = product.stockStatus === "IN_STOCK";
+  const productName = htmlToPlainText(product.name) ?? product.name;
+  const breadcrumbItems = buildProductBreadcrumbItems(product, locale);
 
   const stockLabel =
     isInStock && typeof product.stockQuantity === "number"
@@ -54,12 +120,14 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
   return (
     <main className={styles.page}>
+      <Breadcrumbs items={breadcrumbItems} className={styles.breadcrumbs} />
+
       <section className={styles.hero}>
         <div className={styles.imageWrapper}>
           {product.image?.sourceUrl ? (
             <Image
               src={product.image.sourceUrl}
-              alt={product.image.altText || product.name}
+              alt={htmlToPlainText(product.image.altText) || productName}
               fill
               sizes="(max-width: 820px) calc(100vw - 36px), 690px"
               className={styles.image}
@@ -74,7 +142,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <p className={styles.category}>{categoryNames.join(" · ")}</p>
           ) : null}
 
-          <h1>{product.name}</h1>
+          <h1>{productName}</h1>
 
           {product.shortDescription ? (
             <div

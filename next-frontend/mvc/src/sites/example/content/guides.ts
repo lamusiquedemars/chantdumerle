@@ -1,5 +1,4 @@
 import type { GuideCardItem } from "@/modules/guides/components/GuideCard/GuideCard";
-import type { CardGridItem } from "@/components/blocks/CardGrid/CardGrid";
 import type {
   ChooseStringsGuideContent,
   GuideAction,
@@ -21,54 +20,17 @@ export function getGuideItems(locale: string): GuideCardItem[] {
 
 // Contenu de la page liste des guides, avec liens adaptes a la locale active.
 export function getGuidesPageContent(locale: string): GuidesPageContent {
-  const href = (path: string) => localizedHref(locale, path);
-
-  const entryItems: CardGridItem[] = [
-    {
-      label: "Premier guide",
-      href: href("/guides/premier-guide"),
-      description: "Comprendre comment organiser un contenu court.",
-    },
-  ];
-
   return {
     hero: {
       title: "Guides",
       subtitle:
         "Des repères simples pour accompagner une offre, un catalogue ou une méthode.",
     },
-    intro: {
-      title: "Structurer l'information",
-      text: "Les guides permettent de transformer une expertise client en contenus courts, lisibles et faciles à maintenir.",
-    },
-    entries: {
-      title: "Commencer par le bon sujet",
-      subtitle:
-        "Une première entrée pour comprendre ce qui influence réellement votre choix.",
-      items: entryItems,
-    },
     list: {
       title: "Tous les guides",
       subtitle: "Des contenus courts, concrets, pensés pour aider à décider.",
-      action: {
-        label: "Voir le catalogue",
-        href: href("/catalogue"),
-      },
       items: getGuideItems(locale),
-    },
-    cta: {
-      title: "Besoin d’un choix plus direct ?",
-      text: "Vous pouvez aussi partir directement des sélections par instrument, par son recherché ou par niveau de jeu.",
-      actions: [
-        {
-          label: "Voir les sélections",
-          href: href("/selections"),
-        },
-        {
-          label: "Voir le catalogue",
-          href: href("/catalogue"),
-        },
-      ] satisfies GuideAction[],
+      emptyText: "Aucun guide publié pour le moment.",
     },
   };
 }
@@ -208,7 +170,10 @@ export function getFirstGuideContent(
       title: "Premier guide",
       subtitle: "Un exemple d'article modulaire pour le starter.",
     },
-    article,
+    article: {
+      kind: "blocks",
+      blocks: article,
+    },
     cta: {
       title: "Aller plus loin",
       text: "Vous pouvez maintenant adapter cet article, ou le remplacer par une source headless.",

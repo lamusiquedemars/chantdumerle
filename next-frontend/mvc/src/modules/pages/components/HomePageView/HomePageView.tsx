@@ -84,20 +84,22 @@ export default function HomePageView({
         </Container>
       </Section>
 
-      <Section>
-        <Container>
-          <SectionHeading
-            title={content.guides.title}
-            subtitle={content.guides.subtitle}
-            action={
-              <LinkButton href={content.guides.action.href}>
-                {content.guides.action.label}
-              </LinkButton>
-            }
-          />
-          <GuideList items={content.guides.items} />
-        </Container>
-      </Section>
+      {content.guides.items.length > 0 ? (
+        <Section>
+          <Container>
+            <SectionHeading
+              title={content.guides.title}
+              subtitle={content.guides.subtitle}
+              action={
+                <LinkButton href={content.guides.action.href}>
+                  {content.guides.action.label}
+                </LinkButton>
+              }
+            />
+            <GuideList items={content.guides.items} />
+          </Container>
+        </Section>
+      ) : null}
 
       <Section>
         <Container>

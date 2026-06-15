@@ -39,36 +39,38 @@ export default function Header({
     ...item,
     current: pathname === item.href || pathname.startsWith(`${item.href}/`),
   }));
-  //mécanisme de shrink au scroll de la page
+  // Mécanisme de shrink au scroll de la page.
   const [shrink, setShrink] = useState(false);
-    useEffect(() => {
-      const onScroll = () => {
-        setShrink(window.scrollY > 20);
-      };
-      onScroll();
-      window.addEventListener("scroll", onScroll, { passive: true });
-      return () => {
-        window.removeEventListener("scroll", onScroll);
-      };
-    }, []);
+  useEffect(() => {
+    const onScroll = () => {
+      setShrink(window.scrollY > 20);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
 
   return (
     <header className={clsx(styles.header, shrink && styles.headerShrink, className)}>
-        <div className={styles.inner}>
+      <div className={styles.inner}>
         {/* Zone de marque : logo optionnel + nom du site. */}
         <Link href={brand.href} className={styles.brand}>
-        {brand.logoSrc ? (
-          <span className={styles.logo}>
-            <Image
-              src={brand.logoSrc}
-              alt={brand.logoAlt ?? brand.label}
-              fill
-              priority
-              sizes="(max-width: 900px) 130px, 200px"
-              className={styles.logoImage}
-            />
-          </span>
-        ) : null}
+          {brand.logoSrc ? (
+            <span className={styles.logo}>
+              <Image
+                src={brand.logoSrc}
+                alt={brand.logoAlt ?? brand.label}
+                fill
+                priority
+                sizes="(max-width: 900px) 130px, 200px"
+                className={styles.logoImage}
+              />
+            </span>
+          ) : null}
 
           <span className={styles.brandLabel}>{brand.label}</span>
         </Link>

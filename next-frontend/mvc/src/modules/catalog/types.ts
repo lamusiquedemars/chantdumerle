@@ -13,6 +13,7 @@ type CatalogPageContent = {
     title: string;
     subtitle: string;
     actions: ContentAction[];
+    backgroundImage?: string;
   };
   products: {
     title: string;
@@ -37,8 +38,43 @@ type CatalogPageContent = {
     subtitle: string;
     items: GuideCardItem[];
   };
+  filterIntros?: {
+    instrument?: Record<string, SelectionEntryContent>;
+    sound?: Record<string, SelectionEntryContent>;
+    usage?: Record<string, SelectionEntryContent>;
+  };
 };
 
 export type CatalogContent = CatalogPageContent;
 export type StringsContent = CatalogPageContent;
 export type ProductList = ProductCardItem[];
+
+export type AccessoriesContent = {
+  hero: {
+    title: string;
+    subtitle: string;
+    backgroundImage?: string;
+  };
+  products: {
+    title: string;
+    subtitle: string;
+  };
+  categories: {
+    title: string;
+    subtitle: string;
+    items: EntryGridItem[];
+  };
+};
+
+export type FilterIntroContent = {
+  title: string;
+  paragraphs: string[];
+  action?: ContentAction;
+};
+
+export type SelectionEntryContent = FilterIntroContent & {
+  heroTitle: string;
+  heroSubtitle?: string;
+};
+
+export type SelectionEntryKind = "instrument" | "sound" | "usage";

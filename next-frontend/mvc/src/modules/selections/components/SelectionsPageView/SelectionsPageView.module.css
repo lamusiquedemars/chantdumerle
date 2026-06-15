@@ -1,0 +1,154 @@
+.hero.hero {
+  min-height: 40vh;
+  padding: var(--space-40) 0;
+  background-position: center 80%;
+}
+
+.eyebrow {
+  color: var(--color-primary);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.breadcrumbSection.breadcrumbSection {
+  padding-block: var(--space-16, 1rem) 0;
+}
+
+.introSection.introSection {
+  padding-block: var(--space-32) var(--space-24);
+}
+
+.introText {
+  display: grid;
+  gap: var(--space-8);
+  max-width: none;
+}
+
+.introText p {
+  color: var(--color-info);
+}
+
+.packsSection.packsSection,
+.stringsSection.stringsSection {
+  padding-block: var(--space-32) var(--space-64);
+}
+
+.stringsSection.stringsSection {
+  padding-top: var(--space-24);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0),
+      rgba(246, 242, 234, 0.3) 52%,
+      rgba(246, 242, 234, 0)
+    );
+}
+
+.sectionHeader {
+  display: grid;
+  gap: var(--space-8);
+  max-width: 760px;
+  margin-bottom: var(--space-24);
+}
+
+.sectionHeader h2 {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.sectionHeader p:not(.eyebrow) {
+  color: var(--color-info);
+}
+
+.packCards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-24);
+}
+
+.packCard,
+.selectionGroup {
+  background: var(--color-white);
+}
+
+.packCard {
+  display: grid;
+  align-content: start;
+  gap: var(--space-8);
+  min-height: 152px;
+  padding: var(--space-24);
+}
+
+.packCard h3,
+.selectionGroup h3 {
+  font-size: 1.35rem;
+}
+
+.packCard p,
+.selectionGroup p,
+.selectionItem span {
+  color: var(--color-info);
+}
+
+.selectionGroups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-24);
+}
+
+.selectionGroup {
+  display: grid;
+  align-content: start;
+  gap: var(--space-16);
+  padding: var(--space-24);
+}
+
+.selectionGroupHeader {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.selectionList {
+  display: grid;
+}
+
+.selectionItem {
+  display: grid;
+  gap: 0.25rem;
+  padding-block: var(--space-16);
+  transition: color 0.2s ease;
+}
+
+.selectionItem:hover strong {
+  color: var(--color-primary);
+}
+
+.selectionItem:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+@media (max-width: 980px) {
+  .packCards,
+  .selectionGroups {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero.hero {
+    min-height: 28vh;
+  }
+
+  .introSection.introSection,
+  .packsSection.packsSection,
+  .stringsSection.stringsSection {
+    padding-block: var(--space-24);
+  }
+
+  .packCard {
+    min-height: auto;
+  }
+}

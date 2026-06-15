@@ -10,12 +10,12 @@ type ProductPageProps = {
 };
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const product = await getProductPageBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  return <ProductDetail product={product} />;
+  return <ProductDetail locale={locale} product={product} />;
 }

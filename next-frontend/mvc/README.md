@@ -27,12 +27,11 @@ panier.
 | `/[locale]/cordes` | univers catalogue des cordes |
 | `/[locale]/produits/[slug]` | fiche produit generique |
 | `/[locale]/guides` | liste de guides |
-| `/[locale]/guides/comment-choisir-ses-cordes` | guide detaille Chant du Merle |
+| `/[locale]/guides/[slug]` | guide detaille depuis WordPress |
 | `/[locale]/selections` | page de selections |
 | `/api/cart/add` | ajout panier WooCommerce optionnel |
 
-Les routes demo `/[locale]/catalogue` et `/[locale]/guides/premier-guide`
-restent disponibles pour le contenu `example`.
+La route demo `/[locale]/catalogue` reste disponible pour le contenu `example`.
 
 ## Structure
 

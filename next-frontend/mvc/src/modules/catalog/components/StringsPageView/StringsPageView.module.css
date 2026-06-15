@@ -1,0 +1,100 @@
+.hero.hero {
+  min-height: 40vh;
+  padding: var(--space-40) 0;
+}
+
+.introSection.introSection {
+  padding: var(--space-16) 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(246, 242, 234, 0.72),
+      rgba(246, 242, 234, 0.36)
+    );
+}
+
+.resultsSection.resultsSection {
+  padding-top: var(--space-24);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0),
+      rgba(246, 242, 234, 0.3) 52%,
+      rgba(246, 242, 234, 0)
+    );
+}
+
+.resultsContainer {
+  width: min(100% - 2rem, 1320px);
+}
+
+.orientationSection.orientationSection,
+.guidesSection.guidesSection {
+  background: rgba(246, 242, 234, 0.28);
+}
+
+.filters {
+  margin-bottom: 0;
+}
+
+.breadcrumbs {
+  margin-bottom: var(--space-12, 0.75rem);
+}
+
+.resultsCount {
+  margin: 0 0 var(--space-10, 0.625rem);
+  color: var(--color-info);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.emptyState {
+  max-width: 46rem;
+  padding: var(--space-18, 1.125rem);
+  color: var(--color-info);
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+}
+
+.emptyState p {
+  margin: 0;
+}
+
+.introHeading {
+  margin-bottom: var(--space-12, 0.75rem);
+}
+
+.filterIntro {
+  display: grid;
+  gap: var(--space-8);
+  max-width: 62rem;
+  margin-bottom: var(--space-16);
+}
+
+.filterIntroTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-tight);
+  font-weight: 600;
+}
+
+.filterIntro p {
+  margin: 0;
+  color: var(--color-info);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+@media (max-width: 767px) {
+  .hero.hero {
+    min-height: 28vh;
+  }
+
+  .introSection.introSection {
+    padding: var(--space-14, 0.875rem) 0;
+  }
+}

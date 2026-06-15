@@ -9,6 +9,8 @@ const HTML_ENTITIES: Record<string, string> = {
   lsquo: "‘",
   lt: "<",
   nbsp: " ",
+  prime: "′",
+  Prime: "″",
   quot: '"',
   raquo: "»",
   rdquo: "”",
@@ -44,7 +46,7 @@ function decodeHtmlEntities(value: string): string {
         return decodeNumericHtmlEntity(code.slice(1), 10) ?? entity;
       }
 
-      return HTML_ENTITIES[code.toLowerCase()] ?? entity;
+      return HTML_ENTITIES[code] ?? HTML_ENTITIES[code.toLowerCase()] ?? entity;
     }
   );
 }
@@ -65,12 +67,22 @@ function decodeHtmlEntitiesDeep(value: string): string {
   return decoded;
 }
 
+function normalizeMeasurementQuotes(value: string): string {
+  return value
+    .replace(/(\d(?:[,.]\d+)?)"{2}/g, "$1″")
+    .replace(/(\d(?:[,.]\d+)?)'{2}/g, "$1″")
+    .replace(/″\s*»/g, "″")
+    .replace(/′\s*»/g, "′")
+    .replace(/("{2})\s*»/g, "$1")
+    .replace(/(')\s*»/g, "$1");
+}
+
 export function htmlToPlainText(value?: string | null): string | undefined {
   if (!value) {
     return undefined;
   }
 
-  const text = decodeHtmlEntitiesDeep(value)
+  const text = normalizeMeasurementQuotes(decodeHtmlEntitiesDeep(value))
     .replace(/<br\s*\/?>/gi, " ")
     .replace(/<\/(p|div|li|h[1-6])>/gi, " ")
     .replace(/<[^>]*>/g, "")

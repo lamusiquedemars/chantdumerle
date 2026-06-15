@@ -1,4 +1,3 @@
-import type { CardGridItem } from "@/components/blocks/CardGrid/CardGrid";
 import type { GuideCardItem } from "@/modules/guides/components/GuideCard/GuideCard";
 
 export type GuideAction = {
@@ -21,26 +20,35 @@ export type GuideArticleBlock =
       items: string[];
     };
 
+export type GuideArticleContent =
+  | {
+      kind: "blocks";
+      blocks: GuideArticleBlock[];
+    }
+  | {
+      kind: "html";
+      html: string;
+    };
+
 export type GuidesPageContent = {
   hero: {
     title: string;
     subtitle: string;
   };
-  intro: {
-    title: string;
-    text: string;
-  };
-  entries: {
-    title: string;
-    subtitle: string;
-    items: CardGridItem[];
-  };
   list: {
     title: string;
     subtitle: string;
-    action: GuideAction;
     items: GuideCardItem[];
+    emptyText: string;
   };
+};
+
+export type GuideArticlePageContent = {
+  hero: {
+    title: string;
+    subtitle: string;
+  };
+  article: GuideArticleContent;
   cta: {
     title: string;
     text: string;
@@ -48,15 +56,4 @@ export type GuidesPageContent = {
   };
 };
 
-export type ChooseStringsGuideContent = {
-  hero: {
-    title: string;
-    subtitle: string;
-  };
-  article: GuideArticleBlock[];
-  cta: {
-    title: string;
-    text: string;
-    actions: GuideAction[];
-  };
-};
+export type ChooseStringsGuideContent = GuideArticlePageContent;

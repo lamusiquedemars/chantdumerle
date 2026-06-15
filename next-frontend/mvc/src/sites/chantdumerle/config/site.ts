@@ -21,6 +21,10 @@ export const chantDuMerleSiteConfig = {
       href: siteHref("/cordes"),
     },
     {
+      label: "Accessoires",
+      href: siteHref("/accessoires"),
+    },
+    {
       label: "Sélections",
       href: siteHref("/selections"),
     },
@@ -32,8 +36,12 @@ export const chantDuMerleSiteConfig = {
   footer: {
     links: [
       { label: "Cordes", href: siteHref("/cordes") },
+      { label: "Accessoires", href: siteHref("/accessoires") },
       { label: "Sélections", href: siteHref("/selections") },
       { label: "Guides", href: siteHref("/guides") },
+      { label: "Contact", href: siteHref("/contact") },
+      { label: "Mentions légales", href: siteHref("/mentions-legales") },
+      { label: "CGV", href: siteHref("/cgv") },
     ],
   },
 } satisfies SiteConfig;

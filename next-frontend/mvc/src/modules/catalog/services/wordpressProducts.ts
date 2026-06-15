@@ -6,13 +6,6 @@ import {
   hasWordPressEndpoint,
 } from "@/lib/wordpress/client";
 import {
-  chantDuMerleStringModelAttributes,
-  getStringModelAttributeValues,
-  getStringModelAttributes,
-  stringModelMatchesAttribute,
-  type StringModelAttributeKey,
-} from "@/sites/chantdumerle/content/stringModelAttributes";
-import {
   getExampleProductCards,
   getExampleProductPageBySlug,
 } from "@/modules/catalog/content/exampleProducts";
@@ -24,6 +17,7 @@ import {
 const PRODUCT_CARD_CORE_FIELDS = `
   name
   slug
+  sku
   shortDescription
 
   image {
@@ -86,6 +80,20 @@ const PRODUCT_CARD_CORE_FIELDS = `
       slug
     }
   }
+
+  allPaProfilSonore {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaUsage {
+    nodes {
+      name
+      slug
+    }
+  }
 `;
 
 /*
@@ -113,6 +121,7 @@ type GraphQLProductNode = {
   __typename: "SimpleProduct" | "VariableProduct" | string;
   name: string;
   slug: string;
+  sku?: string | null;
   shortDescription?: string | null;
   image?: {
     sourceUrl?: string | null;
@@ -166,6 +175,18 @@ type GraphQLProductNode = {
       slug: string;
     }[];
   } | null;
+  allPaProfilSonore?: {
+    nodes: {
+      name: string;
+      slug: string;
+    }[];
+  } | null;
+  allPaUsage?: {
+    nodes: {
+      name: string;
+      slug: string;
+    }[];
+  } | null;
   price?: string | null;
   regularPrice?: string | null;
   salePrice?: string | null;
@@ -187,30 +208,54 @@ type ProductsResponse = {
   };
 };
 
-type StringProductFilterKey = "instrument" | "corde" | "taille" | "tension";
-type StringProductBusinessFilterKey = "son";
+type StringProductFilterKey =
+  | "instrument"
+  | "marque"
+  | "son"
+  | "usage"
+  | "corde"
+  | "taille"
+  | "tension";
 
 export type StringProductFilters = Partial<
   Record<StringProductFilterKey, string>
 >;
 
-export type StringProductBusinessFilters = Partial<
-  Record<StringProductBusinessFilterKey, string>
+export type StringProductSortKey =
+  | "name-asc"
+  | "name-desc"
+  | "price-asc"
+  | "price-desc";
+
+type AccessoryProductFilterKey = "type" | "instrument" | "marque";
+
+export type AccessoryProductFilters = Partial<
+  Record<AccessoryProductFilterKey, string>
 >;
+
+export type AccessoryProductSortKey = StringProductSortKey;
 
 type StringProductTermsResponse = {
   allPaInstrument: { nodes: GraphQLProductAttributeTerm[] };
+  allPaMarque: { nodes: GraphQLProductAttributeTerm[] };
   allPaCorde: { nodes: GraphQLProductAttributeTerm[] };
   allPaTaille: { nodes: GraphQLProductAttributeTerm[] };
   allPaTension: { nodes: GraphQLProductAttributeTerm[] };
 };
 
-type StringProductsPageResponse = ProductsResponse & StringProductTermsResponse;
-
 export type StringProductsPageData = {
   products: ProductCardItem[];
   filters: ProductFilterGroup[];
+  pagination: {
+    page: number;
+    pageCount: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+    resultCount: number;
+  };
 };
+
+export type AccessoryProductsPageData = StringProductsPageData;
 
 type ProductTaxonomyFilter = {
   taxonomy: string;
@@ -218,7 +263,54 @@ type ProductTaxonomyFilter = {
   operator: "AND" | "EXISTS" | "IN" | "NOT_EXISTS" | "NOT_IN";
 };
 
+type WooStoreProduct = {
+  id: number;
+  name: string;
+  slug: string;
+  sku?: string;
+  short_description?: string;
+  price_html?: string;
+  images?: {
+    src?: string;
+    thumbnail?: string;
+    alt?: string;
+  }[];
+  brands?: {
+    name: string;
+    slug: string;
+  }[];
+  attributes?: WooStoreProductAttribute[];
+};
+
+type WooStoreProductAttribute = {
+  id: number;
+  name: string;
+  taxonomy: string | null;
+  terms: {
+    id: number;
+    name: string;
+    slug: string;
+  }[];
+};
+
+type WooStoreAttributeTerm = {
+  id: number;
+  name: string;
+  slug: string;
+  count?: number;
+};
+
+type WooStoreCollectionData = {
+  attribute_counts?: {
+    term: number;
+    count: number;
+  }[];
+};
+
 const PRODUCT_DETAIL_BASE_PATH = "produits";
+const WOO_STORE_PRODUCTS_PER_PAGE_MAX = 100;
+const WOO_STORE_BASE_URL =
+  process.env.WOO_BASE_URL ?? process.env.NEXT_PUBLIC_WP_URL;
 
 const STRING_PRODUCT_BASE_FILTERS: ProductTaxonomyFilter[] = [
   {
@@ -228,25 +320,33 @@ const STRING_PRODUCT_BASE_FILTERS: ProductTaxonomyFilter[] = [
   },
 ];
 
+const STRING_CORDE_SLUGS = [
+  "jeu",
+  "mi",
+  "la",
+  "re",
+  "sol",
+  "do",
+  "si",
+  "fa",
+  "fa-diese",
+  "do-diese",
+];
+
 const STRING_PRODUCT_FILTER_TAXONOMIES: Record<
   StringProductFilterKey,
   string
 > = {
   instrument: "PA_INSTRUMENT",
+  marque: "PA_MARQUE",
+  son: "PA_PROFIL_SONORE",
+  usage: "PA_USAGE",
   corde: "PA_CORDE",
   taille: "PA_TAILLE",
   tension: "PA_TENSION",
 };
 
-const STRING_BUSINESS_FILTER_ATTRIBUTES: Record<
-  StringProductBusinessFilterKey,
-  StringModelAttributeKey
-> = {
-  son: "soundProfile",
-};
-
 const STRING_FILTER_FALLBACKS: ProductFilterGroup[] = [
-  makeStringBusinessFilterGroup("son", "Son recherché"),
   {
     name: "instrument",
     label: "Instrument",
@@ -255,6 +355,30 @@ const STRING_FILTER_FALLBACKS: ProductFilterGroup[] = [
       { label: "Alto", value: "alto" },
       { label: "Violoncelle", value: "violoncelle" },
       { label: "Contrebasse", value: "contrebasse" },
+    ],
+  },
+  {
+    name: "marque",
+    label: "Marque",
+    options: [],
+  },
+  {
+    name: "son",
+    label: "Son recherché",
+    options: [
+      { label: "Chaud", value: "chaud" },
+      { label: "Équilibré", value: "equilibre" },
+      { label: "Brillant", value: "brillant" },
+    ],
+  },
+  {
+    name: "usage",
+    label: "Usage",
+    options: [
+      { label: "Étudiant", value: "etudiant" },
+      { label: "Intermédiaire", value: "intermediaire" },
+      { label: "Orchestre", value: "orchestre" },
+      { label: "Soliste", value: "soliste" },
     ],
   },
   {
@@ -379,7 +503,6 @@ function mapStringFilterGroups(
   data: StringProductTermsResponse
 ): ProductFilterGroup[] {
   return [
-    makeStringBusinessFilterGroup("son", "Son recherché"),
     {
       name: "instrument",
       label: "Instrument",
@@ -389,6 +512,21 @@ function mapStringFilterGroups(
         "violoncelle",
         "contrebasse",
       ]).map(termToFilterOption),
+    },
+    {
+      name: "marque",
+      label: "Marque",
+      options: sortTerms(data.allPaMarque.nodes).map(termToFilterOption),
+    },
+    {
+      name: "son",
+      label: "Son recherché",
+      options: [],
+    },
+    {
+      name: "usage",
+      label: "Usage",
+      options: [],
     },
     {
       name: "corde",
@@ -432,41 +570,228 @@ function mapStringFilterGroups(
   ].filter((filter) => filter.options.length > 0);
 }
 
-function makeBusinessFilterValue(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
+const STRING_FILTER_LABELS: Record<StringProductFilterKey, string> = {
+  instrument: "Instrument",
+  marque: "Marque",
+  son: "Son recherché",
+  usage: "Usage",
+  corde: "Corde",
+  taille: "Taille",
+  tension: "Tension",
+};
 
-function makeStringModelTermSlug(value: string) {
-  return makeBusinessFilterValue(value);
-}
+const STRING_STORE_ATTRIBUTE_TAXONOMIES: Record<
+  StringProductFilterKey,
+  string
+> = {
+  instrument: "pa_instrument",
+  marque: "pa_marque",
+  son: "pa_profil_sonore",
+  usage: "pa_usage",
+  corde: "pa_corde",
+  taille: "pa_taille",
+  tension: "pa_tension",
+};
 
-function makeBusinessFilterLabel(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
+const STRING_STORE_ATTRIBUTE_TERMS: Record<
+  StringProductFilterKey,
+  WooStoreAttributeTerm[]
+> = {
+  instrument: [
+    { id: 257, name: "Violon", slug: "violon" },
+    { id: 291, name: "Alto", slug: "alto" },
+    { id: 260, name: "Violoncelle", slug: "violoncelle" },
+    { id: 278, name: "Contrebasse", slug: "contrebasse" },
+  ],
+  marque: [
+    { id: 102, name: "Aquila", slug: "aquila" },
+    { id: 103, name: "D'Addario", slug: "daddario" },
+    { id: 255, name: "Hidersine", slug: "hidersine" },
+    { id: 104, name: "Jargar", slug: "jargar" },
+    { id: 105, name: "Larsen", slug: "larsen" },
+    { id: 106, name: "Optima", slug: "optima" },
+    { id: 107, name: "Pirastro", slug: "pirastro" },
+    { id: 108, name: "Thomastik", slug: "thomastik" },
+    { id: 109, name: "Warchal", slug: "warchal" },
+  ],
+  son: [
+    { id: 70, name: "chaud", slug: "chaud" },
+    { id: 71, name: "équilibré", slug: "equilibre" },
+    { id: 69, name: "brillant", slug: "brillant" },
+  ],
+  usage: [
+    { id: 88, name: "étudiant", slug: "etudiant" },
+    { id: 83, name: "intermédiaire", slug: "intermediaire" },
+    { id: 85, name: "orchestre", slug: "orchestre" },
+    { id: 87, name: "soliste", slug: "soliste" },
+    { id: 84, name: "jazz", slug: "jazz" },
+    { id: 86, name: "pizzicato", slug: "pizzicato" },
+    { id: 81, name: "baroque", slug: "baroque" },
+    { id: 82, name: "expérimental", slug: "experimental" },
+  ],
+  corde: [
+    { id: 261, name: "jeu", slug: "jeu" },
+    { id: 267, name: "Mi", slug: "mi" },
+    { id: 272, name: "La", slug: "la" },
+    { id: 273, name: "Ré", slug: "re" },
+    { id: 263, name: "Sol", slug: "sol" },
+    { id: 271, name: "Do", slug: "do" },
+    { id: 279, name: "Si", slug: "si" },
+    { id: 281, name: "Fa", slug: "fa" },
+    { id: 289, name: "Fa dièse", slug: "fa-diese" },
+    { id: 290, name: "Do dièse", slug: "do-diese" },
+  ],
+  taille: [
+    { id: 262, name: "4/4", slug: "4-4" },
+    { id: 280, name: "3/4", slug: "3-4" },
+    { id: 276, name: "1/2", slug: "1-2" },
+    { id: 282, name: "1/4", slug: "1-4" },
+    { id: 283, name: "1/8", slug: "1-8" },
+    { id: 320, name: "1/16", slug: "1-16" },
+    { id: 324, name: "1/10", slug: "1-10" },
+    { id: 327, name: "3/4-1/2", slug: "3-4-1-2" },
+    { id: 293, name: '14"-15"', slug: "14-15" },
+    { id: 292, name: '15"-16"', slug: "15-16" },
+    { id: 297, name: '15"-16.5"', slug: "15-16-5" },
+    { id: 296, name: '16"-16.5"', slug: "16-16-5" },
+    { id: 295, name: '16"-17"', slug: "16-17" },
+  ],
+  tension: [
+    { id: 274, name: "Light", slug: "light" },
+    { id: 319, name: "Medium-Light", slug: "medium-light" },
+    { id: 264, name: "Medium", slug: "medium" },
+    { id: 317, name: "Medium-Heavy", slug: "medium-heavy" },
+    { id: 268, name: "Heavy", slug: "heavy" },
+  ],
+};
 
-function makeStringBusinessFilterGroup(
-  name: StringProductBusinessFilterKey,
-  label: string
-): ProductFilterGroup {
-  const attribute = STRING_BUSINESS_FILTER_ATTRIBUTES[name];
+const STRING_FILTER_OPTION_ORDER: Partial<
+  Record<StringProductFilterKey, string[]>
+> = {
+  instrument: ["violon", "alto", "violoncelle", "contrebasse"],
+  son: ["chaud", "equilibre", "brillant"],
+  usage: [
+    "etudiant",
+    "intermediaire",
+    "orchestre",
+    "soliste",
+    "jazz",
+    "pizzicato",
+    "baroque",
+    "experimental",
+  ],
+  corde: [
+    "jeu",
+    "mi",
+    "la",
+    "re",
+    "sol",
+    "do",
+    "si",
+    "fa",
+    "fa-diese",
+    "do-diese",
+  ],
+  taille: ["4-4", "3-4", "1-2", "1-4", "1-8", "1-16"],
+  tension: ["light", "medium-light", "medium", "medium-heavy", "heavy"],
+};
 
-  return {
-    name,
-    label,
-    options: getStringModelAttributeValues(attribute).map((value) => ({
-      label: makeBusinessFilterLabel(value),
-      value: makeBusinessFilterValue(value),
-    })),
-  };
-}
+const ACCESSORY_TYPE_SLUGS = [
+  "colophane",
+  "etui",
+  "housse",
+  "etui-pour-archet",
+  "epauliere",
+  "sourdine",
+  "support-de-pique",
+  "entretien",
+];
+
+const ACCESSORY_FILTER_LABELS: Record<AccessoryProductFilterKey, string> = {
+  type: "Type d’accessoire",
+  instrument: "Instrument",
+  marque: "Marque",
+};
+
+const ACCESSORY_STORE_ATTRIBUTE_TAXONOMIES: Record<
+  AccessoryProductFilterKey,
+  string
+> = {
+  type: "pa_type_produit",
+  instrument: "pa_instrument",
+  marque: "pa_marque",
+};
+
+const ACCESSORY_STORE_ATTRIBUTE_TERMS: Record<
+  AccessoryProductFilterKey,
+  WooStoreAttributeTerm[]
+> = {
+  type: [
+    { id: 258, name: "Colophane", slug: "colophane" },
+    { id: 410, name: "Épaulière", slug: "epauliere" },
+    { id: 380, name: "Sourdine", slug: "sourdine" },
+    { id: 371, name: "Étui", slug: "etui" },
+    { id: 403, name: "Housse", slug: "housse" },
+    { id: 369, name: "Étui pour archet", slug: "etui-pour-archet" },
+    { id: 453, name: "Support de pique", slug: "support-de-pique" },
+    { id: 400, name: "Entretien", slug: "entretien" },
+  ],
+  instrument: [
+    { id: 257, name: "Violon", slug: "violon" },
+    { id: 291, name: "Alto", slug: "alto" },
+    { id: 260, name: "Violoncelle", slug: "violoncelle" },
+    { id: 278, name: "Contrebasse", slug: "contrebasse" },
+  ],
+  marque: [
+    { id: 378, name: "Alpine Mute", slug: "alpine-mute" },
+    { id: 102, name: "Aquila", slug: "aquila" },
+    { id: 428, name: "Artino", slug: "artino" },
+    { id: 373, name: "Artist", slug: "artist" },
+    { id: 466, name: "Cecilia Rosin", slug: "cecilia-rosin" },
+    { id: 397, name: "Corelli", slug: "corelli" },
+    { id: 411, name: "D'Addario", slug: "d-addario" },
+    { id: 442, name: "Finissima", slug: "finissima" },
+    { id: 255, name: "Hidersine", slug: "hidersine" },
+    { id: 430, name: "Kolstein", slug: "kolstein" },
+    { id: 408, name: "Kun", slug: "kun" },
+    { id: 439, name: "Lapella", slug: "lapella" },
+    { id: 448, name: "Larica Liebenzeller", slug: "larica-liebenzeller" },
+    { id: 105, name: "Larsen", slug: "larsen" },
+    { id: 406, name: "Nyman-Harts", slug: "nyman-harts" },
+    { id: 381, name: "Petz", slug: "petz" },
+    { id: 107, name: "Pirastro", slug: "pirastro" },
+    { id: 437, name: "Pops'", slug: "pops" },
+    { id: 367, name: "Rapsody", slug: "rapsody" },
+    { id: 404, name: "Super-Sensitive", slug: "super-sensitive" },
+    { id: 108, name: "Thomastik", slug: "thomastik" },
+    { id: 391, name: "Tourte", slug: "tourte" },
+    { id: 393, name: "Ultra", slug: "ultra" },
+    { id: 446, name: "Viva La Musica", slug: "viva-la-musica" },
+    { id: 413, name: "W.E. Hill", slug: "w-e-hill" },
+    { id: 366, name: "Wiedoeft", slug: "wiedoeft" },
+    { id: 485, name: "Wittner", slug: "wittner" },
+    { id: 387, name: "WMutes", slug: "wmutes" },
+    { id: 451, name: "Wolf", slug: "wolf" },
+  ],
+};
+
+const ACCESSORY_FILTER_OPTION_ORDER: Partial<
+  Record<AccessoryProductFilterKey, string[]>
+> = {
+  type: ACCESSORY_TYPE_SLUGS,
+  instrument: ["violon", "alto", "violoncelle", "contrebasse"],
+};
 
 const STRING_FILTER_GROUPS_FIELDS = `
   allPaInstrument(first: 20) {
+    nodes {
+      name
+      slug
+      count
+    }
+  }
+
+  allPaMarque(first: 80) {
     nodes {
       name
       slug
@@ -508,76 +833,6 @@ function firstTermName(
   } | null
 ): string | undefined {
   return connection?.nodes[0]?.name;
-}
-
-function productMatchesStringBusinessFilters(
-  product: GraphQLProductNode,
-  businessFilters: StringProductBusinessFilters = {}
-): boolean {
-  const activeFilters = Object.entries(businessFilters).filter(([, value]) =>
-    Boolean(value)
-  ) as [StringProductBusinessFilterKey, string][];
-
-  if (activeFilters.length === 0) {
-    return true;
-  }
-
-  const attributes = getStringModelAttributes(
-    firstTermName(product.allPaMarque),
-    firstTermName(product.allPaModele)
-  );
-
-  return activeFilters.every(([filterKey, expectedValue]) => {
-    const attribute = STRING_BUSINESS_FILTER_ATTRIBUTES[filterKey];
-
-    return getStringModelAttributeValues(attribute).some(
-      (value) =>
-        makeBusinessFilterValue(value) === expectedValue &&
-        stringModelMatchesAttribute(attributes, attribute, value)
-    );
-  });
-}
-
-function buildStringBusinessTaxonomyFilters(
-  businessFilters: StringProductBusinessFilters = {}
-): ProductTaxonomyFilter[] {
-  const modelSlugs = new Set<string>();
-
-  for (const [filterKey, expectedValue] of Object.entries(businessFilters) as [
-    StringProductBusinessFilterKey,
-    string | undefined,
-  ][]) {
-    if (!expectedValue) {
-      continue;
-    }
-
-    const attribute = STRING_BUSINESS_FILTER_ATTRIBUTES[filterKey];
-
-    for (const item of chantDuMerleStringModelAttributes) {
-      const value = item[attribute];
-      const values = Array.isArray(value) ? value : [value];
-
-      if (
-        values.some(
-          (entry) => entry && makeBusinessFilterValue(entry) === expectedValue
-        )
-      ) {
-        modelSlugs.add(makeStringModelTermSlug(item.model));
-      }
-    }
-  }
-
-  if (modelSlugs.size === 0) {
-    return [];
-  }
-
-  return [
-    {
-      taxonomy: "PA_MODELE",
-      terms: [...modelSlugs],
-      operator: "IN",
-    },
-  ];
 }
 
 function makeCardMetadataItem(label: string, value?: string) {
@@ -626,7 +881,9 @@ export function mapProductToCard(
   return {
     title: product.name,
     href: `/${safeLocale}/${PRODUCT_DETAIL_BASE_PATH}/${product.slug}`,
-    description: htmlToPlainText(product.shortDescription),
+    description: options.includeStringMetadata
+      ? undefined
+      : htmlToPlainText(product.shortDescription),
     price: htmlToPlainText(product.price ?? product.regularPrice),
     image: product.image?.sourceUrl ?? undefined,
     brand,
@@ -741,6 +998,54 @@ export async function getProductsByCategory(
     );
     return [];
   }
+}
+
+/*
+ * Produits résolus par SKU.
+ * Utile pour les sélections éditoriales : le CSV porte la logique de choix,
+ * WooCommerce reste la source de vérité pour les URLs, prix et images.
+ */
+export async function getProductsBySkus(
+  locale: string = "fr",
+  skus: string[] = []
+): Promise<Record<string, ProductCardItem>> {
+  const cleanSkus = [...new Set(skus.map((sku) => sku.trim()).filter(Boolean))];
+
+  if (cleanSkus.length === 0 || !hasWordPressEndpoint) {
+    return {};
+  }
+
+  const entries = await Promise.all(
+    cleanSkus.map(async (sku) => {
+      try {
+        const params = new URLSearchParams({ sku });
+        const { data } = await fetchWooStore<WooStoreProduct[]>(
+          "products",
+          params
+        );
+        const product = data.find(
+          (item) => item.sku?.toUpperCase() === sku.toUpperCase()
+        );
+
+        if (!product?.sku) {
+          return undefined;
+        }
+
+        return [
+          product.sku.toUpperCase(),
+          mapStoreProductToCard(product, locale),
+        ] as const;
+      } catch {
+        return undefined;
+      }
+    })
+  );
+
+  return Object.fromEntries(
+    entries.filter(
+      (entry): entry is readonly [string, ProductCardItem] => Boolean(entry)
+    )
+  );
 }
 
 /*
@@ -889,6 +1194,367 @@ export async function getStringProducts(
   }
 }
 
+function appendStoreAttributeFilter(
+  params: URLSearchParams,
+  index: number,
+  taxonomy: string,
+  slugs: string[]
+) {
+  params.set(`attributes[${index}][attribute]`, taxonomy);
+  params.set(`attributes[${index}][slug]`, slugs.join(","));
+}
+
+function appendStringStoreFilters(
+  params: URLSearchParams,
+  filters: StringProductFilters,
+  options: {
+    completeSetsOnly?: boolean;
+  } = {}
+) {
+  let index = 0;
+  const cordeSlugs = options.completeSetsOnly
+    ? ["jeu"]
+    : filters.corde
+      ? [filters.corde]
+      : STRING_CORDE_SLUGS;
+
+  appendStoreAttributeFilter(params, index, "pa_corde", cordeSlugs);
+  index += 1;
+
+  for (const [filterKey, taxonomy] of Object.entries(
+    STRING_STORE_ATTRIBUTE_TAXONOMIES
+  ) as [StringProductFilterKey, string][]) {
+    if (filterKey === "corde") {
+      continue;
+    }
+
+    const value = filters[filterKey];
+
+    if (!value) {
+      continue;
+    }
+
+    appendStoreAttributeFilter(params, index, taxonomy, [value]);
+    index += 1;
+  }
+}
+
+function appendAccessoryStoreFilters(
+  params: URLSearchParams,
+  filters: AccessoryProductFilters
+) {
+  let index = 0;
+  const typeSlugs = filters.type ? [filters.type] : ACCESSORY_TYPE_SLUGS;
+
+  appendStoreAttributeFilter(params, index, "pa_type_produit", typeSlugs);
+  index += 1;
+
+  for (const [filterKey, taxonomy] of Object.entries(
+    ACCESSORY_STORE_ATTRIBUTE_TAXONOMIES
+  ) as [AccessoryProductFilterKey, string][]) {
+    if (filterKey === "type") {
+      continue;
+    }
+
+    const value = filters[filterKey];
+
+    if (!value) {
+      continue;
+    }
+
+    appendStoreAttributeFilter(params, index, taxonomy, [value]);
+    index += 1;
+  }
+}
+
+function appendStoreSort(params: URLSearchParams, sort?: StringProductSortKey) {
+  switch (sort) {
+    case "name-asc":
+      params.set("orderby", "title");
+      params.set("order", "asc");
+      break;
+    case "name-desc":
+      params.set("orderby", "title");
+      params.set("order", "desc");
+      break;
+    case "price-asc":
+      params.set("orderby", "price");
+      params.set("order", "asc");
+      break;
+    case "price-desc":
+      params.set("orderby", "price");
+      params.set("order", "desc");
+      break;
+  }
+}
+
+async function fetchWooStore<T>(
+  path: string,
+  params: URLSearchParams
+): Promise<{
+  data: T;
+  headers: Headers;
+}> {
+  if (!WOO_STORE_BASE_URL) {
+    throw new Error("WOO_BASE_URL is not defined");
+  }
+
+  const url = new URL(`/wp-json/wc/store/v1/${path}`, WOO_STORE_BASE_URL);
+  url.search = params.toString();
+
+  if (url.hostname.endsWith(".local")) {
+    return fetchWooStoreWithNodeHttp<T>(url);
+  }
+
+  let response: Response;
+
+  try {
+    response = await fetch(url, {
+      next: { revalidate: 60 },
+    });
+  } catch (error) {
+    if (!url.hostname.endsWith(".local")) {
+      throw error;
+    }
+
+    return fetchWooStoreWithNodeHttp<T>(url);
+  }
+
+  if (!response.ok) {
+    throw new Error(`Woo Store API HTTP ${response.status}`);
+  }
+
+  return {
+    data: (await response.json().catch((error) => {
+      throw new Error(`Woo Store API returned invalid JSON: ${error}`);
+    })) as T,
+    headers: response.headers,
+  };
+}
+
+async function fetchWooStoreWithNodeHttp<T>(url: URL): Promise<{
+  data: T;
+  headers: Headers;
+}> {
+  const isHttps = url.protocol === "https:";
+  const client = isHttps ? await import("node:https") : await import("node:http");
+  const headers = new Headers();
+  const body = await new Promise<string>((resolve, reject) => {
+    const request = client.request(
+      {
+        hostname: url.hostname.endsWith(".local") ? "127.0.0.1" : url.hostname,
+        port: url.port || (isHttps ? 443 : 80),
+        path: `${url.pathname}${url.search}`,
+        method: "GET",
+        headers: url.hostname.endsWith(".local")
+          ? {
+              Host: url.host,
+            }
+          : undefined,
+      },
+      (response) => {
+        const chunks: Buffer[] = [];
+
+        for (const [name, value] of Object.entries(response.headers)) {
+          if (Array.isArray(value)) {
+            headers.set(name, value.join(", "));
+          } else if (value !== undefined) {
+            headers.set(name, value);
+          }
+        }
+
+        response.on("data", (chunk: Buffer) => chunks.push(chunk));
+        response.on("end", () => {
+          const statusCode = response.statusCode ?? 500;
+          const text = Buffer.concat(chunks).toString("utf8");
+
+          if (statusCode < 200 || statusCode >= 300) {
+            reject(new Error(`Woo Store API HTTP ${statusCode}`));
+            return;
+          }
+
+          resolve(text);
+        });
+      }
+    );
+
+    request.on("error", reject);
+    request.end();
+  });
+
+  return {
+    data: JSON.parse(body) as T,
+    headers,
+  };
+}
+
+function getStoreAttributeValues(
+  product: WooStoreProduct,
+  taxonomy: string
+): string[] {
+  return (
+    product.attributes
+      ?.find((attribute) => attribute.taxonomy === taxonomy)
+      ?.terms.map((term) => term.name)
+      .filter(Boolean) ?? []
+  );
+}
+
+function mapStoreProductToCard(
+  product: WooStoreProduct,
+  locale: string
+): ProductCardItem {
+  const safeLocale = normalizeLocale(locale);
+
+  return {
+    title: product.name,
+    href: `/${safeLocale}/${PRODUCT_DETAIL_BASE_PATH}/${product.slug}`,
+    description: undefined,
+    price: htmlToPlainText(product.price_html),
+    image: product.images?.[0]?.thumbnail ?? product.images?.[0]?.src,
+    brand:
+      product.brands?.[0]?.name ??
+      getStoreAttributeValues(product, "pa_marque")[0],
+    metadata: [
+      makeCardMetadataItem(
+        "Instrument",
+        getStoreAttributeValues(product, "pa_instrument")[0]
+      ),
+      makeCardMetadataItem("Corde", getStoreAttributeValues(product, "pa_corde")[0]),
+      makeCardMetadataItem("Taille", getStoreAttributeValues(product, "pa_taille")[0]),
+      makeCardMetadataItem(
+        "Tension",
+        getStoreAttributeValues(product, "pa_tension")[0]
+      ),
+    ].filter((item): item is { label: string; value: string } => Boolean(item)),
+  };
+}
+
+function mapAccessoryStoreProductToCard(
+  product: WooStoreProduct,
+  locale: string
+): ProductCardItem {
+  const safeLocale = normalizeLocale(locale);
+
+  return {
+    title: product.name,
+    href: `/${safeLocale}/${PRODUCT_DETAIL_BASE_PATH}/${product.slug}`,
+    description: undefined,
+    price: htmlToPlainText(product.price_html),
+    image: product.images?.[0]?.thumbnail ?? product.images?.[0]?.src,
+    brand:
+      product.brands?.[0]?.name ??
+      getStoreAttributeValues(product, "pa_marque")[0],
+    metadata: [
+      makeCardMetadataItem(
+        "Type",
+        getStoreAttributeValues(product, "pa_type_produit")[0]
+      ),
+      makeCardMetadataItem(
+        "Instrument",
+        getStoreAttributeValues(product, "pa_instrument").join(", ")
+      ),
+    ].filter((item): item is { label: string; value: string } => Boolean(item)),
+  };
+}
+
+async function getStoreFilterGroups(
+  filters: StringProductFilters,
+  options: {
+    completeSetsOnly?: boolean;
+  } = {}
+): Promise<ProductFilterGroup[]> {
+  const params = new URLSearchParams();
+
+  (
+    Object.keys(STRING_FILTER_LABELS) as StringProductFilterKey[]
+  ).forEach((filterKey, index) => {
+    params.set(
+      `calculate_attribute_counts[${index}][taxonomy]`,
+      STRING_STORE_ATTRIBUTE_TAXONOMIES[filterKey]
+    );
+  });
+
+  appendStringStoreFilters(params, filters, options);
+
+  const { data } = await fetchWooStore<WooStoreCollectionData>(
+    "products/collection-data",
+    params
+  );
+  const counts = new Map(
+    (data.attribute_counts ?? []).map((item) => [item.term, item.count])
+  );
+
+  return (
+    Object.keys(STRING_FILTER_LABELS) as StringProductFilterKey[]
+  )
+    .map((filterKey) => {
+      const options = sortTerms(
+        STRING_STORE_ATTRIBUTE_TERMS[filterKey]
+          .map((term) => ({
+            ...term,
+            count: counts.get(term.id) ?? 0,
+          }))
+          .filter((term) => term.count > 0),
+        STRING_FILTER_OPTION_ORDER[filterKey]
+      ).map(termToFilterOption);
+
+      return {
+        name: filterKey,
+        label: STRING_FILTER_LABELS[filterKey],
+        options,
+      };
+    })
+    .filter((filter) => filter.options.length > 0);
+}
+
+async function getAccessoryStoreFilterGroups(
+  filters: AccessoryProductFilters
+): Promise<ProductFilterGroup[]> {
+  const params = new URLSearchParams();
+
+  (
+    Object.keys(ACCESSORY_FILTER_LABELS) as AccessoryProductFilterKey[]
+  ).forEach((filterKey, index) => {
+    params.set(
+      `calculate_attribute_counts[${index}][taxonomy]`,
+      ACCESSORY_STORE_ATTRIBUTE_TAXONOMIES[filterKey]
+    );
+  });
+
+  appendAccessoryStoreFilters(params, filters);
+
+  const { data } = await fetchWooStore<WooStoreCollectionData>(
+    "products/collection-data",
+    params
+  );
+  const counts = new Map(
+    (data.attribute_counts ?? []).map((item) => [item.term, item.count])
+  );
+
+  return (
+    Object.keys(ACCESSORY_FILTER_LABELS) as AccessoryProductFilterKey[]
+  )
+    .map((filterKey) => {
+      const options = sortTerms(
+        ACCESSORY_STORE_ATTRIBUTE_TERMS[filterKey]
+          .map((term) => ({
+            ...term,
+            count: counts.get(term.id) ?? 0,
+          }))
+          .filter((term) => term.count > 0),
+        ACCESSORY_FILTER_OPTION_ORDER[filterKey]
+      ).map(termToFilterOption);
+
+      return {
+        name: filterKey,
+        label: ACCESSORY_FILTER_LABELS[filterKey],
+        options,
+      };
+    })
+    .filter((filter) => filter.options.length > 0);
+}
+
 /*
  * Données complètes de la page cordes.
  * Produits et options de filtre sont récupérés en une seule requête GraphQL,
@@ -898,57 +1564,59 @@ export async function getStringProductsPageData(
   locale: string = "fr",
   first = 48,
   filters: StringProductFilters = {},
-  businessFilters: StringProductBusinessFilters = {}
+  page = 1,
+  sort?: StringProductSortKey,
+  options: {
+    completeSetsOnly?: boolean;
+  } = {}
 ): Promise<StringProductsPageData> {
+  const safePage = Math.max(1, page);
+
   if (!hasWordPressEndpoint) {
     return {
       products: getExampleProductCards(locale, first),
       filters: STRING_FILTER_FALLBACKS,
+      pagination: {
+        page: safePage,
+        pageCount: safePage,
+        hasPreviousPage: safePage > 1,
+        hasNextPage: false,
+        resultCount: first,
+      },
     };
   }
 
   try {
-    const hasBusinessFilters = Object.values(businessFilters).some(Boolean);
-    const taxonomyFilter = buildProductTaxonomyFilter(
-      filters,
-      buildStringBusinessTaxonomyFilters(businessFilters)
+    const pageSize = Math.min(first, WOO_STORE_PRODUCTS_PER_PAGE_MAX);
+    const params = new URLSearchParams({
+      per_page: String(pageSize),
+      page: String(safePage),
+    });
+
+    appendStringStoreFilters(params, filters, options);
+    appendStoreSort(params, sort);
+
+    const { data: products, headers } = await fetchWooStore<WooStoreProduct[]>(
+      "products",
+      params
     );
-    const pageSize = first;
-    const data = (await fetchGraphQL(
-      `
-      query GetStringProductsPageData($first: Int!) {
-        products(
-          first: $first
-          where: {
-            ${taxonomyFilter}
-          }
-        ) {
-          nodes {
-            ${PRODUCT_CARD_FIELDS}
-          }
-        }
-
-        ${STRING_FILTER_GROUPS_FIELDS}
-      }
-    `,
-      { first: pageSize }
-    )) as StringProductsPageResponse;
-
-    let productNodes = data.products.nodes.filter(isStringProductCard);
-
-    if (hasBusinessFilters) {
-      productNodes = productNodes
-        .filter((product) =>
-          productMatchesStringBusinessFilters(product, businessFilters)
-        )
-        .slice(0, first);
-    }
+    const filterGroups = await getStoreFilterGroups(filters, options);
+    const resultCount = Number(headers.get("x-wp-total") ?? "0");
+    const rawPageCount = Number(headers.get("x-wp-totalpages") ?? "1");
+    const pageCount = Number.isFinite(rawPageCount)
+      ? Math.max(1, rawPageCount)
+      : 1;
 
     return {
-      products: productNodes.map((product) =>
-        mapProductToCard(product, locale, { includeStringMetadata: true })
-      ),
-      filters: mapStringFilterGroups(data),
+      products: products.map((product) => mapStoreProductToCard(product, locale)),
+      filters: filterGroups,
+      pagination: {
+        page: safePage,
+        pageCount,
+        hasPreviousPage: safePage > 1,
+        hasNextPage: safePage < pageCount,
+        resultCount,
+      },
     };
   } catch (error) {
     logWordPressProductError(
@@ -959,6 +1627,90 @@ export async function getStringProductsPageData(
     return {
       products: [],
       filters: STRING_FILTER_FALLBACKS,
+      pagination: {
+        page: safePage,
+        pageCount: safePage,
+        hasPreviousPage: safePage > 1,
+        hasNextPage: false,
+        resultCount: 0,
+      },
+    };
+  }
+}
+
+export async function getAccessoryProductsPageData(
+  locale: string = "fr",
+  first = 48,
+  filters: AccessoryProductFilters = {},
+  page = 1,
+  sort?: AccessoryProductSortKey
+): Promise<AccessoryProductsPageData> {
+  const safePage = Math.max(1, page);
+
+  if (!hasWordPressEndpoint) {
+    return {
+      products: getExampleProductCards(locale, first),
+      filters: [],
+      pagination: {
+        page: safePage,
+        pageCount: safePage,
+        hasPreviousPage: safePage > 1,
+        hasNextPage: false,
+        resultCount: first,
+      },
+    };
+  }
+
+  try {
+    const pageSize = Math.min(first, WOO_STORE_PRODUCTS_PER_PAGE_MAX);
+    const params = new URLSearchParams({
+      per_page: String(pageSize),
+      page: String(safePage),
+    });
+
+    appendAccessoryStoreFilters(params, filters);
+    appendStoreSort(params, sort);
+
+    const { data: products, headers } = await fetchWooStore<WooStoreProduct[]>(
+      "products",
+      params
+    );
+    const filterGroups = await getAccessoryStoreFilterGroups(filters);
+    const resultCount = Number(headers.get("x-wp-total") ?? "0");
+    const rawPageCount = Number(headers.get("x-wp-totalpages") ?? "1");
+    const pageCount = Number.isFinite(rawPageCount)
+      ? Math.max(1, rawPageCount)
+      : 1;
+
+    return {
+      products: products.map((product) =>
+        mapAccessoryStoreProductToCard(product, locale)
+      ),
+      filters: filterGroups,
+      pagination: {
+        page: safePage,
+        pageCount,
+        hasPreviousPage: safePage > 1,
+        hasNextPage: safePage < pageCount,
+        resultCount,
+      },
+    };
+  } catch (error) {
+    logWordPressProductError(
+      "Unable to load WooCommerce accessory products page data",
+      error
+    );
+
+    return {
+      products: [],
+      filters: [],
+      pagination: {
+        page: safePage,
+        pageCount: safePage,
+        hasPreviousPage: safePage > 1,
+        hasNextPage: false,
+        resultCount: 0,
+      },
     };
   }
 }

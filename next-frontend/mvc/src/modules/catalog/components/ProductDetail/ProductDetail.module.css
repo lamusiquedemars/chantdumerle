@@ -4,6 +4,10 @@
   padding: 48px 24px 72px;
 }
 
+.breadcrumbs {
+  margin-bottom: 24px;
+}
+
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);

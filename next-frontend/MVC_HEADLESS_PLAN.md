@@ -398,8 +398,8 @@ perdre le fil.
   instrument, corde, taille et tension sans specialiser le composant de carte ;
 - AB testing a prevoir sur les cartes produit pour decider si toutes les
   metadonnees doivent rester visibles dans la grille ;
-- referentiel modele construit depuis `cordes_attributs.csv` et les produits
-  Woo reels : `142` couples marque + modele de cordes, `140` complets,
+- referentiel modele maintenu dans `cordes_modeles_referentiel.csv` et croise
+  avec les produits Woo reels : `142` couples marque + modele de cordes, `140` complets,
   `2` Aquila a completer ;
 - valeurs Woo corrigees a la source : `Infeld azul` devient `Infeld bleu`,
   `Infeld roja` devient `Infeld rouge`, et `Original Flat Chorme Orchestra`
@@ -430,6 +430,11 @@ perdre le fil.
    premier rendu de certaines valeurs `son` depend encore fortement de
    WPGraphQL local ; prevoir requete allegee, cache dedie ou endpoint metier
    avant mise en production.
+6. Prevoir une revision globale des textes Chant du Merle : parler davantage
+   comme le chef de boutique, avec une voix humaine, concrete et personnelle.
+   Eviter les formulations trop lisses de type IA, les mots vagues comme
+   "lisible" ou "flou", et privilegier des phrases simples qui disent pourquoi
+   un produit ou une selection est vraiment propose.
 
 ### Prochaine Decision
 

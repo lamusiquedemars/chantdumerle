@@ -1,4 +1,5 @@
 import GuidesPageView from "@/modules/guides/components/GuidesPageView/GuidesPageView";
+import { getGuideCards } from "@/modules/guides/services/wordpressGuides";
 import { getGuidesPageContent } from "@/sites/chantdumerle/content/guides";
 
 type GuidesPageProps = {
@@ -9,7 +10,8 @@ type GuidesPageProps = {
 
 export default async function GuidesPage({ params }: GuidesPageProps) {
   const { locale } = await params;
-  const content = getGuidesPageContent(locale);
+  const guideItems = await getGuideCards(locale);
+  const content = getGuidesPageContent(guideItems);
 
-  return <GuidesPageView content={content} />;
+  return <GuidesPageView content={content} locale={locale} />;
 }

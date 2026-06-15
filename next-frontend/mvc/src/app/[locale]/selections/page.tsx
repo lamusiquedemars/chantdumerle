@@ -1,18 +1,13 @@
-import Container from "@/components/layout/Container/Container";
-import Section from "@/components/layout/Section/Section";
-import SectionHeading from "@/components/ui/SectionHeading/SectionHeading";
-import { selectionsPageContent } from "@/sites/chantdumerle/content/selections";
+import SelectionsPageView from "@/modules/selections/components/SelectionsPageView/SelectionsPageView";
 
-export default function SelectionsPage() {
-  return (
-    <Section>
-      <Container>
-        <SectionHeading title={selectionsPageContent.title} />
+type SelectionsPageProps = {
+  params: Promise<{
+    locale: string;
+  }>;
+};
 
-        {selectionsPageContent.paragraphs.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </Container>
-    </Section>
-  );
+export default async function SelectionsPage({ params }: SelectionsPageProps) {
+  const { locale } = await params;
+
+  return <SelectionsPageView locale={locale} />;
 }

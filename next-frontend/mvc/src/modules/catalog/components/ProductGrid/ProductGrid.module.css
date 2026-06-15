@@ -10,31 +10,30 @@
 .grid {
   display: grid;
 
-  /* 1 colonne mobile, puis colonnes fluides dès que l’espace le permet */
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: 1fr;
 
   /* Espacement cohérent avec les tokens du design system */
-  gap: var(--space-24);
+  gap: var(--space-20, 1.25rem);
+  grid-auto-rows: 1fr;
 
   /* La grille prend toute la largeur disponible */
   width: 100%;
 
   /* Alignement visuel propre entre cartes de hauteurs différentes */
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Tablet / petit desktop :
    on aère légèrement la grille */
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .grid {
-    gap: var(--space-32);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* Grand desktop :
-   seuil minimal un peu plus confortable pour garder une vraie présence produit */
-@media (min-width: 1200px) {
+@media (min-width: 980px) {
   .grid {
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-24);
   }
 }

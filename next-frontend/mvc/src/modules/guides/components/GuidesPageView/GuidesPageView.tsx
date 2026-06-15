@@ -1,19 +1,23 @@
 import Hero from "@/components/blocks/Hero/Hero";
-import TextBlock from "@/components/blocks/TextBlock/TextBlock";
-import CardGrid from "@/components/blocks/CardGrid/CardGrid";
 import Container from "@/components/layout/Container/Container";
 import Section from "@/components/layout/Section/Section";
+import Breadcrumbs from "@/components/ui/Breadcrumbs/Breadcrumbs";
 import SectionHeading from "@/components/ui/SectionHeading/SectionHeading";
-import LinkButton from "@/components/ui/LinkButton/LinkButton";
+import { localizedHref } from "@/lib/i18n/routing/localizedHref";
 import type { GuidesPageContent } from "@/modules/guides/types";
 import GuideList from "@/modules/guides/components/GuideList/GuideList";
+import styles from "./GuidesPageView.module.css";
 
 type GuidesPageViewProps = {
   content: GuidesPageContent;
+  locale: string;
 };
 
 // Vue de la liste des guides, isolee de la route Next.js.
-export default function GuidesPageView({ content }: GuidesPageViewProps) {
+export default function GuidesPageView({
+  content,
+  locale,
+}: GuidesPageViewProps) {
   return (
     <>
       <Hero
@@ -22,40 +26,28 @@ export default function GuidesPageView({ content }: GuidesPageViewProps) {
         variant="page"
       />
 
-      <Section>
+      <Section className={styles.breadcrumbSection}>
         <Container>
-          <TextBlock {...content.intro} />
-        </Container>
-      </Section>
-
-      <Section background="beige">
-        <Container>
-          <SectionHeading
-            title={content.entries.title}
-            subtitle={content.entries.subtitle}
+          <Breadcrumbs
+            items={[
+              { label: "Accueil", href: localizedHref(locale) },
+              { label: "Guides" },
+            ]}
           />
-          <CardGrid items={content.entries.items} />
         </Container>
       </Section>
 
-      <Section>
+      <Section className={styles.listSection}>
         <Container>
           <SectionHeading
             title={content.list.title}
             subtitle={content.list.subtitle}
-            action={
-              <LinkButton href={content.list.action.href}>
-                {content.list.action.label}
-              </LinkButton>
-            }
           />
-          <GuideList items={content.list.items} />
-        </Container>
-      </Section>
-
-      <Section background="accent">
-        <Container>
-          <TextBlock {...content.cta} />
+          {content.list.items.length > 0 ? (
+            <GuideList items={content.list.items} />
+          ) : (
+            <p>{content.list.emptyText}</p>
+          )}
         </Container>
       </Section>
     </>

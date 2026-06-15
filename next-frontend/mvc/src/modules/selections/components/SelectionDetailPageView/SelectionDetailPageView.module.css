@@ -1,0 +1,310 @@
+.heroSection {
+  padding-block: var(--space-40);
+  background: var(--color-white);
+}
+
+.hero {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.eyebrow {
+  color: var(--color-primary);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1;
+}
+
+.introSection.introSection {
+  padding: var(--space-16) 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(246, 242, 234, 0.72),
+      rgba(246, 242, 234, 0.36)
+    );
+}
+
+.breadcrumbs {
+  margin-bottom: var(--space-12, 0.75rem);
+}
+
+.introText {
+  display: grid;
+  gap: var(--space-8);
+  max-width: 86ch;
+  margin-bottom: var(--space-16);
+}
+
+.introText p {
+  margin: 0;
+  color: var(--color-info);
+  font-size: 1.125rem;
+  line-height: var(--lh-body);
+}
+
+.instrumentBlock {
+  display: grid;
+  gap: var(--space-10, 0.625rem);
+}
+
+.instrumentHeader {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.emptyText {
+  color: var(--color-info);
+}
+
+.instrumentCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+  padding: 0.7rem;
+  margin: 0;
+  background: rgba(250, 247, 240, 0.92);
+  border: 1px solid rgba(140, 47, 28, 0.12);
+  border-radius: var(--radius);
+  box-shadow: 0 0.55rem 1.4rem rgba(54, 37, 27, 0.06);
+}
+
+.instrumentCard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 2.2rem;
+  padding: 0 1.05rem;
+  color: var(--color-primary);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(140, 47, 28, 0.18);
+  border-radius: 999px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.18s ease,
+    transform 0.2s ease;
+}
+
+.instrumentCard:hover,
+.active {
+  border-color: color-mix(in srgb, var(--color-primary) 48%, transparent);
+  box-shadow: 0 0.45rem 0.9rem rgba(140, 47, 28, 0.14);
+}
+
+.instrumentCard:hover {
+  filter: saturate(1.06);
+  transform: translateY(-2px);
+}
+
+.active {
+  color: var(--color-white);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(164, 58, 35, 1),
+      rgba(140, 47, 28, 1)
+    );
+  border-color: rgba(140, 47, 28, 0.5);
+}
+
+.productsSection.productsSection {
+  padding-block: var(--space-24) var(--space-48);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0),
+      rgba(246, 242, 234, 0.3) 52%,
+      rgba(246, 242, 234, 0)
+    );
+}
+
+.resultsContainer {
+  width: min(100% - 2rem, 1320px);
+}
+
+.productLikeGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-20, 1.25rem);
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+  width: 100%;
+}
+
+.productLikeCard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+  background: var(--color-white);
+  overflow: hidden;
+  text-decoration: none;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.productLikeCard:hover {
+  box-shadow: 0 10px 24px rgba(26, 26, 26, 0.08);
+  transform: translateY(-2px);
+}
+
+.productLikeMedia {
+  aspect-ratio: 1 / 1;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border-soft);
+  overflow: hidden;
+}
+
+.productLikeMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.productLikeBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-16);
+}
+
+.productLikeBrand {
+  color: var(--color-info);
+  font-size: var(--fs-small);
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.productLikeBody h3 {
+  font-size: var(--fs-h3);
+  line-height: 1.25;
+}
+
+.productLikeBody p {
+  color: var(--color-info);
+}
+
+.productLikeBody dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-12, 0.75rem);
+  margin: var(--space-4) 0 0;
+}
+
+.productLikeBody dt {
+  color: var(--color-info);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.productLikeBody dd {
+  margin-top: 0.15rem;
+  color: var(--color-text);
+  font-size: var(--fs-small);
+}
+
+.productLikePrice {
+  margin-top: auto;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.reminderSection.reminderSection {
+  padding-block: var(--space-32) var(--space-64);
+  background: rgba(246, 242, 234, 0.28);
+}
+
+.reminderGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-24);
+}
+
+.reminderColumn {
+  display: grid;
+  align-content: start;
+  gap: var(--space-12, 0.75rem);
+  padding: var(--space-20, 1.25rem);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.reminderColumn h2 {
+  font-size: 1.35rem;
+}
+
+.reminderLinks {
+  display: grid;
+}
+
+.reminderLink {
+  display: block;
+  padding-block: var(--space-10, 0.625rem);
+  color: var(--color-info);
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.reminderLink:hover {
+  color: var(--color-primary);
+}
+
+@media (min-width: 760px) {
+  .instrumentCards {
+    grid-template-columns: repeat(5, minmax(7.35rem, 1fr));
+    align-items: end;
+    padding: 0.72rem 0.78rem;
+    gap: 0.55rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .productLikeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 980px) {
+  .productLikeGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-24);
+  }
+}
+
+@media (max-width: 720px) {
+  .heroSection {
+    padding-block: var(--space-32) var(--space-24);
+  }
+
+  .introSection.introSection {
+    padding: var(--space-14, 0.875rem) 0;
+  }
+
+  .productLikeGrid,
+  .reminderGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .productLikeBody dl {
+    grid-template-columns: 1fr;
+  }
+}

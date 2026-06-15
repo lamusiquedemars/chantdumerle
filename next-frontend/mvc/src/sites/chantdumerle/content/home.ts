@@ -16,31 +16,31 @@ type HomeTextBlock = {
 };
 
 // Contenu home du client Chant du Merle.
-export function getHomeContent(locale: string) {
+export function getHomeContent(locale: string, guideItems: GuideCardItem[] = []) {
   const href = (path: string) => localizedHref(locale, path);
 
   const instrumentEntries: EntryGridItem[] = [
     {
       label: "Violon",
-      href: href("/cordes?instrument=violon"),
+      href: href("/cordes?instrument=violon&prefilter=instrument"),
       description: "Voir notre sélection",
       backgroundImage: "/icons/icon-violin.png",
     },
     {
       label: "Alto",
-      href: href("/cordes?instrument=alto"),
+      href: href("/cordes?instrument=alto&prefilter=instrument"),
       description: "Voir notre sélection",
       backgroundImage: "/icons/icon-viola.png",
     },
     {
       label: "Violoncelle",
-      href: href("/cordes?instrument=cello"),
+      href: href("/cordes?instrument=violoncelle&prefilter=instrument"),
       description: "Voir notre sélection",
       backgroundImage: "/icons/icon-cello.png",
     },
     {
       label: "Contrebasse",
-      href: href("/cordes?instrument=contrebasse"),
+      href: href("/cordes?instrument=contrebasse&prefilter=instrument"),
       description: "Voir notre sélection",
       backgroundImage: "/icons/icon-db.png",
     },
@@ -49,21 +49,21 @@ export function getHomeContent(locale: string) {
   const soundEntries: EntryGridItem[] = [
     {
       label: "Chaud",
-      href: href("/cordes?son=chaud"),
+      href: href("/cordes?son=chaud&prefilter=sound"),
       description: "Son rond, dense et chaleureux avec des graves riches",
       backgroundImage:
         "https://vallestrade.com/900196-thickbox_default/Cuerda-violin-Pirastro-Obligato-313121-1-Mi-Bola-Medium.jpg",
     },
     {
       label: "Équilibré",
-      href: href("/cordes?son=equilibre"),
+      href: href("/cordes?son=equilibre&prefilter=sound"),
       description: "Équilibre harmonieux entre clarté, rondeur et puissance",
       backgroundImage:
         "https://vallestrade.com/902620-thickbox_default/Set-de-cuerdas-cello-Thomastik-Dominant-147-Medium.jpg",
     },
     {
       label: "Brillant",
-      href: href("/cordes?son=brillant"),
+      href: href("/cordes?son=brillant&prefilter=sound"),
       description:
         "Son clair et projectif avec une attaque vive et des aigus éclatants",
       backgroundImage:
@@ -74,7 +74,7 @@ export function getHomeContent(locale: string) {
   const levelEntries: EntryGridItem[] = [
     {
       label: "Étudiant",
-      href: href("/selections"),
+      href: href("/cordes?usage=etudiant&prefilter=usage"),
       description:
         "Stabilité d’accord remarquable, homogénéité parfaite et fiabilité quotidienne",
       backgroundImage:
@@ -82,7 +82,7 @@ export function getHomeContent(locale: string) {
     },
     {
       label: "Orchestre",
-      href: href("/selections"),
+      href: href("/cordes?usage=orchestre&prefilter=usage"),
       description:
         "Grande précision de timbre, finesse dans les nuances et contrôle dynamique supérieur",
       backgroundImage:
@@ -90,7 +90,7 @@ export function getHomeContent(locale: string) {
     },
     {
       label: "Avancé / Soliste",
-      href: href("/selections"),
+      href: href("/cordes?usage=soliste&prefilter=usage"),
       description:
         "Réponse instantanée, projection généreuse et caractère timbrique affirmé",
       backgroundImage:
@@ -122,21 +122,12 @@ export function getHomeContent(locale: string) {
     },
   ];
 
-  const guideItems: GuideCardItem[] = [
-    {
-      title: "Comment choisir ses cordes",
-      href: href("/guides/comment-choisir-ses-cordes"),
-      excerpt: "Les vrais critères utiles pour décider sans se perdre.",
-      category: "Choix",
-    },
-  ];
-
   return {
     hero: {
       title: "Les cordes, c'est notre spécialité.",
       subtitle:
         "Cordes et accessoires pour instruments du quatuor, sélectionnés avec soin.",
-      backgroundImage: "images/brand/hero-home-drawer.png",
+      backgroundImage: "images/brand/hero-home.png",
       actions: [
         { label: "Choisir mes cordes", href: href("/cordes") },
         { label: "Explorer les sélections", href: href("/selections") },
@@ -183,7 +174,7 @@ export function getHomeContent(locale: string) {
         label: "Voir les guides",
         href: href("/guides"),
       },
-      items: guideItems,
+      items: guideItems.slice(0, 3),
     },
     closing: {
       title: "Choisir avec plus de justesse",
