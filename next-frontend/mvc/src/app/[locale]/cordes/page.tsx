@@ -113,7 +113,7 @@ export default async function CordesPage({
     son,
     usage,
     corde: completeSetsOnly ? undefined : readSingleParam(query.corde),
-    taille: completeSetsOnly ? undefined : readSingleParam(query.taille),
+    taille: readSingleParam(query.taille),
     tension: readSingleParam(query.tension),
   };
   const page = Number(readSingleParam(query.page) ?? "1");
