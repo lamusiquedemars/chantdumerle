@@ -165,6 +165,72 @@ export function getStoreAttributeValues(
   );
 }
 
+function getStoreAttribute(product: WooStoreProduct, taxonomy: string) {
+  return product.attributes?.find(
+    (attribute) => attribute.taxonomy === taxonomy
+  );
+}
+
+function getCardAttributeValue(
+  product: WooStoreProduct,
+  taxonomy: string
+): string | undefined {
+  const attribute = getStoreAttribute(product, taxonomy);
+  const values = attribute?.terms.map((term) => term.name).filter(Boolean) ?? [];
+
+  if (values.length === 0) {
+    return undefined;
+  }
+
+  if (attribute?.has_variations && values.length > 1) {
+    return "Plusieurs";
+  }
+
+  return values[0];
+}
+
+function formatStoreAmount(
+  product: WooStoreProduct,
+  locale: string,
+  amount?: string
+): string | undefined {
+  if (!amount) {
+    return undefined;
+  }
+
+  const minorUnit = product.prices?.currency_minor_unit ?? 2;
+  const numericAmount = Number(amount) / 10 ** minorUnit;
+
+  if (!Number.isFinite(numericAmount)) {
+    return undefined;
+  }
+
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: product.prices?.currency_code ?? "EUR",
+  }).format(numericAmount);
+}
+
+function formatStoreProductPrice(
+  product: WooStoreProduct,
+  locale: string
+): string | undefined {
+  const minAmount = product.prices?.price_range?.min_amount;
+  const maxAmount = product.prices?.price_range?.max_amount;
+  const minPrice = formatStoreAmount(product, locale, minAmount);
+  const maxPrice = formatStoreAmount(product, locale, maxAmount);
+
+  if (minPrice && maxPrice && minAmount !== maxAmount) {
+    return `${minPrice} à ${maxPrice}`;
+  }
+
+  return (
+    minPrice ??
+    formatStoreAmount(product, locale, product.prices?.price) ??
+    htmlToPlainText(product.price_html)
+  );
+}
+
 export function getStoreProductPrimaryBrand(product: WooStoreProduct):
   | {
       name: string;
@@ -217,19 +283,19 @@ export function mapStoreProductToCard(
     title: product.name,
     href: `/${safeLocale}/${PRODUCT_DETAIL_BASE_PATH}/${product.slug}`,
     description: undefined,
-    price: htmlToPlainText(product.price_html),
+    price: formatStoreProductPrice(product, safeLocale),
     image: product.images?.[0]?.thumbnail ?? product.images?.[0]?.src,
     brand: getStoreProductPrimaryBrand(product)?.name,
     metadata: [
       makeCardMetadataItem(
         "Instrument",
-        getStoreAttributeValues(product, "pa_instrument")[0]
+        getCardAttributeValue(product, "pa_instrument")
       ),
-      makeCardMetadataItem("Corde", getStoreAttributeValues(product, "pa_corde")[0]),
-      makeCardMetadataItem("Taille", getStoreAttributeValues(product, "pa_taille")[0]),
+      makeCardMetadataItem("Corde", getCardAttributeValue(product, "pa_corde")),
+      makeCardMetadataItem("Taille", getCardAttributeValue(product, "pa_taille")),
       makeCardMetadataItem(
         "Tension",
-        getStoreAttributeValues(product, "pa_tension")[0]
+        getCardAttributeValue(product, "pa_tension")
       ),
     ].filter((item): item is { label: string; value: string } => Boolean(item)),
   };
@@ -245,7 +311,7 @@ export function mapAccessoryStoreProductToCard(
     title: product.name,
     href: `/${safeLocale}/${PRODUCT_DETAIL_BASE_PATH}/${product.slug}`,
     description: undefined,
-    price: htmlToPlainText(product.price_html),
+    price: formatStoreProductPrice(product, safeLocale),
     image: product.images?.[0]?.thumbnail ?? product.images?.[0]?.src,
     brand: getStoreProductPrimaryBrand(product)?.name,
     metadata: [
@@ -271,7 +337,7 @@ export function mapPackStoreProductToCard(
     title: product.name,
     href: `/${safeLocale}/${PRODUCT_DETAIL_BASE_PATH}/${product.slug}`,
     description: htmlToPlainText(product.short_description),
-    price: htmlToPlainText(product.price_html),
+    price: formatStoreProductPrice(product, safeLocale),
     image: product.images?.[0]?.thumbnail ?? product.images?.[0]?.src,
     brand: getStoreAttributeValues(product, "pa_type_pack")[0],
     metadata: [
