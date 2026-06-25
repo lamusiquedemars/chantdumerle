@@ -18,7 +18,7 @@ export default function SelectionGrid({
   return (
     <div className={clsx(styles.grid, className)}>
       {items.map((item) => (
-        <SelectionCard key={item.href} {...item} />
+        <SelectionCard key={`${item.href}-${item.title}`} {...item} />
       ))}
     </div>
   );

@@ -11,9 +11,6 @@ import MobileMenu from "../MobileMenu/MobileMenu";
 
 type HeaderProps = {
   navItems: NavItem[];
-
-  // Données de marque affichées dans le header.
-  // logoSrc est optionnel : si aucun logo n'est fourni, on affiche seulement le texte.
   brand: {
     label: string;
     href: string;
@@ -29,17 +26,13 @@ export default function Header({
   brand,
   className,
 }: HeaderProps) {
-  // État d'ouverture du menu mobile.
   const [isOpen, setIsOpen] = useState(false);
-  // Récupère l’URL courante pour marquer le lien actif dans la navigation.
   const pathname = usePathname();
 
-  // Ajoute automatiquement current=true au bon item de navigation.
   const computedNavItems = navItems.map((item) => ({
     ...item,
     current: pathname === item.href || pathname.startsWith(`${item.href}/`),
   }));
-  // Mécanisme de shrink au scroll de la page.
   const [shrink, setShrink] = useState(false);
   useEffect(() => {
     const onScroll = () => {
@@ -57,7 +50,6 @@ export default function Header({
   return (
     <header className={clsx(styles.header, shrink && styles.headerShrink, className)}>
       <div className={styles.inner}>
-        {/* Zone de marque : logo optionnel + nom du site. */}
         <Link href={brand.href} className={styles.brand}>
           {brand.logoSrc ? (
             <span className={styles.logo}>
@@ -75,12 +67,10 @@ export default function Header({
           <span className={styles.brandLabel}>{brand.label}</span>
         </Link>
 
-        {/* Navigation desktop. */}
         <div className={styles.desktopNav}>
           <MainNav items={computedNavItems} />
         </div>
 
-        {/* Bouton d'ouverture / fermeture du menu mobile. */}
         <button
           type="button"
           className={clsx(styles.burger, isOpen && styles.burgerOpen)}
@@ -98,7 +88,6 @@ export default function Header({
         </button>
       </div>
 
-      {/* Menu mobile affiché seulement quand isOpen vaut true. */}
       <MobileMenu
         items={computedNavItems}
         isOpen={isOpen}

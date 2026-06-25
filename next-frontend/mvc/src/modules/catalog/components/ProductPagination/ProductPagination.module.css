@@ -3,7 +3,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: var(--space-10, 0.625rem);
+  gap: var(--space-10);
   margin-top: var(--space-32);
   text-align: center;
 }
@@ -97,7 +97,7 @@
 
   .link,
   .disabled {
-    width: calc(50% - var(--space-4, 0.25rem));
+    width: calc(50% - var(--space-4));
     order: 2;
   }
 

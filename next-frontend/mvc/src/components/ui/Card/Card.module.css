@@ -11,7 +11,6 @@
 
   /* box model */
   padding: var(--space-24);
-  border: 1px solid var(--color-border-soft);
   border-radius: var(--radius);
 
   /* visual */
@@ -21,7 +20,6 @@
 
   /* behavior */
   transition:
-    border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
@@ -29,14 +27,12 @@
 /* léger renfort visuel au survol
    reste discret pour respecter le positionnement sobre */
 .card:hover {
-  border-color: var(--color-border);
   box-shadow: 0 6px 18px rgba(26, 26, 26, 0.08);
 }
 
 /* accessibilité clavier si la card devient focusable
    ou contient un focus visible */
 .card:focus-within {
-  border-color: var(--color-primary);
   box-shadow:
     0 0 0 2px rgba(140, 47, 28, 0.12),
     0 6px 18px rgba(26, 26, 26, 0.08);

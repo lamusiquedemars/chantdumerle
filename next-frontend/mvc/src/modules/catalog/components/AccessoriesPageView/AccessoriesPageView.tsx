@@ -9,10 +9,12 @@ import Breadcrumbs, {
 import ProductFilters, {
   type ProductFilterGroup,
 } from "@/modules/catalog/components/ProductFilters/ProductFilters";
+import CatalogResultsStatus from "@/modules/catalog/components/CatalogResultsStatus/CatalogResultsStatus";
 import ProductGrid from "@/modules/catalog/components/ProductGrid/ProductGrid";
 import ProductPagination from "@/modules/catalog/components/ProductPagination/ProductPagination";
 import type { ProductCardItem } from "@/modules/catalog/components/ProductCard/ProductCard";
 import type { AccessoriesContent } from "@/modules/catalog/types";
+import GuideList from "@/modules/guides/components/GuideList/GuideList";
 import { localizedHref } from "@/lib/i18n/routing/localizedHref";
 import styles from "./AccessoriesPageView.module.css";
 
@@ -123,11 +125,11 @@ export default function AccessoriesPageView({
         title={content.hero.title}
         subtitle={content.hero.subtitle}
         backgroundImage={content.hero.backgroundImage}
+        height="compact"
         actions={[]}
-        className={styles.hero}
       />
 
-      <Section className={styles.introSection}>
+      <Section padding="tight" background="catalogIntro">
         <Container>
           <Breadcrumbs items={breadcrumbItems} className={styles.breadcrumbs} />
 
@@ -148,22 +150,18 @@ export default function AccessoriesPageView({
         </Container>
       </Section>
 
-      <Section className={styles.resultsSection}>
-        <Container className={styles.resultsContainer}>
-          {pagination ? (
-            <p className={styles.resultsCount}>
-              {pagination.resultCount}{" "}
-              {pagination.resultCount > 1 ? "résultats" : "résultat"}
-            </p>
-          ) : null}
+      <Section padding="results" background="catalogResults">
+        <Container width="wide">
+          <CatalogResultsStatus
+            resultCount={pagination?.resultCount}
+            emptyMessage={
+              products.length === 0
+                ? "Aucun accessoire ne correspond encore à ce filtre."
+                : undefined
+            }
+          />
 
           {products.length > 0 ? <ProductGrid items={products} /> : null}
-
-          {products.length === 0 ? (
-            <div className={styles.emptyState}>
-              <p>Aucun accessoire ne correspond encore à ce filtre.</p>
-            </div>
-          ) : null}
 
           {pagination ? (
             <ProductPagination
@@ -177,16 +175,29 @@ export default function AccessoriesPageView({
         </Container>
       </Section>
 
-      <Section className={styles.orientationSection}>
+      <Section padding="split" background="soft">
         <Container>
           <SectionHeading
             title={content.categories.title}
             subtitle={content.categories.subtitle}
           />
 
-          <EntryGrid items={content.categories.items} />
+          <EntryGrid items={content.categories.items} columns="three" />
         </Container>
       </Section>
+
+      {content.guides.items.length > 0 ? (
+        <Section padding="split" background="soft">
+          <Container>
+            <SectionHeading
+              title={content.guides.title}
+              subtitle={content.guides.subtitle}
+            />
+
+            <GuideList items={content.guides.items} />
+          </Container>
+        </Section>
+      ) : null}
     </>
   );
 }

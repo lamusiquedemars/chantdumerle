@@ -1,6 +1,6 @@
 import GuidesPageView from "@/modules/guides/components/GuidesPageView/GuidesPageView";
 import { getGuideCards } from "@/modules/guides/services/wordpressGuides";
-import { getGuidesPageContent } from "@/sites/chantdumerle/content/guides";
+import { getGuidesPageContent } from "@/content/guides";
 
 type GuidesPageProps = {
   params: Promise<{

@@ -6,11 +6,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Projet
 
-- Ce projet est un starter Next.js headless avec une lecture MVC legere.
-- `src/app` contient les routes et handlers API.
+- Ce projet est le front Next.js actif du Chant du Merle, avec une lecture MVC
+  legere.
+- `src/app` contient les routes publiques.
 - `src/modules` contient les vues, types et services reutilisables.
 - `src/sites/example` contient la configuration et les contenus du site exemple.
 - Le catalogue fonctionne sans backend grace aux donnees locales exemple.
+- WooCommerce possede le panier, la commande et l'espace client. Ne pas ajouter
+  de panier miroir cote Next.
 
 # Regles De Travail
 
@@ -18,6 +21,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Ne pas mettre de gros contenus, requetes ou regles metier dans les fichiers `page.tsx`.
 - Respecter les modules existants avant d'en creer de nouveaux.
 - Garder les adaptateurs headless derriere des services.
-- Ne pas imposer WordPress, WooCommerce ou un autre CMS au socle.
+- Ne pas imposer un nouveau CMS au socle.
 - Valider les changements par `npm run lint` puis `npm run build`.
-- Garder les commentaires courts et utiles.
+- Commenter les decisions metier et les frontieres techniques, pas le code
+  evident.

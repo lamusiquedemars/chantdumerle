@@ -31,10 +31,6 @@ export default function ProductCarousel({
       return;
     }
 
-    /*
-     * On avance d’environ une carte à chaque clic.
-     * Simple, lisible, sans dépendance externe.
-     */
     const firstItem = track.querySelector<HTMLElement>("[data-carousel-item]");
     const scrollAmount = firstItem
       ? firstItem.offsetWidth + 24

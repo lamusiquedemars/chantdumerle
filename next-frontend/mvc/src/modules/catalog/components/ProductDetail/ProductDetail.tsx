@@ -1,6 +1,6 @@
-import Image from "next/image";
 import AddToCartButton from "@/modules/commerce/components/AddToCartButton/AddToCartButton";
-import type { ProductPageItem } from "@/modules/catalog/services/wordpressProducts";
+import type { ProductPageItem } from "@/modules/catalog/services/productPageData";
+import ProductGallery from "@/modules/catalog/components/ProductGallery/ProductGallery";
 import Breadcrumbs, {
   type BreadcrumbItem,
 } from "@/components/ui/Breadcrumbs/Breadcrumbs";
@@ -61,12 +61,34 @@ const ACCESSORY_TYPE_BREADCRUMBS: Record<string, string> = {
   entretien: "Entretien",
 };
 
+const PACK_TYPE_BREADCRUMBS: Record<
+  string,
+  { label: string; href: string }
+> = {
+  "pack-essentiel-cordes": {
+    label: "Pack essentiel cordes",
+    href: "/selections/packs/essentiel-cordes",
+  },
+  "pack-essentiel-archet": {
+    label: "Pack essentiel archet",
+    href: "/selections/packs/essentiel-archet",
+  },
+  "pack-performance-archet": {
+    label: "Pack performance archet",
+    href: "/selections/packs/performance-archet",
+  },
+};
+
 function buildProductBreadcrumbItems(
   product: ProductPageItem,
   locale: string
 ): BreadcrumbItem[] {
   const instrument = findProductField(product, "Instrument");
   const productType = findProductField(product, "Type de produit");
+  const packType = findProductField(product, "Type pack");
+  const packTypeBreadcrumb = packType?.slug
+    ? PACK_TYPE_BREADCRUMBS[packType.slug]
+    : undefined;
   const accessoryTypeLabel = productType?.slug
     ? ACCESSORY_TYPE_BREADCRUMBS[productType.slug]
     : undefined;
@@ -83,6 +105,24 @@ function buildProductBreadcrumbItems(
       },
       { label: htmlToPlainText(product.name) ?? product.name }
     );
+
+    return items;
+  }
+
+  if (productType?.slug === "pack") {
+    items.push(
+      { label: "Sélections", href: localizedHref(locale, "/selections") },
+      { label: "Packs", href: localizedHref(locale, "/selections#packs") }
+    );
+
+    if (packTypeBreadcrumb) {
+      items.push({
+        label: packTypeBreadcrumb.label,
+        href: localizedHref(locale, packTypeBreadcrumb.href),
+      });
+    }
+
+    items.push({ label: htmlToPlainText(product.name) ?? product.name });
 
     return items;
   }
@@ -107,8 +147,15 @@ function buildProductBreadcrumbItems(
 // Vue detail produit reutilisable, independante de la route Next.js.
 export default function ProductDetail({ locale, product }: ProductDetailProps) {
   const categoryNames = product.categories.map((category) => category.name);
-  const isInStock = product.stockStatus === "IN_STOCK";
-  const canAddToCart = product.purchasable !== false && isInStock;
+  const stockStatus = product.stockStatus?.toUpperCase();
+  const isExplicitlyOutOfStock = stockStatus === "OUT_OF_STOCK";
+  const isInStock = !isExplicitlyOutOfStock;
+  /*
+   * WooCommerce reste l’arbitre final du stock dans l’endpoint panier.
+   * Ici, on bloque seulement les cas explicitement non achetables pour éviter
+   * qu’une donnée GraphQL absente ou mal normalisée rende le bouton muet.
+   */
+  const canAddToCart = product.purchasable !== false && !isExplicitlyOutOfStock;
   const productName = htmlToPlainText(product.name) ?? product.name;
   const breadcrumbItems = buildProductBreadcrumbItems(product, locale);
 
@@ -124,19 +171,10 @@ export default function ProductDetail({ locale, product }: ProductDetailProps) {
       <Breadcrumbs items={breadcrumbItems} className={styles.breadcrumbs} />
 
       <section className={styles.hero}>
-        <div className={styles.imageWrapper}>
-          {product.image?.sourceUrl ? (
-            <Image
-              src={product.image.sourceUrl}
-              alt={htmlToPlainText(product.image.altText) || productName}
-              fill
-              sizes="(max-width: 820px) calc(100vw - 36px), 690px"
-              className={styles.image}
-            />
-          ) : (
-            <div className={styles.imagePlaceholder}>Image à venir</div>
-          )}
-        </div>
+        <ProductGallery
+          images={product.galleryImages}
+          productName={productName}
+        />
 
         <div className={styles.summary}>
           {categoryNames.length > 0 ? (
@@ -152,23 +190,16 @@ export default function ProductDetail({ locale, product }: ProductDetailProps) {
             />
           ) : null}
 
-          {product.price ? (
-            <p
-              className={styles.price}
-              dangerouslySetInnerHTML={{ __html: product.price }}
-            />
-          ) : null}
-
-          <p className={isInStock ? styles.stockOk : styles.stockKo}>
-            {stockLabel}
-          </p>
-
-          {product.sku ? <p className={styles.sku}>SKU : {product.sku}</p> : null}
-
           <div className={styles.buyBox}>
             <AddToCartButton
               productId={product.databaseId}
               disabled={!canAddToCart}
+              priceHtml={product.price}
+              sku={product.sku}
+              stockLabel={stockLabel}
+              isInStock={isInStock}
+              variationOptions={product.variationOptions}
+              variations={product.variations}
             />
           </div>
         </div>

@@ -9,6 +9,7 @@ type HeroAction = {
 
 type HeroVariant = "home" | "page" | "wide";
 type HeroAlign = "left" | "center";
+type HeroHeight = "default" | "compact";
 
 type HeroProps = {
   title: string;
@@ -16,7 +17,9 @@ type HeroProps = {
   actions?: HeroAction[];
   variant?: HeroVariant;
   align?: HeroAlign;
+  height?: HeroHeight;
   backgroundImage?: string;
+  backgroundPosition?: string;
   className?: string;
 };
 
@@ -26,24 +29,33 @@ export default function Hero({
   actions = [],
   variant = "page",
   align = "left",
+  height = "default",
   backgroundImage,
+  backgroundPosition,
   className,
 }: HeroProps) {
-  return (
-      <section
-        className={clsx(
-          styles.hero,
-          styles[variant],
-          styles[align],
-          backgroundImage && styles.withBackground,
-          className
-        )}
-        style={
-          backgroundImage
-            ? { backgroundImage: `url(${backgroundImage})` }
-            : undefined
+  const style =
+    backgroundImage || backgroundPosition
+      ? {
+          backgroundImage: backgroundImage
+            ? `url(${backgroundImage})`
+            : undefined,
+          backgroundPosition,
         }
-      >
+      : undefined;
+
+  return (
+    <section
+      className={clsx(
+        styles.hero,
+        styles[variant],
+        styles[align],
+        styles[height],
+        backgroundImage && styles.withBackground,
+        className
+      )}
+      style={style}
+    >
       <div className={styles.inner}>
         <h1 className={styles.title}>{title}</h1>
 

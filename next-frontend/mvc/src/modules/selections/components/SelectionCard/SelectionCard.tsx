@@ -7,6 +7,7 @@ export type SelectionCardItem = {
   href: string;
   description?: string;
   instrument?: string;
+  backgroundImage?: string;
 };
 
 type SelectionCardProps = SelectionCardItem & {
@@ -18,10 +19,18 @@ export default function SelectionCard({
   href,
   description,
   instrument,
+  backgroundImage,
   className,
 }: SelectionCardProps) {
   return (
     <Link href={href} className={clsx(styles.card, className)}>
+      {backgroundImage ? (
+        <span
+          className={styles.media}
+          style={{ backgroundImage: `url(${backgroundImage})` }}
+          aria-hidden="true"
+        />
+      ) : null}
       <div className={styles.body}>
         {instrument ? <p className={styles.instrument}>{instrument}</p> : null}
         <h3 className={styles.title}>{title}</h3>

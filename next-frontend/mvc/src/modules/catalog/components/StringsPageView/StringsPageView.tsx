@@ -4,6 +4,7 @@ import Container from "@/components/layout/Container/Container";
 import Section from "@/components/layout/Section/Section";
 import SectionHeading from "@/components/ui/SectionHeading/SectionHeading";
 import ProductGrid from "@/modules/catalog/components/ProductGrid/ProductGrid";
+import CatalogResultsStatus from "@/modules/catalog/components/CatalogResultsStatus/CatalogResultsStatus";
 import type { ProductCardItem } from "@/modules/catalog/components/ProductCard/ProductCard";
 import ProductFilters, {
   type ProductFilterGroup,
@@ -15,7 +16,6 @@ import type {
   StringsContent,
 } from "@/modules/catalog/types";
 import GuideList from "@/modules/guides/components/GuideList/GuideList";
-import SelectionGrid from "@/modules/selections/components/SelectionGrid/SelectionGrid";
 import LinkButton from "@/components/ui/LinkButton/LinkButton";
 import Breadcrumbs, {
   type BreadcrumbItem,
@@ -39,6 +39,7 @@ type StringsPageViewProps = {
   activeSort?: string;
   activeEntryKind?: SelectionEntryKind;
   activeFilterIntro?: SelectionEntryContent;
+  hasProductSearch?: boolean;
 };
 
 function getFilterOptionLabel(
@@ -157,19 +158,18 @@ export default function StringsPageView({
   activeSort = "",
   activeEntryKind,
   activeFilterIntro,
+  hasProductSearch = true,
 }: StringsPageViewProps) {
   const isSelectionEntry = Boolean(activeFilterIntro);
   const heroTitle = activeFilterIntro?.heroTitle ?? content.hero.title;
   const heroSubtitle = activeFilterIntro?.heroSubtitle ?? content.hero.subtitle;
   const visibleFilterNames =
-    activeEntryKind === "instrument"
-      ? ["marque", "usage", "son", "corde", "taille", "tension"]
-      : activeEntryKind === "sound" || activeEntryKind === "usage"
-        ? ["instrument", "marque"]
-        : [];
+    !hasProductSearch
+      ? ["instrument", "son", "usage"]
+      : ["instrument", "marque", "son", "usage", "taille", "tension"];
   const visibleFilters = isSelectionEntry
     ? filters.filter((filter) => visibleFilterNames.includes(filter.name))
-    : filters;
+    : filters.filter((filter) => visibleFilterNames.includes(filter.name));
   const preservedFilterValues: Record<string, string> = {};
 
   if (activeEntryKind) {
@@ -206,11 +206,11 @@ export default function StringsPageView({
         title={heroTitle}
         subtitle={heroSubtitle}
         backgroundImage={content.hero.backgroundImage}
+        height="compact"
         actions={[]}
-        className={styles.hero}
       />
 
-      <Section className={styles.introSection}>
+      <Section padding="tight" background="catalogIntro">
         <Container>
           <Breadcrumbs items={breadcrumbItems} className={styles.breadcrumbs} />
 
@@ -250,23 +250,21 @@ export default function StringsPageView({
         </Container>
       </Section>
 
-      <Section className={styles.resultsSection}>
-        <Container className={styles.resultsContainer}>
-          {pagination ? (
-            <p className={styles.resultsCount}>
-              {pagination.resultCount}{" "}
-              {pagination.resultCount > 1 ? "résultats" : "résultat"}
-            </p>
-          ) : null}
+      <Section padding="results" background="catalogResults">
+        <Container width="wide">
+          <CatalogResultsStatus
+            resultCount={hasProductSearch ? pagination?.resultCount : undefined}
+            emptyMessage={
+              !hasProductSearch
+                ? "Choisissez un instrument, un besoin ou un filtre pour lancer la recherche."
+                : products.length === 0
+                ? "Aucune corde ne correspond encore à ce filtre."
+                : undefined
+            }
+          />
 
           {products.length > 0 ? (
             <ProductGrid items={products} />
-          ) : null}
-
-          {products.length === 0 ? (
-            <div className={styles.emptyState}>
-              <p>Aucune corde ne correspond encore à ce filtre.</p>
-            </div>
           ) : null}
 
           {pagination ? (
@@ -281,7 +279,7 @@ export default function StringsPageView({
         </Container>
       </Section>
 
-      <Section className={styles.orientationSection}>
+      <Section padding="split" background="soft">
         <Container>
           <SectionHeading
             title={content.instruments.title}
@@ -292,18 +290,18 @@ export default function StringsPageView({
         </Container>
       </Section>
 
-      <Section className={styles.orientationSection}>
+      <Section padding="split" background="soft">
         <Container>
           <SectionHeading
             title={content.selections.title}
             subtitle={content.selections.subtitle}
           />
 
-          <SelectionGrid items={content.selections.items} />
+          <EntryGrid items={content.selections.items} columns="three" />
         </Container>
       </Section>
 
-      <Section className={styles.guidesSection}>
+      <Section padding="split" background="soft">
         <Container>
           <SectionHeading
             title={content.guides.title}

@@ -23,7 +23,7 @@ Contraintes charte :
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  max-width: 70ch; /* lisibilité */
+  max-width: 100ch; /* lisibilité */
 }
 
 .light {
@@ -45,8 +45,6 @@ Contraintes charte :
   font-size: var(--fs-body);
   line-height: var(--lh-body);
   color: inherit;
-  /* hiérarchie douce */
-  max-width: 60ch;
 }
 /* zone action (ex: "voir tout") */
 .action {

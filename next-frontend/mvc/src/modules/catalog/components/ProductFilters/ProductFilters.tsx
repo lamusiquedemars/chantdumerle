@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import styles from "./ProductFilters.module.css";
 
 export type ProductFilterOption = {
@@ -55,6 +55,8 @@ export default function ProductFilters({
     values: initialValues,
     sort: initialSort,
     filters: filters.map((filter) => filter.name),
+    preservedValues,
+    query: searchParams.toString(),
   });
 
   return (
@@ -65,9 +67,29 @@ export default function ProductFilters({
       initialSort={initialSort}
       preservedValues={preservedValues}
       pathname={pathname}
+      currentQuery={searchParams.toString()}
       className={className}
     />
   );
+}
+
+function makeBaseParams(
+  currentQuery: string,
+  preservedValues: Record<string, string>
+) {
+  const nextParams = new URLSearchParams(currentQuery);
+
+  nextParams.delete("page");
+
+  for (const [name, value] of Object.entries(preservedValues)) {
+    if (value) {
+      nextParams.set(name, value);
+    } else {
+      nextParams.delete(name);
+    }
+  }
+
+  return nextParams;
 }
 
 function ProductFiltersForm({
@@ -76,6 +98,7 @@ function ProductFiltersForm({
   initialSort,
   preservedValues,
   pathname,
+  currentQuery,
   className,
 }: {
   filters: ProductFilterGroup[];
@@ -83,24 +106,15 @@ function ProductFiltersForm({
   initialSort: string;
   preservedValues: Record<string, string>;
   pathname: string;
+  currentQuery: string;
   className?: string;
 }) {
-  const [currentValues, setCurrentValues] = useState(initialValues);
-  const [currentSort, setCurrentSort] = useState(initialSort);
-
-  function applyFilters() {
-    const nextParams = new URLSearchParams();
-
-    for (const [name, value] of Object.entries(preservedValues)) {
-      if (value) {
-        nextParams.set(name, value);
-      } else {
-        nextParams.delete(name);
-      }
-    }
+  function applyFilters(form: HTMLFormElement) {
+    const formData = new FormData(form);
+    const nextParams = makeBaseParams(currentQuery, preservedValues);
 
     for (const filter of filters) {
-      const value = currentValues[filter.name] ?? "";
+      const value = String(formData.get(filter.name) ?? "");
 
       if (value) {
         nextParams.set(filter.name, value);
@@ -108,6 +122,8 @@ function ProductFiltersForm({
         nextParams.delete(filter.name);
       }
     }
+
+    const currentSort = String(formData.get("sort") ?? "");
 
     if (currentSort) {
       nextParams.set("sort", currentSort);
@@ -120,13 +136,13 @@ function ProductFiltersForm({
   }
 
   function clearFilters() {
-    const nextParams = new URLSearchParams();
+    const nextParams = makeBaseParams(currentQuery, preservedValues);
 
-    for (const [name, value] of Object.entries(preservedValues)) {
-      if (value) {
-        nextParams.set(name, value);
-      }
+    for (const filter of filters) {
+      nextParams.delete(filter.name);
     }
+
+    nextParams.delete("sort");
 
     const query = nextParams.toString();
     window.location.assign(query ? `${pathname}?${query}` : pathname);
@@ -137,7 +153,7 @@ function ProductFiltersForm({
       className={clsx(styles.filters, className)}
       onSubmit={(event) => {
         event.preventDefault();
-        applyFilters();
+        applyFilters(event.currentTarget);
       }}
     >
       <div className={styles.controls}>
@@ -150,13 +166,7 @@ function ProductFiltersForm({
               id={filter.name}
               name={filter.name}
               className={styles.select}
-              value={currentValues[filter.name] ?? ""}
-              onChange={(event) =>
-                setCurrentValues((previousValues) => ({
-                  ...previousValues,
-                  [filter.name]: event.target.value,
-                }))
-              }
+              defaultValue={initialValues[filter.name] ?? ""}
             >
               <option value="">Tous</option>
               {filter.options.map((option) => (
@@ -176,8 +186,7 @@ function ProductFiltersForm({
             id="sort"
             name="sort"
             className={styles.select}
-            value={currentSort}
-            onChange={(event) => setCurrentSort(event.target.value)}
+            defaultValue={initialSort}
           >
             <option value="">Par défaut</option>
             {SORT_OPTIONS.map((option) => (
@@ -190,8 +199,12 @@ function ProductFiltersForm({
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.clear} type="button" onClick={clearFilters}>
-          Effacer
+        <button
+          type="button"
+          className={styles.clear}
+          onClick={clearFilters}
+        >
+          Effacer les filtres
         </button>
         <button className={styles.submit} type="submit">
           Appliquer

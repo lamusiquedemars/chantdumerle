@@ -274,7 +274,6 @@ p {
 .site-footer {
   margin-top: var(--space-64);
   background: var(--color-beige);
-  border-top: 1px solid var(--color-border-soft);
 }
 
 .site-footer__inner {

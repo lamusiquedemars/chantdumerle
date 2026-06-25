@@ -47,8 +47,9 @@ function cdm_nav_icon( string $icon ): void {
 	if ( $icon === 'user' ) {
 		?>
 		<svg class="site-nav__icon" viewBox="0 0 24 24" aria-hidden="true">
-			<circle cx="12" cy="8" r="4"></circle>
-			<path d="M4 21a8 8 0 0 1 16 0"></path>
+			<path d="M17.925 20.056a6 6 0 0 0-11.851.001"></path>
+			<circle cx="12" cy="11" r="4"></circle>
+			<circle cx="12" cy="12" r="10"></circle>
 		</svg>
 		<?php
 		return;
@@ -85,7 +86,11 @@ function cdm_account_url(): string {
 }
 
 function cdm_cart_url(): string {
-	return cdm_front_url( 'fr/panier' );
+	if ( function_exists( 'wc_get_cart_url' ) ) {
+		return esc_url( wc_get_cart_url() );
+	}
+
+	return esc_url( home_url( '/cart/' ) );
 }
 
 function cdm_checkout_url(): string {

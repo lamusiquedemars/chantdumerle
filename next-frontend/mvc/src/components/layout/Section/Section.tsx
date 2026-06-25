@@ -6,8 +6,18 @@ type SectionProps = {
   children: ReactNode;
   className?: string;
   id?: string;
-  background?: "beige" | "accent";
+  background?: "beige" | "accent" | "catalogIntro" | "catalogResults" | "soft";
   backgroundImage?: string;
+  padding?:
+    | "default"
+    | "breadcrumb"
+    | "breadcrumbFlush"
+    | "tight"
+    | "intro"
+    | "results"
+    | "split"
+    | "products"
+    | "article";
 };
 
 type SectionStyle = CSSProperties & {
@@ -20,6 +30,7 @@ export default function Section({
   id,
   background,
   backgroundImage,
+  padding = "default",
 }: SectionProps) {
   const style: SectionStyle = backgroundImage
     ? {
@@ -34,6 +45,7 @@ export default function Section({
       style={style}
       className={clsx(
         styles.section,
+        styles[`padding-${padding}`],
         background && styles[background],
         backgroundImage && styles.withBackground,
         className

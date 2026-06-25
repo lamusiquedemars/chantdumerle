@@ -12,11 +12,16 @@ export type EntryGridItem = {
 type EntryGridProps = {
   items: EntryGridItem[];
   className?: string;
+  columns?: "auto" | "three";
 };
 
-export default function EntryGrid({ items, className }: EntryGridProps) {
+export default function EntryGrid({
+  items,
+  className,
+  columns = "auto",
+}: EntryGridProps) {
   return (
-    <div className={clsx(styles.grid, className)}>
+    <div className={clsx(styles.grid, styles[`columns-${columns}`], className)}>
       {items.map((item) => (
         <LinkCard
           key={item.href}

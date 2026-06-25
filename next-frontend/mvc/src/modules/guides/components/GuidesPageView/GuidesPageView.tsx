@@ -23,10 +23,13 @@ export default function GuidesPageView({
       <Hero
         title={content.hero.title}
         subtitle={content.hero.subtitle}
-        variant="page"
+        backgroundImage="/images/hero-guides.png"
+        backgroundPosition="center 70%"
+        height="compact"
+        actions={[]}
       />
 
-      <Section className={styles.breadcrumbSection}>
+      <Section padding="breadcrumb" className={styles.breadcrumbSection}>
         <Container>
           <Breadcrumbs
             items={[
@@ -37,7 +40,7 @@ export default function GuidesPageView({
         </Container>
       </Section>
 
-      <Section className={styles.listSection}>
+      <Section padding="results" className={styles.listSection}>
         <Container>
           <SectionHeading
             title={content.list.title}
@@ -46,7 +49,7 @@ export default function GuidesPageView({
           {content.list.items.length > 0 ? (
             <GuideList items={content.list.items} />
           ) : (
-            <p>{content.list.emptyText}</p>
+            <p className={styles.emptyState}>{content.list.emptyText}</p>
           )}
         </Container>
       </Section>

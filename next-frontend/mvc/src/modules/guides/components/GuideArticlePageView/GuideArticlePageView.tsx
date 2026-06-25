@@ -27,7 +27,7 @@ export default function GuideArticlePageView({
         variant="page"
       />
 
-      <Section className={styles.breadcrumbSection}>
+      <Section padding="breadcrumbFlush" className={styles.breadcrumbSection}>
         <Container>
           <Breadcrumbs
             items={[
@@ -39,7 +39,7 @@ export default function GuideArticlePageView({
         </Container>
       </Section>
 
-      <Section className={styles.articleSection}>
+      <Section padding="article" className={styles.articleSection}>
         <Container>
           <GuideContent>
             {content.article.kind === "html" ? (

@@ -1,0 +1,256 @@
+"use client";
+
+import { useState } from "react";
+
+import styles from "./AddToCartButton.module.css";
+
+type AddToCartButtonProps = {
+  productId: number;
+  disabled?: boolean;
+  variationOptions?: ProductVariationOption[];
+  variations?: ProductVariation[];
+};
+
+type ProductVariationOption = {
+  name: string;
+  values: {
+    label: string;
+    value: string;
+  }[];
+};
+
+type ProductVariation = {
+  id: number;
+  attributes: Record<string, string>;
+};
+
+type CartResponse = {
+  itemCount?: number;
+  message?: string;
+  code?: string;
+};
+
+const CART_ADD_ENDPOINT = "/wp-json/cdm/v1/cart/add";
+const CART_TIMEOUT_MS = 25_000;
+
+export default function AddToCartButton({
+  productId,
+  disabled = false,
+  variationOptions = [],
+  variations = [],
+}: AddToCartButtonProps) {
+  const initialSelection = Object.fromEntries(
+    variationOptions.map((option) => [
+      normalizeOptionName(option.name),
+      option.values.length === 1 ? option.values[0]?.value ?? "" : "",
+    ])
+  );
+  const [quantity, setQuantity] = useState(1);
+  const [selectedAttributes, setSelectedAttributes] =
+    useState<Record<string, string>>(initialSelection);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
+    "idle"
+  );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const selectedVariation = findMatchingVariation(
+    variations,
+    selectedAttributes
+  );
+  const needsVariationSelection = variationOptions.length > 0;
+  const hasCompleteVariationSelection =
+    !needsVariationSelection ||
+    variationOptions.every((option) => selectedAttributes[normalizeOptionName(option.name)]);
+  // Woo attend l'ID de la variation quand le client choisit une combinaison.
+  const cartProductId = selectedVariation?.id ?? productId;
+  const isDisabled =
+    disabled ||
+    (needsVariationSelection && (!hasCompleteVariationSelection || !selectedVariation));
+
+  async function handleAddToCart(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isDisabled) {
+      return;
+    }
+
+    setStatus("loading");
+    setErrorMessage(null);
+
+    try {
+      const json = await addToWooCart(cartProductId, quantity);
+
+      window.dispatchEvent(
+        new CustomEvent("cdm:cart-updated", {
+          detail: {
+            itemCount: json.itemCount,
+          },
+        })
+      );
+
+      setStatus("success");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error && error.name === "AbortError"
+          ? "WooCommerce ne répond pas assez vite. Vous pouvez ouvrir le panier pour finaliser l’ajout."
+          : error instanceof Error
+          ? error.message
+          : "Impossible d’ajouter ce produit au panier."
+      );
+      setStatus("error");
+    }
+  }
+
+  return (
+    <form
+      action="/panier"
+      method="get"
+      onSubmit={handleAddToCart}
+    >
+      <input type="hidden" name="add-to-cart" value={cartProductId} />
+
+      {variationOptions.length > 0 ? (
+        <fieldset className={styles.variations}>
+          <legend>Choisir une variante</legend>
+
+          {variationOptions.map((option) => {
+            const optionKey = normalizeOptionName(option.name);
+
+            return (
+              <label key={optionKey} className={styles.variationField}>
+                <span>{option.name}</span>
+                <select
+                  value={selectedAttributes[optionKey] ?? ""}
+                  onChange={(event) => {
+                    setSelectedAttributes((current) => ({
+                      ...current,
+                      [optionKey]: event.target.value,
+                    }));
+                    setStatus("idle");
+                    setErrorMessage(null);
+                  }}
+                  required
+                >
+                  {option.values.length > 1 ? (
+                    <option value="">Choisir</option>
+                  ) : null}
+                  {option.values.map((value) => (
+                    <option key={value.value} value={value.value}>
+                      {value.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            );
+          })}
+        </fieldset>
+      ) : null}
+
+      <label htmlFor="quantity">Quantité</label>
+
+      <input
+        id="quantity"
+        name="quantity"
+        type="number"
+        min="1"
+        value={quantity}
+        onChange={(event) => {
+          setQuantity(Number(event.target.value));
+          setStatus("idle");
+          setErrorMessage(null);
+        }}
+        className={styles.quantity}
+      />
+
+      <button
+        type="submit"
+        disabled={isDisabled || status === "loading"}
+        className={styles.cartButton}
+      >
+        {disabled
+          ? "Produit indisponible"
+          : needsVariationSelection && !hasCompleteVariationSelection
+            ? "Choisissez une variante"
+          : needsVariationSelection && !selectedVariation
+            ? "Variante indisponible"
+          : status === "loading"
+            ? "Ajout en cours…"
+            : "Ajouter au panier"}
+      </button>
+
+      {disabled ? (
+        <p className={styles.noticeError}>
+          Ce produit n’est pas disponible à l’achat pour le moment.
+        </p>
+      ) : null}
+
+      {status === "success" ? (
+        <p className={styles.notice} role="status">
+          Produit ajouté au panier. Le compteur panier a été mis à jour.
+        </p>
+      ) : null}
+
+      {status === "error" ? (
+        <div className={styles.noticeError} role="alert">
+          <p>{errorMessage ?? "Impossible d’ajouter ce produit au panier."}</p>
+          <a
+            className={styles.fallbackLink}
+            href={`/panier?add-to-cart=${cartProductId}&quantity=${quantity}`}
+          >
+            Ajouter via le panier WooCommerce
+          </a>
+        </div>
+      ) : null}
+    </form>
+  );
+}
+
+function normalizeOptionName(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function findMatchingVariation(
+  variations: ProductVariation[],
+  selectedAttributes: Record<string, string>
+): ProductVariation | undefined {
+  // Les attributs sont normalises des deux cotes pour matcher "Taille" et "taille".
+  return variations.find((variation) =>
+    Object.entries(variation.attributes).every(
+      ([name, value]) => selectedAttributes[name] === value
+    )
+  );
+}
+
+async function addToWooCart(productId: number, quantity: number) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), CART_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(CART_ADD_ENDPOINT, {
+      method: "POST",
+      credentials: "same-origin",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productId,
+        quantity,
+      }),
+    });
+
+    const json = (await res.json().catch(() => null)) as CartResponse | null;
+
+    if (!res.ok) {
+      throw new Error(json?.message ?? `Erreur panier WooCommerce (${res.status}).`);
+    }
+
+    return json ?? {};
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}

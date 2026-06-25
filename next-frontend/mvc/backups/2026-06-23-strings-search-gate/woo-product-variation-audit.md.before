@@ -1,0 +1,279 @@
+# Audit Produits Variables Woo
+
+Date: 2026-06-23
+
+## Question
+
+Le site affiche parfois plusieurs cartes qui ressemblent au meme produit,
+notamment selon la taille, la tension ou l'attache.
+
+Objectif de l'audit: verifier si le front de Chant du Merle decompose des
+variations, ou si WooCommerce contient deja des produits simples separes la ou
+on attendrait des produits variables.
+
+## Conclusion Courte
+
+Le probleme vient principalement de la donnee Woo, pas seulement du composant
+front.
+
+La page Cordes lit les produits via la Store API Woo et affiche les produits
+retournes. Or Woo contient beaucoup de cordes comme produits `simple` avec
+`parent = 0`, meme quand leur nom correspond clairement a une declinaison de
+taille, tension ou attache.
+
+Exemple constate:
+
+- `Optima Protos – Medium – 1/2 – Mi – Boule`
+- `Optima Protos – Medium – 1/4 – Mi – Boule`
+- `Optima Protos – Medium – 1/8 – Mi – Boule`
+- `Optima Protos – Medium – 3/4 – Mi – Boule`
+- `Optima Protos – Medium – 4/4 – Mi – Boule`
+
+Ces lignes sont des produits Woo `simple`, pas des variations rattachees a un
+parent variable.
+
+## Chiffres Locaux
+
+Base locale `chantdumerle_wp`:
+
+| Objet Woo | Nombre |
+| --- | ---: |
+| `product` | 1963 |
+| `product_variation` | 709 |
+| parents `simple` | 1753 |
+| parents `variable` | 207 |
+
+Pour les produits parents ayant `pa_corde = jeu`:
+
+| Type Woo | Nombre |
+| --- | ---: |
+| `simple` | 413 |
+| `variable` | 36 |
+
+Parmi ces produits `pa_corde = jeu`, `274` produits simples n'ont pas
+d'attribut metier `pa_type_produit`. La doc commerce dit pourtant que la page
+Cordes devrait afficher les jeux vendables via:
+
+```txt
+pa_type_produit = jeu-complet, jeu-compose
+```
+
+Le code actuel de la page Cordes filtre surtout par:
+
+```txt
+pa_corde = jeu
+```
+
+avec `completeSetsOnly = true`.
+
+## Regle Metier Retrouvee
+
+La modelisation Woo indique que ces attributs peuvent etre des variations:
+
+- `pa_taille`;
+- `pa_corde`;
+- `pa_tension`;
+- `pa_attache`;
+- parfois `pa_instrument`;
+- parfois `pa_filage`.
+
+Donc l'intention existe bien: si prix ou stock changent selon taille/tension,
+ces valeurs peuvent etre des variations sous un parent Woo.
+
+## Ce Qui N'Est Pas A Faire
+
+Ne pas corriger en masquant simplement les doublons cote front.
+
+Raison: deux produits qui se ressemblent peuvent representer des choses
+differentes:
+
+- corde seule;
+- jeu complet;
+- jeu compose;
+- variation de taille;
+- variation de tension;
+- variation d'attache;
+- ancien import encore present;
+- nouveau produit CDM `CDM-SET-*`.
+
+Un dedoublonnage brutal par nom, marque ou modele risquerait de cacher des
+produits vendables.
+
+## Pistes De Correction
+
+1. Corriger le filtre Cordes pour suivre la doc:
+   - filtrer sur `pa_type_produit = jeu-complet, jeu-compose`;
+   - ne pas se contenter de `pa_corde = jeu`.
+
+2. Auditer les produits simples sans `pa_type_produit`:
+   - `274` produits `simple` avec `pa_corde = jeu` n'ont pas de type produit;
+   - certains sont probablement d'anciens imports ou des cordes seules mal
+     typées.
+
+3. Decider la granularite Woo:
+   - un jeu complet peut rester simple si chaque combinaison est un produit
+     vraiment distinct;
+   - si taille/tension/attache sont des choix du meme produit commercial, il
+     faut un parent variable et des variations;
+   - les cordes seules peuvent aussi etre variables par taille/tension/attache
+     selon les cas.
+
+4. Ajouter un controle qualite avant import:
+   - detecter les groupes meme marque/modele/instrument/corde avec plusieurs
+     tailles ou tensions;
+   - signaler s'ils sont simples alors qu'ils devraient etre variables;
+   - ne pas modifier automatiquement sans validation metier.
+
+## Prochaine Action Recommandee
+
+Faire une action courte et sure:
+
+1. ajuster le filtre runtime de la page Cordes pour utiliser
+   `pa_type_produit = jeu-complet, jeu-compose`;
+2. verifier combien de produits restent visibles;
+3. lister les produits exclus par ce changement;
+4. seulement ensuite decider s'il faut reparer l'import Woo.
+
+Cette action ne reglera pas toute la modelisation variable, mais elle evitera
+que la page Cordes affiche des produits qui ne sont pas clairement des jeux
+vendables.
+
+## Correction Runtime Appliquee
+
+Sauvegarde avant modification:
+
+```txt
+backups/2026-06-23-woo-cordes-filter/
+```
+
+Le filtre `completeSetsOnly` ajoute maintenant aussi:
+
+```txt
+pa_type_produit = jeu-complet, jeu-compose
+```
+
+Le filtre `pa_corde = jeu` reste en place comme garde-fou, mais il ne suffit
+plus a lui seul a faire entrer un produit dans la page Cordes.
+
+Validation locale:
+
+| Verification | Resultat |
+| --- | --- |
+| Store API avec `pa_type_produit` + `pa_corde=jeu` | `X-WP-Total: 96` |
+| `./node_modules/.bin/tsc --noEmit` | OK |
+| `npm run lint` | OK |
+| `npm run build` | OK |
+
+## Correction Fiche Produit Variable
+
+Sauvegarde avant modification:
+
+```txt
+backups/2026-06-23-product-variations-ui/
+```
+
+Correction appliquee:
+
+- la fiche produit prefere maintenant le parent Woo quand le Store API renvoie
+  a la fois un parent variable et une variation avec le meme slug;
+- les attributs variables Woo (`has_variations`) sont transformes en champs de
+  selection lisibles;
+- les variations Woo disponibles sont conservees avec leur identifiant produit;
+- le bouton d'ajout au panier envoie l'identifiant de la variation choisie, ce
+  qui permet au bridge Woo local de reconstruire `variation_id` et
+  `variation` cote panier.
+
+Exemple valide localement:
+
+```txt
+/fr/produits/optima-protos-la-medium
+```
+
+La page affiche une seule fiche produit avec les choix `Modele`, `Instrument`,
+`Corde`, `Taille` et `Tension`. Le bouton reste bloque tant qu'aucune
+combinaison valide n'est choisie.
+
+Validation locale:
+
+| Verification | Resultat |
+| --- | --- |
+| Page produit variable `/fr/produits/optima-protos-la-medium` | HTTP 200 |
+| Selecteurs de variante rendus dans le HTML | OK |
+| Variations Woo disponibles dans les props serveur | OK |
+| `./node_modules/.bin/tsc --noEmit` | OK |
+| `npm run lint` | OK |
+| `npm run build` | OK |
+
+Limite importante:
+
+Cette correction regle l'affichage des vrais produits variables Woo. Elle ne
+convertit pas les produits `simple` mal modelises en produits variables. Les
+produits simples dupliques par taille, tension ou attache restent un chantier
+de donnees Woo/import.
+
+## Correctif UX Des Variantes
+
+Constat apres test manuel:
+
+- Woo marque parfois plusieurs attributs comme `has_variations`;
+- certains de ces attributs sont pourtant constants sur toutes les variations;
+- exemple: `Optima Protos - La - Medium` varie seulement par `Taille`, alors
+  que `Modele`, `Instrument`, `Corde` et `Tension` sont constants.
+
+Correction appliquee:
+
+- la fiche n'affiche plus que les attributs qui ont vraiment plusieurs valeurs
+  dans les variations disponibles;
+- le matching de variation compare seulement les attributs choisis par le
+  client, pas les attributs constants caches;
+- les variations sont enrichies depuis la Store API par ID pour exposer leur
+  SKU, prix et stock;
+- la zone d'achat est rendue cote client pour que le choix de variante mette a
+  jour les informations visibles de la fiche;
+- le timeout Store API passe a `25000ms`, comme GraphQL, car la Store API
+  locale repond parfois en plus de 8 secondes sur les fiches produit.
+
+Exemple verifie:
+
+```txt
+/fr/produits/optima-protos-la-medium
+```
+
+Resultat attendu:
+
+- un seul select visible: `Taille`;
+- options visibles: `1/2`, `1/4`, `1/8`, `3/4`, `4/4`;
+- les variations Woo restent disponibles cote client avec leurs IDs
+  `2923`, `2924`, `2925`, `2926`, `2927`.
+- la variation `4/4` met a jour la fiche avec le SKU `CDM-1E2324` et son stock
+  propre.
+
+## Exemple De Produits Encore Mal Modelises
+
+Les slugs suivants ne sont pas des variantes Woo:
+
+```txt
+/fr/produits/optima-protos-medium-7
+/fr/produits/optima-protos-medium-13
+/fr/produits/optima-protos-medium-15
+```
+
+Ils sont actuellement des produits Woo `simple`, `parent = 0`, sans variations.
+Leur difference visible est la taille d'alto, mais Woo les expose comme trois
+produits independants.
+
+Autre signal du meme probleme:
+
+```txt
+CDM-SET-VLA-30
+```
+
+Ce produit est aussi un `simple` independant. Il semble avoir ete regenere comme
+jeu compose a partir de cordes Protos, alors que des jeux complets originaux
+existaient deja (`CDM-B6330C`, `CDM-4BCBFC`). Ces `CDM-SET-*` ne devraient pas
+cohabiter comme nouveaux produits separes si le produit original devait porter
+les variations de taille.
+
+Conclusion: ce cas ne peut pas etre corrige proprement uniquement dans le front.
+Il faut reparer l'import ou la modelisation Woo pour creer un parent variable
+`Optima Protos - Medium` avec une variation par taille.

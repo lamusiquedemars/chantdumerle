@@ -6,10 +6,6 @@ import { CircleUserRound, ShoppingCart } from "lucide-react";
 import clsx from "clsx";
 import styles from "./MainNav.module.css";
 
-/*
-  Type commun pour les éléments de navigation.
-  Il est réutilisé par Header, MainNav et MobileMenu.
-*/
 export type NavItem = {
   label: string;
   href: string;
@@ -20,15 +16,19 @@ export type NavItem = {
 
 type MainNavProps = {
   items: NavItem[];
-
-  /*
-    Callback optionnel appelé quand on clique sur un lien.
-    Utile en mobile pour fermer le menu après navigation.
-  */
   onNavigate?: () => void;
 
   className?: string;
 };
+
+const CART_ENDPOINT = "/wp-json/cdm/v1/cart";
+const WOO_OWNED_PATHS = ["/panier", "/commande", "/mon-compte"];
+
+function isWooOwnedHref(href: string): boolean {
+  return WOO_OWNED_PATHS.some(
+    (path) => href === path || href.startsWith(`${path}/`)
+  );
+}
 
 export default function MainNav({
   items,
@@ -42,7 +42,10 @@ export default function MainNav({
 
     async function refreshCartCount() {
       try {
-        const res = await fetch("/api/cart", { cache: "no-store" });
+        const res = await fetch(CART_ENDPOINT, {
+          cache: "no-store",
+          credentials: "same-origin",
+        });
 
         if (!res.ok) {
           return;
@@ -66,7 +69,6 @@ export default function MainNav({
 
       if (Number.isFinite(itemCount)) {
         setCartItemCount(itemCount);
-        return;
       }
 
       void refreshCartCount();
@@ -101,24 +103,45 @@ export default function MainNav({
       <ul className={styles.list}>
         {items.map((item) => (
           <li key={item.href} className={styles.item}>
-            <Link
-              href={item.href}
-              className={clsx(styles.link, item.iconOnly && styles.iconLink)}
-              aria-current={item.current ? "page" : undefined}
-              aria-label={item.iconOnly ? item.label : undefined}
-              title={item.iconOnly ? item.label : undefined}
-              onClick={onNavigate}
-            >
-              {renderIcon(item.icon)}
-              {item.icon === "cart" && cartItemCount > 0 ? (
-                <span className={styles.badge} aria-hidden="true">
-                  {cartItemCount}
+            {isWooOwnedHref(item.href) ? (
+              <a
+                href={item.href}
+                className={clsx(styles.link, item.iconOnly && styles.iconLink)}
+                aria-current={item.current ? "page" : undefined}
+                aria-label={item.iconOnly ? item.label : undefined}
+                title={item.iconOnly ? item.label : undefined}
+                onClick={onNavigate}
+              >
+                {renderIcon(item.icon)}
+                {item.icon === "cart" && cartItemCount > 0 ? (
+                  <span className={styles.badge} aria-hidden="true">
+                    {cartItemCount}
+                  </span>
+                ) : null}
+                <span className={item.iconOnly ? styles.visuallyHidden : undefined}>
+                  {item.label}
                 </span>
-              ) : null}
-              <span className={item.iconOnly ? styles.visuallyHidden : undefined}>
-                {item.label}
-              </span>
-            </Link>
+              </a>
+            ) : (
+              <Link
+                href={item.href}
+                className={clsx(styles.link, item.iconOnly && styles.iconLink)}
+                aria-current={item.current ? "page" : undefined}
+                aria-label={item.iconOnly ? item.label : undefined}
+                title={item.iconOnly ? item.label : undefined}
+                onClick={onNavigate}
+              >
+                {renderIcon(item.icon)}
+                {item.icon === "cart" && cartItemCount > 0 ? (
+                  <span className={styles.badge} aria-hidden="true">
+                    {cartItemCount}
+                  </span>
+                ) : null}
+                <span className={item.iconOnly ? styles.visuallyHidden : undefined}>
+                  {item.label}
+                </span>
+              </Link>
+            )}
           </li>
         ))}
       </ul>

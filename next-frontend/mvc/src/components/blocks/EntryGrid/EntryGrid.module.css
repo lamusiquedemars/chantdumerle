@@ -5,11 +5,16 @@
 */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-24);
   align-items: stretch;
+}
+
+.columns-auto {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--space-24);
+}
+
+.columns-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 /* 
   Sur tablette et petits desktops,
@@ -25,7 +30,8 @@
   pour préserver la lisibilité et éviter des cartes trop étroites.
 */
 @media (max-width: 640px) {
-  .grid {
+  .columns-auto,
+  .columns-three {
     grid-template-columns: 1fr;
   }
 }

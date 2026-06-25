@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import ProductDetail from "@/modules/catalog/components/ProductDetail/ProductDetail";
-import { getProductPageBySlug } from "@/modules/catalog/services/wordpressProducts";
+import { getProductPageBySlug } from "@/modules/catalog/services/productPageData";
 
 type ProductPageProps = {
   params: Promise<{

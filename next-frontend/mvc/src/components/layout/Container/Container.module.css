@@ -8,6 +8,10 @@
   margin-inline: auto;
 }
 
+.width-wide {
+  width: min(100% - 2rem, 1320px);
+}
+
 /* Variante confort grand écran
    - évite que le contenu "colle" trop au bord du container
    - utile si un fond ou une bordure est ajouté via className
@@ -15,5 +19,9 @@
 @media (min-width: 1200px) {
   .container {
     width: min(100% - 3rem, var(--container));
+  }
+
+  .width-wide {
+    width: min(100% - 3rem, 1320px);
   }
 }

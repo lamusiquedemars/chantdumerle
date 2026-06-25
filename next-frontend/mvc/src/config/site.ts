@@ -1,4 +1,4 @@
-import { chantDuMerleSiteConfig } from "@/sites/chantdumerle/config/site";
+import { chantDuMerleSiteConfig } from "@/content/site";
 
 export type { SiteBrand, SiteConfig, SiteLink } from "./siteTypes";
 

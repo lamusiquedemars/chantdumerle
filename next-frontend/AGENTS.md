@@ -6,29 +6,28 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Projet
 
-- `next-frontend/mvc` est le front actif et le moule MVC a valider.
-- Chant du Merle vit maintenant dans `mvc/src/sites/chantdumerle` comme premier
-  client reel du moule.
+- `next-frontend/mvc` est le front actif Chant du Merle.
+- Chant du Merle vit dans `mvc/src/sites/chantdumerle`.
 - L'ancien laboratoire `next-frontend/src` a ete supprime apres validation
   navigateur.
-- Lire `MVC_HEADLESS_PLAN.md` avant un changement d'architecture.
+- Lire `README.md` et `mvc/docs/commerce-architecture.md` avant un changement
+  d'architecture commerce.
 
 # Architecture
 
-- L'App Router porte les routes publiques et les handlers API dans
-  `mvc/src/app`.
+- L'App Router porte les routes publiques dans `mvc/src/app`.
 - Les vues de socle vivent dans `mvc/src/components` ; les vues metier vivent
   dans `mvc/src/modules/*/components`.
 - Les donnees client locales vivent dans `mvc/src/sites/<client>/content`.
 - Les acces WordPress et WooCommerce restent dans `mvc/src/lib/wordpress` ou
-  dans le module/adaptateur qui les remplacera.
+  dans le module/adaptateur concerne.
 - Les types et adaptateurs doivent proteger les composants generiques du CMS
   actif.
+- WooCommerce possede le panier, la commande et l'espace client. Next ne doit
+  pas recreer de panier.
 
 # Regles De Travail
 
-- Garder Chant du Merle comme premier cas client reel, pas comme contrat impose
-  au futur starter.
 - Ne pas exposer de route `page.tsx` ou `route.ts` vide.
 - Respecter les conventions Next.js locales et lire la documentation locale
   pertinente avant de modifier une API Next.

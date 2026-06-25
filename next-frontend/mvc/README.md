@@ -1,14 +1,15 @@
 # Headless MVC Front
 
-Front Next.js modulaire avec une lecture MVC legere : routes fines, modules
-reutilisables, configuration client separee et donnees locales exemple.
+Front Next.js du site Chant du Merle, avec une lecture MVC legere : routes
+fines, modules reutilisables, configuration client separee et donnees
+WordPress/WooCommerce.
 
-`chantdumerle` est le client actif. `example` reste disponible comme contenu
-neutre pour verifier que le moule n'est pas lie a un seul site.
+`chantdumerle` est le client actif. Le moule neutre vit maintenant dans le repo
+frere `../maracuja-next-starter`.
 
-Le projet peut tourner sans backend. Si `WP_GRAPHQL_URL` est renseigne,
-les adaptateurs WordPress/WooGraphQL prennent le relais pour le catalogue et le
-panier.
+Le site a besoin du backend WordPress/WooCommerce pour afficher les produits.
+En mode commerce, Next garde les pages de decouverte et WooCommerce possede le
+panier, la commande et l'espace client.
 
 ## Lecture MVC
 
@@ -29,9 +30,10 @@ panier.
 | `/[locale]/guides` | liste de guides |
 | `/[locale]/guides/[slug]` | guide detaille depuis WordPress |
 | `/[locale]/selections` | page de selections |
-| `/api/cart/add` | ajout panier WooCommerce optionnel |
-
-La route demo `/[locale]/catalogue` reste disponible pour le contenu `example`.
+| `/panier/` | panier WooCommerce proxifie sous le domaine du front |
+| `/commande/` | commande WooCommerce |
+| `/mon-compte/` | espace client WooCommerce |
+| `/wp-json/cdm/v1/cart/add` | ajout AJAX dans le vrai panier Woo |
 
 ## Structure
 
@@ -39,10 +41,10 @@ La route demo `/[locale]/catalogue` reste disponible pour le contenu `example`.
 src/
   app/          routes Next et handlers API
   components/   layout, UI et blocs generiques
-  config/       point d'entree de la configuration active
+  config/       point d'entree technique de la configuration active
+  content/      textes, navigation et contenus locaux Chant du Merle
   lib/          helpers et adaptateurs partages
   modules/      domaines reutilisables
-  sites/        configuration et contenus du site actif
   styles/       styles partages
   types/        contrats de donnees
 ```
@@ -57,37 +59,34 @@ npm run dev
 
 ## Creer Un Nouveau Site
 
-Depuis un nouveau dossier de projet, copier le moule :
+Ne pas partir de ce repo client. Utiliser le starter neutre :
 
 ```bash
-cp -R /chemin/vers/chantdumerle/next-frontend/mvc ./frontend
-cd frontend
+git clone https://github.com/lamusiquedemars/maracuja-next-starter.git
+cd maracuja-next-starter
 npm install
-cp .env.example .env.local
 ```
 
-Puis adapter le client :
-
-1. Renommer le package dans `package.json`.
-2. Creer `src/sites/<client>`.
-3. Copier `src/sites/example` comme base neutre, ou `src/sites/chantdumerle`
-   si le nouveau site ressemble a Chant du Merle.
-4. Modifier `src/config/site.ts` pour importer la configuration du nouveau
-   client.
-5. Adapter les contenus dans `src/sites/<client>/content`.
-6. Ajouter les images dans `public`.
-7. Lancer `npm run lint` puis `npm run build`.
-
-Pour un site sans backend, laisser `WP_GRAPHQL_URL` vide. Le catalogue utilisera
-les donnees exemple locales.
+Ce repo Chant du Merle doit rester specifique au site CDM : contenu client,
+integrations WordPress/WooCommerce, pages cordes/accessoires/selections et
+outillage de migration.
 
 ## Variables D'Environnement
 
 | Variable | Requise | Usage |
 | --- | --- | --- |
-| `WP_GRAPHQL_URL` | non | endpoint GraphQL pour les adaptateurs WordPress/WooGraphQL |
+| `WP_GRAPHQL_URL` | oui pour les produits | endpoint GraphQL pour les adaptateurs WordPress/WooGraphQL |
+| `NEXT_PUBLIC_WP_URL` | non | URL publique WordPress pour les images et appels Woo |
+| `WOO_BASE_URL` | non | URL Woo utilisee par les appels serveur |
+| `WOO_PROXY_TARGET` | non | cible du proxy same-origin pour les routes Woo transactionnelles |
 
-Sans `WP_GRAPHQL_URL`, le catalogue utilise `src/modules/catalog/content/exampleProducts.ts`.
+Sans `WP_GRAPHQL_URL`, les listes produits retournent vide. Les donnees exemple
+vivent dans le starter, pas dans le repo Chant du Merle.
+
+Le panier n'est jamais stocke dans Next. Le bouton d'ajout appelle le MU-plugin
+Woo `/wp-json/cdm/v1/cart/add`, puis Woo conserve la session utilisee par
+`/panier/`, `/commande/` et `/mon-compte/`. Voir
+`docs/commerce-architecture.md`.
 
 ## Scripts
 
@@ -98,7 +97,7 @@ npm run build
 npm run start
 ```
 
-## Adapter A Un Client
+## Adapter Chant Du Merle
 
-Voir la section "Creer Un Nouveau Site". Garder les routes fines dans
-`src/app` et brancher un backend seulement si le projet en a besoin.
+Garder les routes fines dans `src/app`, les textes locaux dans le contenu CDM et
+les donnees produits/guides dans WordPress/WooCommerce.

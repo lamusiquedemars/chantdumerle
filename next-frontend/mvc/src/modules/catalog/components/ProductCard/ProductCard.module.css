@@ -16,14 +16,11 @@
   width: 100%;
   /* Fond clair pour garder un rendu net et produit-first */
   background: var(--color-white);
-  /* Bordure discrète mais structurante */
-  border: none;
   border-radius:  0;
   /* On masque les débordements de l’image */
   overflow: hidden;
   /* Transition douce, sans effet gadget */
   transition:
-    border-color 0.2s ease,
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
@@ -31,9 +28,6 @@
 .card:hover {
   /* Léger soulèvement pour signifier l’interaction */
   transform: translateY(-2px);
-
-  /* Accentuation subtile */
-  border-color: var(--color-border);
 
   /* Ombre très légère pour rester haut de gamme discret */
   box-shadow: 0 10px 24px rgba(26, 26, 26, 0.08);
@@ -45,7 +39,6 @@
 
 .card:focus-visible {
   outline: none;
-  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(140, 47, 28, 0.18);
 }
 
@@ -58,7 +51,6 @@
   position: relative;
   aspect-ratio: 1 / 1;
   background: var(--color-bg);
-  border-bottom: 1px solid var(--color-border-soft);
   overflow: hidden;
 }
 

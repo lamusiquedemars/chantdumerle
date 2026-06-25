@@ -2,8 +2,8 @@
 
 `next-frontend/mvc` est le front officiel et le moule MVC actif.
 
-La cible n'est plus d'avoir un starter theorique a cote du vrai site. Chant du
-Merle est le premier client reel du moule, branche dans
+La cible n'est plus d'avoir un socle theorique a cote du vrai site. Chant du
+Merle est le site reel, branche dans
 `mvc/src/sites/chantdumerle`.
 
 ## Front Actif
@@ -56,7 +56,10 @@ donnees locales exemple quand aucun endpoint WordPress n'est configure.
 | `/[locale]/guides` | liste de guides |
 | `/[locale]/guides/comment-choisir-ses-cordes` | guide detaille |
 | `/[locale]/selections` | page de selections |
-| `/api/cart/add` | ajout panier WooCommerce optionnel |
+| `/panier/` | panier WooCommerce, proxifie sous le domaine du front |
+| `/commande/` | commande WooCommerce |
+| `/mon-compte/` | espace client WooCommerce |
+| `/wp-json/cdm/v1/cart/add` | ajout AJAX dans le vrai panier Woo |
 
 Les routes demo `/[locale]/catalogue` et `/[locale]/guides/premier-guide`
 restent presentes pour verifier le contenu `example`, mais elles ne sont pas
@@ -67,9 +70,16 @@ exposees par la navigation Chant du Merle.
 | Variable | Requise | Usage |
 | --- | --- | --- |
 | `WP_GRAPHQL_URL` | non | endpoint GraphQL pour WordPress/WooGraphQL |
+| `NEXT_PUBLIC_WP_URL` | non | URL publique WordPress pour les images et appels Woo |
+| `WOO_BASE_URL` | non | URL Woo utilisee par les appels serveur |
+| `WOO_PROXY_TARGET` | non | cible du proxy same-origin pour `/wp-json`, `/panier`, `/commande`, `/mon-compte` |
 
 Sans `WP_GRAPHQL_URL`, le catalogue utilise
 `mvc/src/modules/catalog/content/exampleProducts.ts`.
+
+Le panier n'est pas simule dans Next. WooCommerce possede la session panier,
+le checkout et l'espace client. Voir
+`mvc/docs/commerce-architecture.md`.
 
 ## Etat Du Nettoyage
 

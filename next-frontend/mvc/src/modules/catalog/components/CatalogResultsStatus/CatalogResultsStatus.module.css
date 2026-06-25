@@ -1,0 +1,20 @@
+.resultsCount {
+  margin: 0 0 var(--space-10);
+  color: var(--color-info);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.emptyState {
+  max-width: 46rem;
+  padding: var(--space-18);
+  color: var(--color-info);
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+}
+
+.emptyState p {
+  margin: 0;
+}

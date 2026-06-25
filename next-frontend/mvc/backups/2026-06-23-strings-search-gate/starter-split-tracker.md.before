@@ -1,0 +1,416 @@
+# Suivi Separation Starter / Chant Du Merle
+
+Date de creation: 2026-06-18
+
+## But
+
+Suivre concretement la separation entre:
+
+- le futur repo starter Next.js reutilisable;
+- le futur repo Chant du Merle, avec son contenu, WooCommerce, WordPress et ses
+  specificites metier.
+
+Ce fichier sert de tableau de bord. L'audit de reference est:
+`docs/starter-split-audit.md`.
+
+## Legende
+
+- `A faire`: action identifiee, pas encore commencee.
+- `En cours`: action commencee, pas encore validee.
+- `Fait`: action terminee et verifiee.
+- `A confirmer`: decision a valider avant implementation.
+- `Bloque`: action impossible sans decision ou information externe.
+
+## Principe De Travail
+
+Chaque action doit garder une trace minimale:
+
+- objectif;
+- fichiers touches;
+- validation effectuee;
+- decision prise si plusieurs options etaient possibles.
+
+Pour eviter un deuxieme labyrinthe, on ne deplace pas du code uniquement pour
+renommer les dossiers. Chaque mouvement doit rendre plus facile au moins une de
+ces actions:
+
+- trouver un texte;
+- trouver le composant d'une section visible;
+- trouver le CSS d'une section visible;
+- comprendre d'ou vient une donnee;
+- isoler le starter du specifique Chant du Merle.
+
+Chaque action de nettoyage a deux destinations distinctes:
+
+- sort dans le repo Chant du Merle;
+- sort dans le futur repo starter.
+
+Une chose inutile pour CDM peut etre conservee comme matiere de starter. Elle
+doit alors etre marquee `A sortir vers starter`, pas supprimee sans decision.
+
+## Etat Global
+
+| Phase | Statut | Resume |
+| --- | --- | --- |
+| 0. Audit initial | Fait | Audit de separation cree dans `docs/starter-split-audit.md`. |
+| 1. Carte "ou modifier quoi" | Fait | Documenter les chemins concrets pour textes, CSS, sections, produits, guides et panier. |
+| 2. Nettoyage sans risque | Fait | Bruit initial retire sans jeter ce qui peut servir au starter. |
+| 3. Clarification contenu CDM | Fait | Contenu local CDM regroupe dans `src/content`; `src/sites` supprime. |
+| 4. Clarification CSS | Fait | Overrides, tokens, grilles, cartes et fonds communs clarifies sans couche globale inutile. |
+| 5. Decoupage services metier | Fait | Woo Store API, mappers, filtres, selections Woo, fiche produit et guides clarifies; helper historique `getProductsBySkus` supprime. |
+| 6. Extraction starter | En cours | Repo local `../maracuja-next-starter` cree et base neutre initiale generee. |
+| 7. Extraction site CDM | A confirmer | Creer le repo CDM final depuis la version clarifiee. |
+
+## Phase 0 - Audit Initial
+
+Statut: `Fait`
+
+Livrable:
+
+- `docs/starter-split-audit.md`
+
+Resultat:
+
+- separation conceptuelle entre starter, specificites CDM et dette;
+- cible proposee pour le futur repo starter;
+- cible proposee pour le futur repo Chant du Merle;
+- premiere regle CSS proposee.
+
+Validation:
+
+- lecture locale de l'audit;
+- aucun fichier applicatif modifie.
+
+## Phase 1 - Carte "Ou Modifier Quoi"
+
+Statut: `Fait`
+
+Objectif:
+
+Creer un document simple qui repond aux questions pratiques:
+
+- ou modifier le sous-titre de la home;
+- ou modifier une image hero;
+- ou modifier l'espacement d'une section;
+- ou modifier les textes des pages legales;
+- ou modifier les libelles de navigation;
+- ou modifier les textes de selections;
+- ou modifier les produits, guides et donnees Woo/WordPress.
+
+Livrable prevu:
+
+- `docs/where-to-edit.md`
+
+Actions:
+
+| Action | Statut | Notes |
+| --- | --- | --- |
+| Cartographier home: route, contenu, composants, CSS | Fait | Prioritaire, car c'est le modele des autres pages. |
+| Cartographier cordes/accessoires | Fait | Inclut filtres, contenu editorial, produits Woo. |
+| Cartographier selections | Fait | Inclut contenus locaux, produits Woo, packs et filtres usage/son. |
+| Cartographier guides | Fait | Inclut WordPress et composants de rendu. |
+| Cartographier pages legales | Fait | Identifie le contenu actuellement dans les routes. |
+| Cartographier layout/nav/footer | Fait | Inclut site config et CSS. |
+
+Validation:
+
+- le document doit permettre de trouver un texte ou un espacement sans connaitre
+  `modules`, `sites` ou les services internes.
+
+## Phase 2 - Nettoyage Sans Risque
+
+Statut: `Fait`
+
+Objectif:
+
+Retirer le bruit qui rend l'arborescence plus intimidante sans changer le
+comportement du site.
+
+Inventaire de reference:
+
+- `docs/cleanup-inventory.md`
+
+Actions candidates:
+
+| Action | Statut | Risque | Notes |
+| --- | --- | --- | --- |
+| Supprimer les dossiers vides identifies dans l'audit | Fait | Faible | `find next-frontend/mvc/src -type d -empty` ne retourne plus rien. |
+| Supprimer les SVG Next par defaut inutilises | Fait | Faible | `file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg` supprimes: inutiles pour CDM et starter. |
+| Sortir `/[locale]/catalogue` du repo CDM | Fait | Moyen | Route demo supprimee de CDM; route `/catalogue` neutre creee dans le starter. |
+| Sortir `src/sites/example` du repo CDM | Fait | Moyen | Contenu exemple supprime de CDM; contenu starter dans `src/content/catalog.ts`. |
+| Sortir `exampleProducts.ts` du repo CDM | Fait | Moyen | Fallback CDM remplace par retours vides/null si backend absent. |
+| Nettoyer commentaires CSS narratifs | A faire | Faible | Remplacer par commentaires utiles sur intentions non evidentes. |
+
+Validation:
+
+- `npm run lint`;
+- `npm run build`;
+- verification que les routes publiques utiles existent encore.
+
+## Phase 3 - Clarification Contenu CDM
+
+Statut: `Fait`
+
+Objectif:
+
+Faire en sorte que les textes locaux du site aient un emplacement previsible.
+
+Cible proposee:
+
+```txt
+src/content/
+  site.ts
+  home.ts
+  strings.ts
+  accessories.ts
+  selections.ts
+  guides.ts
+  legal.ts
+```
+
+Actions candidates:
+
+| Action | Statut | Notes |
+| --- | --- | --- |
+| Regrouper la config de navigation dans `src/content/site.ts` ou equivalent | Fait | La config active est dans `src/content/site.ts`; `src/config/site.ts` reste le point d'entree technique. |
+| Deplacer les contenus home/cordes/accessoires hors de `src/sites/chantdumerle` | Fait | Tout le contenu CDM local est dans `src/content`; le dossier `src/sites` a ete supprime. |
+| Centraliser les textes de la page liste Selections | Fait | Hero, breadcrumbs, intro, packs et groupes de cordes sont dans `src/content/selections.ts`. |
+| Nettoyer `SelectionsPageView.tsx` | Fait | Les fonctions `getPackItems` et `getStringGroups` ont ete supprimees; la vue localise seulement les liens. |
+| Centraliser les libelles de detail Selections | Fait | Breadcrumbs, filtre instrument, rappel de navigation et libelles Usage/Son sont dans `content/selections.ts`. |
+| Extraire les textes des pages legales vers `legal.ts` | Fait | Contact, mentions legales, CGV et confidentialite utilisent `content/legal.ts` et `StaticPageContent`. |
+| Documenter ce qui reste dans WordPress | A faire | Guides et produits ne doivent pas etre cherches dans le code local. |
+
+Validation:
+
+- aucune regression visuelle attendue;
+- routes toujours buildables;
+- carte `where-to-edit.md` mise a jour.
+
+## Phase 4 - Clarification CSS
+
+Statut: `Fait`
+
+Objectif:
+
+Conserver les avantages des CSS Modules sans perdre la lisibilite d'un CSS
+global.
+
+Regle cible:
+
+- `globals.css`: reset et styles HTML de base;
+- `tokens.css`: couleurs, typos, espacements;
+- `utilities.css`: petites classes reutilisables seulement si elles evitent une vraie duplication;
+- CSS Module: styles d'un composant ou d'une section visible;
+- pas de CSS page par page si la page est composee de sections;
+- pas d'override `.hero.hero` sans justification.
+
+Actions candidates:
+
+| Action | Statut | Notes |
+| --- | --- | --- |
+| Lister les duplications d'espacement et de grilles | Fait | `CardGrid` etait un doublon inutilise de `EntryGrid`; `ProductGrid` et `SelectionGrid` restent separes car cartes, densite et colonnes different. |
+| Remplacer les overrides `.hero.hero` par variantes explicites | Fait | `Hero` accepte `height="compact"` et `backgroundPosition`; overrides retires des pages cordes, accessoires, guides et selections. |
+| Remplacer les overrides de padding `.section.section` | Fait | `Section` accepte `padding`; overrides retires des pages cordes, accessoires, guides et selections. |
+| Normaliser les tokens d'espacement CSS | Fait | Tokens `--space-4`, `--space-10`, `--space-12`, `--space-14`, `--space-18`, `--space-20` ajoutes; fallbacks repetes retires. |
+| Reutiliser les cartes d'entree et de packs | Fait | `navigationCards.ts` centralise instruments, sons, niveaux, accessoires et packs; home/cordes/accessoires/selections utilisent les memes composants. |
+| Reutiliser les cartes guides dynamiques | Fait | Home, Cordes, Accessoires et Selections utilisent `getGuideCards(locale, 3)` et `GuideList`; guide statique de Cordes retire. |
+| Centraliser les fonds et statuts catalogue | Fait | `Section` porte les fonds `catalogIntro`, `catalogResults`, `soft`; `Container` accepte `width="wide"`; `CatalogResultsStatus` remplace les compteurs/etats vides dupliques. |
+| Creer une convention `components/sections/<SectionName>` | A confirmer | A faire seulement si on migre les sections. |
+| Ajouter `styles/utilities.css` si besoin reel | A confirmer | Ne pas creer un fourre-tout. |
+
+Validation:
+
+- trouver le CSS d'une section depuis son composant;
+- `npm run lint`;
+- verification navigateur pour les pages touchees.
+
+## Phase 5 - Decoupage Services Metier
+
+Statut: `En cours`
+
+Objectif:
+
+Rendre les donnees plus lisibles en separant les integrations, les mappers et la
+logique metier.
+
+Fichiers prioritaires:
+
+- `src/modules/catalog/services/wordpressProducts.ts`;
+- `src/modules/selections/services/selectionRecommendations.ts`;
+- `src/modules/guides/services/wordpressGuides.ts`.
+
+Cible proposee:
+
+```txt
+src/integrations/wordpress/
+  graphqlClient.ts
+  guides.ts
+
+src/integrations/woocommerce/
+  storeApi.ts
+  productQueries.ts
+  cart.ts
+
+src/features/catalog/
+  productMappers.ts
+  productFilters.ts
+  productPageData.ts
+
+src/features/selections/
+  selectionRecommendations.ts
+```
+
+Actions candidates:
+
+| Action | Statut | Notes |
+| --- | --- | --- |
+| Extraire le client Woo Store API | Fait | `src/integrations/woocommerce/storeApi.ts` contient le fetch Store API, les types bruts et le fallback `.local`; `wordpressProducts.ts` importe cette integration. |
+| Extraire les mappers produit | Fait | `src/modules/catalog/services/productMappers.ts` contient les mappers de cartes GraphQL/Store API et helpers de marque/attributs; fiche detail gardee pour une passe separee. |
+| Extraire les filtres catalogue | Fait | `catalogFilters.ts` centralise types, fallbacks, taxonomies, builders GraphQL/Store API et groupes de filtres Cordes/Accessoires; `wordpressProducts.ts` importe ces helpers. |
+| Remplacer le CSV des selections par Woo | Fait | Les pages detail usage/son lisent les produits Woo via `pa_usage` ou `pa_profil_sonore`; le CSV ne sert plus au runtime. |
+| Auditer/supprimer `getProductsBySkus` | Fait | Aucun appel hors tracker; helper supprime de `wordpressProducts.ts` apres retrait du CSV runtime. |
+| Extraire la fiche produit detaillee | Fait | `productPageData.ts` porte types, champs GraphQL, galerie et enrichissement Store API; route et composants produit importent ce service. |
+| Decouper les guides WordPress | Fait | `guideQueries.ts` porte les requetes GraphQL, `guideMappers.ts` transforme WordPress vers les cartes/pages; `wordpressGuides.ts` reste la facade publique. |
+
+Validation:
+
+- `npm run lint`;
+- `npm run build`;
+- comparer les pages catalogue/produit avant-apres si serveur disponible.
+
+## Phase 6 - Extraction Starter
+
+Statut: `En cours`
+
+Objectif:
+
+Creer un repo starter propre, sans specificite Chant du Merle.
+
+Etat actuel:
+
+- repo GitHub clone en local dans `../maracuja-next-starter`;
+- base Next.js neutre generee;
+- aucune logique CDM/Woo/WordPress obligatoire;
+- contenu exemple dans `src/content`;
+- composants generiques dans `src/components`;
+- composants UI generiques ajoutes: `Button`, `Badge`, `Card`,
+  `Breadcrumbs`, `PageHeader`;
+- commentaires courts ajoutes sur les composants exportes principaux;
+- `npm install` termine;
+- `npm run build` passe;
+- `npm run lint` passe apres correction de la config ESLint et des apostrophes JSX.
+- commit initial pousse sur GitHub: `2e8a9e8`.
+- commit composants UI pousse sur GitHub: `44b73ff`.
+- commit catalogue starter pousse sur GitHub: `c757fb5`.
+
+Decision a prendre:
+
+- nom du repo;
+- niveau d'integration CMS souhaite: aucune, interface abstraite, ou exemple WordPress optionnel;
+- structure CSS definitive;
+- composants inclus dans le starter.
+
+Livrable prevu:
+
+- nouveau repo starter;
+- README starter;
+- exemple minimal;
+- guide "creer un nouveau site".
+
+Actions restantes:
+
+| Action | Statut | Notes |
+| --- | --- | --- |
+| Commit initial du starter | Fait | Commit `2e8a9e8` dans `../maracuja-next-starter`. |
+| Push vers GitHub | Fait | Remote configure: `lamusiquedemars/maracuja-next-starter.git`. |
+| Recuperer depuis CDM les composants generiques manquants utiles | Fait | `Badge`, `Card`, `Breadcrumbs`, `Button`, `PageHeader` ajoutes au starter, avec adaptation neutre des tokens. |
+| Decider si le starter garde un exemple catalogue neutre | Fait | Route `/catalogue` ajoutee au starter sans Woo/WordPress obligatoire. |
+| Auditer le dispatch final CDM/starter | Fait | `docs/starter-dispatch-audit.md` distingue ce qui reste CDM, ce qui est deja propre dans le starter et les alignements utiles. |
+| Supprimer le doublon `CardGrid` du starter | Fait | `CardGrid` supprime; home starter convertie vers `EntryGrid`; lint/build OK dans `../maracuja-next-starter`. |
+| Aligner `Hero` generique du starter | Fait | Props `variant`, `align`, `height`, `backgroundImage`, `backgroundPosition` ajoutees sans styles CDM; lint/build OK dans le starter. |
+| Aligner `Section` generique du starter | A faire | Reprendre une prop `padding` sobre, sans fonds catalogue CDM. |
+
+## Phase 7 - Extraction Chant Du Merle
+
+Statut: `A confirmer`
+
+Objectif:
+
+Creer le repo final du site Chant du Merle, base sur la structure clarifiee.
+
+Decision a prendre:
+
+- inclure ou non `woo-backend` dans le meme repo;
+- conserver les scripts `tools/` dans le repo CDM ou dans un repo/outillage separe;
+- strategie de deploiement front + WordPress.
+
+Livrable prevu:
+
+- repo CDM clair;
+- docs d'exploitation;
+- docs "ou modifier quoi";
+- tests/build propres.
+
+## Journal D'Avancement
+
+| Date | Action | Statut | Notes |
+| --- | --- | --- | --- |
+| 2026-06-17 | Creation de l'audit de separation | Fait | `docs/starter-split-audit.md`. |
+| 2026-06-18 | Creation du tracker operationnel | Fait | Ce fichier devient le tableau de bord des actions. |
+| 2026-06-18 | Creation de la carte "ou modifier quoi" | Fait | `docs/where-to-edit.md`. |
+| 2026-06-18 | Creation de l'inventaire de nettoyage | Fait | `docs/cleanup-inventory.md`; distinction CDM vs starter ajoutee. |
+| 2026-06-18 | Suppression des SVG Next par defaut | Fait | Nettoyage sans impact applicatif: fichiers non references. |
+| 2026-06-18 | Suppression de `.DS_Store` | Fait | Bruit macOS retire de `public/images/brand`. |
+| 2026-06-18 | Verification lint apres nettoyage | A confirmer | `npm run lint` lance mais interrompu apres attente anormalement longue sans sortie. |
+| 2026-06-18 | Clone du repo starter | Fait | `../maracuja-next-starter` clone depuis GitHub; repo distant etait vide. |
+| 2026-06-18 | Generation de la base starter neutre | Fait | 43 fichiers initiaux, sans CDM/Woo/WordPress obligatoire. |
+| 2026-06-18 | Validation starter | Fait | `npm install`, `npm run build` et `npm run lint` OK dans `../maracuja-next-starter`. |
+| 2026-06-18 | Commit et push du starter initial | Fait | Commit `2e8a9e8` pousse sur `origin/main`. |
+| 2026-06-18 | Dispatch composants generiques vers starter | Fait | `Button`, `Badge`, `Card`, `Breadcrumbs`, `PageHeader` ajoutes; `Hero`, `LinkButton`, `HomePageView` reformates/commentes; `npm run lint` et `npm run build` OK; commit `44b73ff` pousse sur `origin/main`. |
+| 2026-06-18 | Sortie du catalogue demo hors CDM | Fait | `/[locale]/catalogue`, `CatalogPageView`, `src/sites/example/**` et `exampleProducts.ts` supprimes de CDM; starter enrichi avec `/catalogue`; validations starter lint/build OK; CDM `tsc --noEmit` OK apres suppression du cache `.next`; commit starter `c757fb5` pousse. |
+| 2026-06-18 | Centralisation contenu Selections | Fait | Textes visibles de `SelectionsPageView.tsx` et libelles de `SelectionDetailPageView.tsx` deplaces vers `content/selections.ts`; `tsc --noEmit` OK; `where-to-edit.md` mis a jour. |
+| 2026-06-18 | Centralisation pages legales/contact | Fait | Textes de contact, mentions legales, CGV et confidentialite deplaces vers `content/legal.ts`; routes reduites; `StaticPageContent` ajoute; `tsc --noEmit` OK. |
+| 2026-06-18 | Deplacement du contenu local CDM vers `src/content` | Fait | `home`, `strings`, `accessories`, `selections`, `selectionDetails`, `guides`, `legal`, attributs cordes et config site deplaces; `src/sites` supprime; `tsc --noEmit` OK. |
+| 2026-06-18 | Suppression des dossiers vides | Fait | Anciens dossiers `components/product`, `components/guide`, `components/selection`, `data`, `messages`, i18n vides, `lib/mappers`, `lib/utils` et contenus modules vides supprimes. |
+| 2026-06-18 | Clarification CSS des heros | Fait | Props `height` et `backgroundPosition` ajoutees a `Hero`; overrides `.hero.hero` retires; `tsc --noEmit` OK. |
+| 2026-06-18 | Clarification CSS des sections | Fait | Prop `padding` ajoutee a `Section`; overrides `.introSection.introSection`, `.resultsSection.resultsSection`, etc. retires; `tsc --noEmit` OK. |
+| 2026-06-18 | Normalisation des tokens CSS d'espacement | Fait | Tokens manquants ajoutes dans `styles/tokens.css`; fallbacks `var(--space-*, ...)` retires; `tsc --noEmit` OK. |
+| 2026-06-19 | Audit des grilles CSS similaires | Fait | `CardGrid` supprime car inutilise et redondant avec `EntryGrid`; doublons internes de `EntryGrid.module.css` retires; `ProductGrid`/`SelectionGrid` conserves car differences justifiees; `tsc --noEmit` OK. |
+| 2026-06-19 | Reutilisation des cartes home/cordes/accessoires/selections | Fait | Entrees instrument/son/niveau/accessoires centralisees dans `content/navigationCards.ts`; page Cordes utilise `EntryGrid` pour les besoins; page Selections utilise `SelectionGrid` pour les packs; `SelectionCard` prepare une image optionnelle; `tsc --noEmit` OK. |
+| 2026-06-19 | Reutilisation des cartes guides dynamiques | Fait | `getGuideCards(locale, 3)` branche sur Cordes, Accessoires et Selections; `GuideList` reutilise; guide statique de `content/strings.ts` retire; `tsc --noEmit` OK. |
+| 2026-06-19 | Cloture de la clarification CSS | Fait | Fonds communs de sections, container large et statut resultats catalogue centralises; scan des quasi-doublons restants juge acceptable; `tsc --noEmit` OK. |
+| 2026-06-19 | Extraction du client Woo Store API | Fait | Types bruts Woo et `fetchWooStore` sortis vers `integrations/woocommerce/storeApi.ts`; commentaires courts ajoutes; `tsc --noEmit` OK. |
+| 2026-06-19 | Extraction des mappers de cartes produit | Fait | `productMappers.ts` cree avec mappers WooGraphQL et Store API, helpers de locale, marque et attributs; `wordpressProducts.ts` descend a 2252 lignes; `tsc --noEmit` OK. |
+| 2026-06-19 | Extraction des filtres catalogue | Fait | `catalogFilters.ts` cree pour les filtres Cordes/Accessoires, fallbacks, taxonomies et facettes Store API; `wordpressProducts.ts` descend a 1433 lignes; `tsc --noEmit` OK. |
+| 2026-06-19 | Remplacement du CSV selections par Woo | Fait | Mauvaise abstraction annulee: suppression de `selectionCsv.ts` et `selectionMappers.ts`; usage/son chargent des produits Woo filtres par attributs; `tsc --noEmit` OK. |
+| 2026-06-22 | Correction routes detail Selections | Fait | `generateStaticParams` ajoute pour les slugs connus, redirects `/selections/...` vers `/fr/selections/...`, timeout Woo Store API ajoute; routes usage/son/packs testees en HTTP 200, ancien chemin en 308; `tsc --noEmit` OK. |
+| 2026-06-22 | Extraction fiche produit detaillee | Fait | `productPageData.ts` cree; `wordpressProducts.ts` descend a 828 lignes; imports de route, detail et galerie produit mis a jour; `tsc --noEmit` OK. |
+| 2026-06-23 | Decoupage guides WordPress | Fait | `guideQueries.ts` et `guideMappers.ts` crees; `wordpressGuides.ts` simplifie en facade lisible; `tsc --noEmit` OK. |
+| 2026-06-23 | Cloture phase services metier | Fait | `getProductsBySkus` supprime, `wordpressProducts.ts` descend a 780 lignes; `tsc --noEmit`, `npm run lint` et `npm run build` OK. |
+| 2026-06-23 | Audit dispatch final CDM/starter | Fait | `docs/starter-dispatch-audit.md` cree; prochaine action identifiee: retirer `CardGrid` du starter au profit de `EntryGrid`. |
+| 2026-06-23 | Suppression doublon `CardGrid` starter | Fait | Home starter convertie vers `EntryGrid`; dossier `CardGrid` supprime; `rg CardGrid`, `npm run lint` et `npm run build` OK dans le starter. |
+| 2026-06-23 | Alignement `Hero` starter | Fait | API generique alignee sur CDM: variantes, alignement, hauteur compacte et image de fond; `npm run lint` et `npm run build` OK dans le starter. |
+| 2026-06-23 | Audit produits variables Woo | Fait | `docs/woo-product-variation-audit.md` cree; le probleme vient surtout de produits Woo simples qui devraient parfois etre variables ou mieux types. |
+| 2026-06-23 | Correction filtre Cordes Woo | Fait | Sauvegarde dans `backups/2026-06-23-woo-cordes-filter`; `completeSetsOnly` exige maintenant `pa_type_produit=jeu-complet,jeu-compose` en plus de `pa_corde=jeu`; Store API retourne 96 produits; `tsc`, lint et build OK. |
+| 2026-06-23 | Affichage fiches produits variables | Fait | Sauvegarde dans `backups/2026-06-23-product-variations-ui`; une fiche parent Woo affiche maintenant les selecteurs de variantes et ajoute la variation choisie au panier; exemple `/fr/produits/optima-protos-la-medium` valide; `tsc`, lint et build OK. |
+| 2026-06-23 | Correctif UX variantes produit | Fait | Sauvegarde dans `backups/2026-06-23-product-variations-ui-fix`; la fiche n'affiche plus que les attributs qui varient vraiment, ex. seulement `Taille` pour `optima-protos-la-medium`; timeout Store API passe a 25s; `tsc`, lint et build OK. |
+| 2026-06-23 | Action visible sur choix de variante | Fait | Sauvegarde dans `backups/2026-06-23-product-variation-action`; les variations chargent maintenant prix, SKU et stock par ID Woo; la zone achat se met a jour cote client; select restyle avec tokens CDM; `tsc`, lint et build OK. |
+
+## Prochaine Action Recommandee
+
+Parenthese CDM suivante: reparer la modelisation des donnees Woo, surtout les
+produits simples qui devraient etre variables ou mieux types (`274` produits
+simples avec `pa_corde=jeu` sans `pa_type_produit` identifies dans l'audit).
+
+Raison: les vrais produits variables s'affichent maintenant comme une seule
+fiche avec choix de variante et mise a jour visible de la zone achat, mais la
+base garde des anciens imports ou produits mal types. Exemple concret:
+`CDM-B6330C` et `CDM-4BCBFC` sont des jeux complets originaux simples, tandis
+que `CDM-SET-VLA-30` est un nouveau produit simple genere a cote. Ce cas doit
+etre repare dans Woo/import: garder le bon parent commercial, convertir les
+tailles en variations, puis retirer ou archiver les produits `CDM-SET-*`
+redondants.
+
+Note a reprendre ensuite: continuer la phase 6 starter en alignant `Section`
+avec une prop `padding` generique (`default`, `tight`, `intro`), sans importer
+les fonds ou noms catalogue CDM.

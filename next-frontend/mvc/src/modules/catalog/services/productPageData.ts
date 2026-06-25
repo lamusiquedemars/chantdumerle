@@ -1,0 +1,772 @@
+import {
+  fetchGraphQL,
+  hasWordPressEndpoint,
+} from "@/lib/wordpress/client";
+import {
+  fetchWooStore,
+  type WooStoreProduct,
+} from "@/integrations/woocommerce/storeApi";
+
+type ProductPageStoreFieldDefinition = {
+  label: string;
+  taxonomies: string[];
+  names: string[];
+};
+
+/*
+ * Type utilise par la page produit complete.
+ * Contrairement a ProductCardItem, il contient les donnees necessaires
+ * a une fiche produit : achat, identification, conseil et technique.
+ */
+export type ProductPageItem = {
+  id: string;
+  databaseId: number;
+  typename: string;
+  productType?: string | null;
+
+  name: string;
+  slug: string;
+  sku?: string | null;
+
+  shortDescription?: string | null;
+  description?: string | null;
+
+  price?: string | null;
+  regularPrice?: string | null;
+  salePrice?: string | null;
+
+  stockQuantity?: number | null;
+  stockStatus?: string | null;
+  purchasable?: boolean | null;
+
+  image?: {
+    sourceUrl?: string | null;
+    altText?: string | null;
+  } | null;
+  galleryImages: ProductPageGalleryImage[];
+  variationOptions: ProductPageVariationOption[];
+  variations: ProductPageVariation[];
+
+  categories: ProductPageTerm[];
+
+  identity: ProductPageField[];
+  sound: ProductPageField[];
+  technical: ProductPageField[];
+};
+
+type ProductPageTerm = {
+  name: string;
+  slug: string;
+};
+
+export type ProductPageGalleryImage = {
+  id?: number;
+  src: string;
+  thumbnail?: string;
+  alt?: string;
+};
+
+export type ProductPageVariationOption = {
+  name: string;
+  taxonomy?: string | null;
+  values: ProductPageVariationValue[];
+};
+
+export type ProductPageVariationValue = {
+  label: string;
+  value: string;
+};
+
+export type ProductPageVariation = {
+  id: number;
+  attributes: Record<string, string>;
+  priceHtml?: string;
+  sku?: string | null;
+  stockLabel?: string;
+  isInStock?: boolean;
+};
+
+type ProductPageField = {
+  label: string;
+  value: string;
+  slug?: string;
+};
+
+type ProductPageAttributeConnection = {
+  nodes: ProductPageTerm[];
+} | null;
+
+type GraphQLProductPageNode = {
+  __typename: "SimpleProduct" | "VariableProduct" | string;
+  id: string;
+  databaseId: number;
+  name: string;
+  slug: string;
+  sku?: string | null;
+  type?: string | null;
+
+  shortDescription?: string | null;
+  description?: string | null;
+
+  price?: string | null;
+  regularPrice?: string | null;
+  salePrice?: string | null;
+
+  stockQuantity?: number | null;
+  stockStatus?: string | null;
+  purchasable?: boolean | null;
+
+  image?: {
+    sourceUrl?: string | null;
+    altText?: string | null;
+  } | null;
+
+  productCategories?: ProductPageAttributeConnection;
+
+  allPaMarque?: ProductPageAttributeConnection;
+  allPaInstrument?: ProductPageAttributeConnection;
+  allPaTaille?: ProductPageAttributeConnection;
+  allPaModele?: ProductPageAttributeConnection;
+  allPaCorde?: ProductPageAttributeConnection;
+  allPaTension?: ProductPageAttributeConnection;
+
+  allPaAme?: ProductPageAttributeConnection;
+  allPaFilage?: ProductPageAttributeConnection;
+  allPaAttache?: ProductPageAttributeConnection;
+  allPaTypeProduit?: ProductPageAttributeConnection;
+  allPaTypePack?: ProductPageAttributeConnection;
+
+  allPaProfilSonore?: ProductPageAttributeConnection;
+  allPaComplexite?: ProductPageAttributeConnection;
+  allPaPuissance?: ProductPageAttributeConnection;
+  allPaReponse?: ProductPageAttributeConnection;
+  allPaUsage?: ProductPageAttributeConnection;
+  allPaPositionnement?: ProductPageAttributeConnection;
+
+  allPaDurabilite?: ProductPageAttributeConnection;
+  allPaStabilite?: ProductPageAttributeConnection;
+  allPaTempsRodage?: ProductPageAttributeConnection;
+};
+
+type ProductPageResponse = {
+  product: GraphQLProductPageNode | null;
+};
+
+/*
+ * Champs GraphQL utilises par la fiche produit.
+ * Les attributs peuvent etre vides si WooCommerce ne les renseigne pas encore.
+ */
+const PRODUCT_PAGE_FIELDS = `
+  id
+  databaseId
+  name
+  slug
+  sku
+  type
+
+  shortDescription
+  description
+
+  price
+  regularPrice
+  salePrice
+  stockQuantity
+  stockStatus
+  purchasable
+
+  image {
+    sourceUrl
+    altText
+  }
+
+  productCategories {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaMarque {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaInstrument {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaTaille {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaModele {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaCorde {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaTension {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaAme {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaFilage {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaAttache {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaTypeProduit {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaTypePack {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaProfilSonore {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaComplexite {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaPuissance {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaReponse {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaUsage {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaPositionnement {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaDurabilite {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaStabilite {
+    nodes {
+      name
+      slug
+    }
+  }
+
+  allPaTempsRodage {
+    nodes {
+      name
+      slug
+    }
+  }
+`;
+
+function logProductPageError(context: string, error: unknown) {
+  console.error(
+    error instanceof Error
+      ? `${context}: ${error.message}`
+      : context
+  );
+}
+
+function firstAttributeValue(
+  connection?: ProductPageAttributeConnection
+): ProductPageTerm | undefined {
+  return connection?.nodes?.[0];
+}
+
+function makeProductPageField(
+  label: string,
+  connection?: ProductPageAttributeConnection
+): ProductPageField | undefined {
+  const value = firstAttributeValue(connection);
+
+  if (!value?.name) {
+    return undefined;
+  }
+
+  return {
+    label,
+    value: value.name,
+    slug: value.slug,
+  };
+}
+
+function cleanFields(
+  fields: Array<ProductPageField | undefined>
+): ProductPageField[] {
+  return fields.filter((field): field is ProductPageField => Boolean(field));
+}
+
+const PRODUCT_PAGE_STORE_FIELD_GROUPS = {
+  identity: [
+    storeField("Marque", ["pa_marque"], ["Marque"]),
+    storeField("Instrument", ["pa_instrument"], ["Instrument"]),
+    storeField("Taille", ["pa_taille"], ["Taille"]),
+    storeField("Modèle", ["pa_modele"], ["Modèle", "Modele"]),
+    storeField("Corde", ["pa_corde"], ["Corde"]),
+    storeField("Tension", ["pa_tension"], ["Tension"]),
+    storeField("Type de produit", ["pa_type_produit"], [
+      "Type produit",
+      "Type de produit",
+    ]),
+    storeField("Type pack", ["pa_type_pack"], ["Type pack"]),
+  ],
+  sound: [
+    storeField("Profil sonore", ["pa_profil_sonore"], ["Profil sonore"]),
+    storeField("Complexité", ["pa_complexite_sonore", "pa_complexite"], [
+      "Complexité",
+      "Complexité sonore",
+    ]),
+    storeField("Puissance", ["pa_puissance_sonore", "pa_puissance"], [
+      "Puissance",
+      "Puissance sonore",
+    ]),
+    storeField("Réponse", ["pa_reponse"], ["Réponse", "Reponse"]),
+    storeField("Usage", ["pa_usage"], ["Usage"]),
+    storeField("Positionnement", [
+      "pa_positionnement_prix",
+      "pa_positionnement",
+    ], [
+      "Positionnement",
+      "Positionnement prix",
+    ]),
+  ],
+  technical: [
+    storeField("Âme", ["pa_ame"], ["Âme", "Ame"]),
+    storeField("Filage", ["pa_filage"], ["Filage"]),
+    storeField("Attache", ["pa_attache"], ["Attache"]),
+    storeField("Durabilité", ["pa_durabilite"], ["Durabilité", "Durabilite"]),
+    storeField("Stabilité d’accord", ["pa_stabilite_accord", "pa_stabilite"], [
+      "Stabilité d'accord",
+      "Stabilité d’accord",
+      "Stabilité",
+    ]),
+    storeField("Temps de rodage", ["pa_temps_rodage"], ["Temps de rodage"]),
+  ],
+} satisfies Record<
+  "identity" | "sound" | "technical",
+  ProductPageStoreFieldDefinition[]
+>;
+
+function storeField(
+  label: string,
+  taxonomies: string[],
+  names: string[]
+): ProductPageStoreFieldDefinition {
+  return { label, taxonomies, names };
+}
+
+function getStoreAttributeFieldValues(
+  product: WooStoreProduct,
+  definition: ProductPageStoreFieldDefinition
+): string[] {
+  const taxonomies = new Set(definition.taxonomies);
+  const names = new Set(definition.names.map(normalizeStoreAttributeName));
+
+  return [
+    ...new Set(
+      product.attributes
+        ?.filter(
+          (attribute) =>
+            (attribute.taxonomy !== null && taxonomies.has(attribute.taxonomy)) ||
+            names.has(normalizeStoreAttributeName(attribute.name))
+        )
+        .flatMap((attribute) => attribute.terms.map((term) => term.name))
+        .map((value) => value.trim())
+        .filter(Boolean) ?? []
+    ),
+  ];
+}
+
+function normalizeStoreAttributeName(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function mergeProductPageStoreFields(
+  currentFields: ProductPageField[],
+  product: WooStoreProduct,
+  definitions: ProductPageStoreFieldDefinition[]
+): ProductPageField[] {
+  const fields = [...currentFields];
+  const existingLabels = new Set(fields.map((field) => field.label));
+
+  for (const definition of definitions) {
+    if (existingLabels.has(definition.label)) {
+      continue;
+    }
+
+    const values = getStoreAttributeFieldValues(product, definition);
+
+    if (values.length === 0) {
+      continue;
+    }
+
+    fields.push({
+      label: definition.label,
+      value: values.join(", "),
+    });
+    existingLabels.add(definition.label);
+  }
+
+  return fields;
+}
+
+async function mergeProductPageWithStoreProduct(
+  pageItem: ProductPageItem,
+  storeProduct: WooStoreProduct
+): Promise<ProductPageItem> {
+  return {
+    ...pageItem,
+    galleryImages: makeProductPageGalleryImages(pageItem, storeProduct),
+    variationOptions: makeProductPageVariationOptions(storeProduct),
+    variations: await makeProductPageVariations(storeProduct),
+    identity: mergeProductPageStoreFields(
+      pageItem.identity,
+      storeProduct,
+      PRODUCT_PAGE_STORE_FIELD_GROUPS.identity
+    ),
+    sound: mergeProductPageStoreFields(
+      pageItem.sound,
+      storeProduct,
+      PRODUCT_PAGE_STORE_FIELD_GROUPS.sound
+    ),
+    technical: mergeProductPageStoreFields(
+      pageItem.technical,
+      storeProduct,
+      PRODUCT_PAGE_STORE_FIELD_GROUPS.technical
+    ),
+  };
+}
+
+function makeProductPageVariationOptions(
+  product: WooStoreProduct
+): ProductPageVariationOption[] {
+  const variableAttributeValues = getVariableAttributeValues(product);
+
+  return (
+    product.attributes
+      ?.filter((attribute) => {
+        const attributeKey = normalizeStoreAttributeName(attribute.name);
+
+        return (
+          attribute.has_variations &&
+          attribute.terms.length > 0 &&
+          (variableAttributeValues.get(attributeKey)?.size ?? 0) > 1
+        );
+      })
+      .map((attribute) => ({
+        name: attribute.name,
+        taxonomy: attribute.taxonomy,
+        values: attribute.terms
+          .filter((term) =>
+            variableAttributeValues
+              .get(normalizeStoreAttributeName(attribute.name))
+              ?.has(term.slug)
+          )
+          .map((term) => ({
+            label: term.name,
+            value: term.slug,
+          })),
+      })) ?? []
+  );
+}
+
+function getVariableAttributeValues(
+  product: WooStoreProduct
+): Map<string, Set<string>> {
+  const valuesByAttribute = new Map<string, Set<string>>();
+
+  for (const variation of product.variations ?? []) {
+    for (const attribute of variation.attributes) {
+      const attributeKey = normalizeStoreAttributeName(attribute.name);
+      const values = valuesByAttribute.get(attributeKey) ?? new Set<string>();
+
+      values.add(attribute.value);
+      valuesByAttribute.set(attributeKey, values);
+    }
+  }
+
+  return valuesByAttribute;
+}
+
+async function makeProductPageVariations(
+  product: WooStoreProduct
+): Promise<ProductPageVariation[]> {
+  return Promise.all(
+    product.variations?.map(async (variation) => {
+      const details = await getStoreProductById(variation.id);
+
+      return {
+      id: variation.id,
+      attributes: Object.fromEntries(
+        variation.attributes.map((attribute) => [
+          normalizeStoreAttributeName(attribute.name),
+          attribute.value,
+        ])
+      ),
+        priceHtml: details?.price_html,
+        sku: details?.sku,
+        stockLabel: details?.stock_availability?.text,
+        isInStock: details?.is_in_stock,
+      };
+    }) ?? []
+  );
+}
+
+function makeProductPageGalleryImages(
+  pageItem: ProductPageItem,
+  storeProduct: WooStoreProduct
+): ProductPageGalleryImage[] {
+  const images = new Map<string, ProductPageGalleryImage>();
+
+  for (const image of storeProduct.images ?? []) {
+    if (!image.src) {
+      continue;
+    }
+
+    images.set(image.src, {
+      id: image.id,
+      src: image.src,
+      thumbnail: image.thumbnail,
+      alt: image.alt || pageItem.name,
+    });
+  }
+
+  if (pageItem.image?.sourceUrl && !images.has(pageItem.image.sourceUrl)) {
+    images.set(pageItem.image.sourceUrl, {
+      src: pageItem.image.sourceUrl,
+      alt: pageItem.image.altText || pageItem.name,
+    });
+  }
+
+  return [...images.values()];
+}
+
+async function getStoreProductBySlug(
+  slug: string
+): Promise<WooStoreProduct | undefined> {
+  const params = new URLSearchParams({ slug });
+  const { data } = await fetchWooStore<WooStoreProduct[]>("products", params);
+
+  /*
+   * Store API peut retourner une variation et son parent avec le meme slug.
+   * La fiche Next doit preferer le parent variable pour afficher les choix.
+   */
+  return (
+    data.find(
+      (product) => product.slug === slug && product.type !== "variation"
+    ) ?? data.find((product) => product.slug === slug)
+  );
+}
+
+async function getStoreProductById(
+  id: number
+): Promise<WooStoreProduct | undefined> {
+  try {
+    const { data } = await fetchWooStore<WooStoreProduct>(
+      `products/${id}`,
+      new URLSearchParams()
+    );
+
+    return data;
+  } catch {
+    return undefined;
+  }
+}
+
+export function mapProductToPageItem(
+  product: GraphQLProductPageNode
+): ProductPageItem {
+  return {
+    id: product.id,
+    databaseId: product.databaseId,
+    typename: product.__typename,
+    productType: product.type,
+
+    name: product.name,
+    slug: product.slug,
+    sku: product.sku,
+
+    shortDescription: product.shortDescription,
+    description: product.description,
+
+    price: product.price,
+    regularPrice: product.regularPrice,
+    salePrice: product.salePrice,
+
+    stockQuantity: product.stockQuantity,
+    stockStatus: product.stockStatus,
+    purchasable: product.purchasable,
+
+    image: product.image,
+    galleryImages: product.image?.sourceUrl
+      ? [
+          {
+            src: product.image.sourceUrl,
+            alt: product.image.altText || product.name,
+          },
+        ]
+      : [],
+    variationOptions: [],
+    variations: [],
+
+    categories: product.productCategories?.nodes ?? [],
+
+    identity: cleanFields([
+      makeProductPageField("Marque", product.allPaMarque),
+      makeProductPageField("Instrument", product.allPaInstrument),
+      makeProductPageField("Taille", product.allPaTaille),
+      makeProductPageField("Modèle", product.allPaModele),
+      makeProductPageField("Corde", product.allPaCorde),
+      makeProductPageField("Tension", product.allPaTension),
+      makeProductPageField("Type de produit", product.allPaTypeProduit),
+      makeProductPageField("Type pack", product.allPaTypePack),
+    ]),
+
+    sound: cleanFields([
+      makeProductPageField("Profil sonore", product.allPaProfilSonore),
+      makeProductPageField("Complexité", product.allPaComplexite),
+      makeProductPageField("Puissance", product.allPaPuissance),
+      makeProductPageField("Réponse", product.allPaReponse),
+      makeProductPageField("Usage", product.allPaUsage),
+      makeProductPageField("Positionnement", product.allPaPositionnement),
+    ]),
+
+    technical: cleanFields([
+      makeProductPageField("Âme", product.allPaAme),
+      makeProductPageField("Filage", product.allPaFilage),
+      makeProductPageField("Attache", product.allPaAttache),
+      makeProductPageField("Durabilité", product.allPaDurabilite),
+      makeProductPageField("Stabilité d’accord", product.allPaStabilite),
+      makeProductPageField("Temps de rodage", product.allPaTempsRodage),
+    ]),
+  };
+}
+
+export async function getProductPageBySlug(
+  slug: string
+): Promise<ProductPageItem | null> {
+  if (!hasWordPressEndpoint) {
+    return null;
+  }
+
+  try {
+    const data = (await fetchGraphQL(
+      `
+        query GetProductPageBySlug($slug: ID!) {
+          product(id: $slug, idType: SLUG) {
+            __typename
+
+            ... on SimpleProduct {
+              ${PRODUCT_PAGE_FIELDS}
+            }
+
+            ... on VariableProduct {
+              ${PRODUCT_PAGE_FIELDS}
+            }
+          }
+        }
+      `,
+      { slug }
+    )) as ProductPageResponse;
+
+    if (!data.product) {
+      return null;
+    }
+
+    const pageItem = mapProductToPageItem(data.product);
+
+    try {
+      const storeProduct = await getStoreProductBySlug(slug);
+
+      if (storeProduct) {
+        return await mergeProductPageWithStoreProduct(pageItem, storeProduct);
+      }
+    } catch (storeError) {
+      logProductPageError(
+        `Unable to enrich WooCommerce product "${slug}" from Store API`,
+        storeError
+      );
+    }
+
+    return pageItem;
+  } catch (error) {
+    logProductPageError(
+      `Unable to load WooCommerce product "${slug}"`,
+      error
+    );
+    return null;
+  }
+}

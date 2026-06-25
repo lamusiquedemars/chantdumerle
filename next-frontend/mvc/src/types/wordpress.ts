@@ -1,4 +1,3 @@
-/* Types WordPress optionnels pour les adaptateurs headless. */
 export type ProductListItem = {
   name: string;
   slug: string;

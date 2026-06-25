@@ -1,5 +1,6 @@
 import AccessoriesPageView from "@/modules/catalog/components/AccessoriesPageView/AccessoriesPageView";
-import { getAccessoriesContent } from "@/sites/chantdumerle/content/accessories";
+import { getAccessoriesContent } from "@/content/accessories";
+import { getGuideCards } from "@/modules/guides/services/wordpressGuides";
 import {
   getAccessoryProductsPageData,
   type AccessoryProductFilters,
@@ -48,7 +49,8 @@ export default async function AccessoiresPage({
   const page = Number(readSingleParam(query.page) ?? "1");
   const rawSort = readSingleParam(query.sort);
   const sort = isAccessoryProductSortKey(rawSort) ? rawSort : undefined;
-  const content = getAccessoriesContent(locale);
+  const guideItems = await getGuideCards(locale, 3);
+  const content = getAccessoriesContent(locale, guideItems);
   const accessoryProductsData = await getAccessoryProductsPageData(
     locale,
     20,

@@ -1,11 +1,13 @@
 import StringsPageView from "@/modules/catalog/components/StringsPageView/StringsPageView";
 import type { SelectionEntryKind } from "@/modules/catalog/types";
-import { getStringsContent } from "@/sites/chantdumerle/content/strings";
+import { getStringsContent } from "@/content/strings";
+import { getGuideCards } from "@/modules/guides/services/wordpressGuides";
 import {
   getStringProductsPageData,
   type StringProductFilters,
   type StringProductSortKey,
 } from "@/modules/catalog/services/wordpressProducts";
+import type { ProductFilterGroup } from "@/modules/catalog/components/ProductFilters/ProductFilters";
 
 const INSTRUMENT_FILTERS = [
   { label: "Violon", value: "violon" },
@@ -13,6 +15,33 @@ const INSTRUMENT_FILTERS = [
   { label: "Violoncelle", value: "violoncelle" },
   { label: "Contrebasse", value: "contrebasse" },
 ] as const;
+
+const LANDING_FILTER_GROUPS: ProductFilterGroup[] = [
+  {
+    name: "instrument",
+    label: "Instrument",
+    options: [...INSTRUMENT_FILTERS],
+  },
+  {
+    name: "son",
+    label: "Son recherché",
+    options: [
+      { label: "Chaud", value: "chaud" },
+      { label: "Équilibré", value: "equilibre" },
+      { label: "Brillant", value: "brillant" },
+    ],
+  },
+  {
+    name: "usage",
+    label: "Usage",
+    options: [
+      { label: "Étudiant", value: "etudiant" },
+      { label: "Intermédiaire", value: "intermediaire" },
+      { label: "Orchestre", value: "orchestre" },
+      { label: "Soliste", value: "soliste" },
+    ],
+  },
+];
 
 type InstrumentFilterValue = (typeof INSTRUMENT_FILTERS)[number]["value"];
 
@@ -77,8 +106,7 @@ export default async function CordesPage({
         : prefilter === "usage" && usage
           ? "usage"
           : undefined;
-  const completeSetsOnly =
-    activeEntryKind === "sound" || activeEntryKind === "usage";
+  const completeSetsOnly = true;
   const filters: StringProductFilters = {
     instrument,
     marque: readSingleParam(query.marque),
@@ -91,16 +119,35 @@ export default async function CordesPage({
   const page = Number(readSingleParam(query.page) ?? "1");
   const rawSort = readSingleParam(query.sort);
   const sort = isStringProductSortKey(rawSort) ? rawSort : undefined;
-  const content = getStringsContent(locale);
+  const guideItems = await getGuideCards(locale, 3);
+  const content = getStringsContent(locale, guideItems);
+  const hasProductSearch =
+    Boolean(activeEntryKind) ||
+    Boolean(filters.instrument) ||
+    Boolean(filters.son) ||
+    Boolean(filters.usage);
 
-  const stringProductsData = await getStringProductsPageData(
-    locale,
-    20,
-    filters,
-    Number.isFinite(page) ? page : 1,
-    sort,
-    { completeSetsOnly }
-  );
+  /*
+   * La landing Cordes sert d'entrée guidée: elle n'affiche pas tout le
+   * catalogue par défaut. Les produits arrivent seulement après une entrée
+   * instrument/son/usage. Une marque seule n'est pas une bonne intention de
+   * recherche ici: elle peut venir d'un autre univers Woo et mener a zero
+   * resultat incomprehensible.
+   */
+  const stringProductsData = hasProductSearch
+    ? await getStringProductsPageData(
+        locale,
+        20,
+        filters,
+        Number.isFinite(page) ? page : 1,
+        sort,
+        { completeSetsOnly }
+      )
+    : {
+        products: [],
+        filters: LANDING_FILTER_GROUPS,
+        pagination: undefined,
+      };
 
   // Une entree depuis une carte de navigation devient une page de selection,
   // meme si techniquement elle repose encore sur des filtres d'URL.
@@ -122,7 +169,7 @@ export default async function CordesPage({
       pagination={stringProductsData.pagination}
       activeFilters={{
         instrument: instrument ?? "",
-        marque: filters.marque ?? "",
+        marque: hasProductSearch ? (filters.marque ?? "") : "",
         son: filters.son ?? "",
         usage: filters.usage ?? "",
         corde: filters.corde ?? "",
@@ -132,6 +179,7 @@ export default async function CordesPage({
       activeSort={sort ?? ""}
       activeEntryKind={activeEntryKind}
       activeFilterIntro={activeFilterIntro}
+      hasProductSearch={hasProductSearch}
     />
   );
 }

@@ -1,7 +1,6 @@
 import type { EntryGridItem } from "@/components/blocks/EntryGrid/EntryGrid";
 import type { ProductCardItem } from "@/modules/catalog/components/ProductCard/ProductCard";
 import type { GuideCardItem } from "@/modules/guides/components/GuideCard/GuideCard";
-import type { SelectionCardItem } from "@/modules/selections/components/SelectionCard/SelectionCard";
 
 export type ContentAction = {
   label: string;
@@ -27,7 +26,7 @@ type CatalogPageContent = {
   selections: {
     title: string;
     subtitle: string;
-    items: SelectionCardItem[];
+    items: EntryGridItem[];
   };
   editorial: {
     title: string;
@@ -63,6 +62,11 @@ export type AccessoriesContent = {
     title: string;
     subtitle: string;
     items: EntryGridItem[];
+  };
+  guides: {
+    title: string;
+    subtitle: string;
+    items: GuideCardItem[];
   };
 };
 

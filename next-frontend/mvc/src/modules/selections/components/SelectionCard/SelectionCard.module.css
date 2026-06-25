@@ -9,16 +9,16 @@
 
 .card {
   /* structure */
+  position: relative;
   display: block;
   height: 100%;
+  overflow: hidden;
   padding: var(--space-24);
-  border: 1px solid var(--color-border-soft);
   border-radius: 0;
   background: var(--color-white);
 
   /* comportement */
   transition:
-    border-color 180ms ease,
     transform 180ms ease,
     box-shadow 180ms ease,
     background-color 180ms ease;
@@ -26,13 +26,21 @@
 
 .card:hover {
   /* survol discret : plus de présence sans effet gadget */
-  border-color: var(--color-border);
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(26, 26, 26, 0.06);
 }
 
 .card:active {
   transform: translateY(0);
+}
+
+.media {
+  display: block;
+  aspect-ratio: 16 / 9;
+  margin: calc(var(--space-24) * -1) calc(var(--space-24) * -1) var(--space-16);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .body {
@@ -70,7 +78,7 @@
 
 /* états accessibilité */
 .card:focus-visible {
-  border-color: var(--color-primary);
+  outline: none;
   box-shadow: 0 0 0 3px rgba(140, 47, 28, 0.14);
 }
 
@@ -79,6 +87,10 @@
 @media (max-width: 768px) {
   .card {
     padding: var(--space-16);
+  }
+
+  .media {
+    margin: calc(var(--space-16) * -1) calc(var(--space-16) * -1) var(--space-16);
   }
 
   .description {
