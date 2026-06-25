@@ -114,7 +114,7 @@ export default async function CordesPage({
     usage,
     corde: completeSetsOnly ? undefined : readSingleParam(query.corde),
     taille: completeSetsOnly ? undefined : readSingleParam(query.taille),
-    tension: completeSetsOnly ? undefined : readSingleParam(query.tension),
+    tension: readSingleParam(query.tension),
   };
   const page = Number(readSingleParam(query.page) ?? "1");
   const rawSort = readSingleParam(query.sort);

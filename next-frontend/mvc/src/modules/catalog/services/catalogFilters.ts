@@ -157,9 +157,9 @@ export const STRING_FILTER_FALLBACKS: ProductFilterGroup[] = [
     name: "tension",
     label: "Tension",
     options: [
-      { label: "Light", value: "light" },
-      { label: "Medium", value: "medium" },
-      { label: "Heavy", value: "heavy" },
+      { label: "Faible", value: "light" },
+      { label: "Moyenne", value: "medium" },
+      { label: "Forte", value: "heavy" },
     ],
   },
 ];
@@ -251,11 +251,11 @@ const STRING_STORE_ATTRIBUTE_TERMS: Record<
     { id: 295, name: '16"-17"', slug: "16-17" },
   ],
   tension: [
-    { id: 274, name: "Light", slug: "light" },
-    { id: 319, name: "Medium-Light", slug: "medium-light" },
-    { id: 264, name: "Medium", slug: "medium" },
-    { id: 317, name: "Medium-Heavy", slug: "medium-heavy" },
-    { id: 268, name: "Heavy", slug: "heavy" },
+    { id: 274, name: "Faible", slug: "light" },
+    { id: 319, name: "Moyenne faible", slug: "medium-light" },
+    { id: 264, name: "Moyenne", slug: "medium" },
+    { id: 317, name: "Moyenne forte", slug: "medium-heavy" },
+    { id: 268, name: "Forte", slug: "heavy" },
   ],
 };
 
