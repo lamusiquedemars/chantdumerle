@@ -1,0 +1,270 @@
+.container {
+  padding-bottom: var(--space-64);
+}
+
+.loginLayout,
+.dashboard {
+  display: grid;
+  gap: var(--space-32);
+}
+
+.loginLayout {
+  align-items: start;
+}
+
+.form,
+.aside,
+.panel,
+.identity {
+  border: 1px solid rgba(26, 26, 26, 0.16);
+  background: rgba(255, 255, 255, 0.46);
+  border-radius: var(--radius);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-20);
+  padding: var(--space-24);
+  max-width: 520px;
+}
+
+.form h2,
+.aside h2,
+.identity h2,
+.panel h3 {
+  margin: 0;
+  color: var(--color-text);
+  letter-spacing: 0;
+}
+
+.form label {
+  display: grid;
+  gap: var(--space-8);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.form input[type="text"],
+.form input[type="password"] {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-10) var(--space-12);
+  border: 1px solid rgba(26, 26, 26, 0.32);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--color-white);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.remember {
+  display: flex !important;
+  grid-template-columns: none;
+  align-items: center;
+  gap: var(--space-10) !important;
+  font-weight: 400 !important;
+}
+
+.remember input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-primary);
+}
+
+.form button {
+  min-height: 52px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: var(--color-white);
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.form button:hover {
+  background: #732617;
+  border-color: #732617;
+}
+
+.secondaryLinks,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+
+.secondaryLinks a,
+.actions a {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+.aside {
+  display: grid;
+  gap: var(--space-12);
+  padding: var(--space-24);
+  color: var(--color-info);
+}
+
+.aside p,
+.email,
+.empty,
+.order p {
+  margin: 0;
+  color: var(--color-info);
+}
+
+.kicker {
+  margin: 0 0 var(--space-4);
+  color: var(--color-primary);
+  font-size: var(--fs-small);
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.error,
+.success {
+  margin: 0;
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius);
+}
+
+.error {
+  border: 1px solid rgba(169, 68, 56, 0.32);
+  background: rgba(169, 68, 56, 0.08);
+  color: var(--color-error);
+}
+
+.success {
+  border: 1px solid rgba(95, 122, 90, 0.32);
+  background: rgba(95, 122, 90, 0.1);
+  color: var(--color-success);
+}
+
+.identity {
+  display: flex;
+  gap: var(--space-18);
+  align-items: center;
+  padding: var(--space-24);
+}
+
+.identityIcon {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(198, 169, 107, 0.22);
+  color: var(--color-primary);
+}
+
+.identityIcon svg,
+.panelHeader svg,
+.email svg,
+.order p svg,
+.logout svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.email,
+.panelHeader,
+.order p,
+.logout {
+  display: inline-flex;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.panel {
+  display: grid;
+  gap: var(--space-18);
+  align-content: start;
+  padding: var(--space-24);
+}
+
+.panelHeader {
+  color: var(--color-primary);
+}
+
+.orders {
+  display: grid;
+  gap: var(--space-12);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.order {
+  display: grid;
+  gap: var(--space-12);
+  padding-block: var(--space-12);
+  border-top: 1px solid rgba(26, 26, 26, 0.12);
+}
+
+.order:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.order a {
+  color: var(--color-text);
+  font-weight: 800;
+}
+
+.orderMeta {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+
+.orderMeta span {
+  color: var(--color-green);
+  font-size: var(--fs-small);
+  font-weight: 800;
+}
+
+.orderMeta strong {
+  color: var(--color-text);
+}
+
+.actions {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.logout {
+  margin-top: var(--space-8);
+}
+
+@media (min-width: 860px) {
+  .loginLayout {
+    grid-template-columns: minmax(360px, 520px) minmax(280px, 1fr);
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  }
+
+  .order {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .orderMeta {
+    justify-items: end;
+    text-align: right;
+  }
+}

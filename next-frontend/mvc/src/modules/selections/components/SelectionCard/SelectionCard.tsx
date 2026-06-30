@@ -6,7 +6,6 @@ export type SelectionCardItem = {
   title: string;
   href: string;
   description?: string;
-  instrument?: string;
   backgroundImage?: string;
 };
 
@@ -18,7 +17,6 @@ export default function SelectionCard({
   title,
   href,
   description,
-  instrument,
   backgroundImage,
   className,
 }: SelectionCardProps) {
@@ -32,7 +30,6 @@ export default function SelectionCard({
         />
       ) : null}
       <div className={styles.body}>
-        {instrument ? <p className={styles.instrument}>{instrument}</p> : null}
         <h3 className={styles.title}>{title}</h3>
         {description ? <p className={styles.description}>{description}</p> : null}
       </div>

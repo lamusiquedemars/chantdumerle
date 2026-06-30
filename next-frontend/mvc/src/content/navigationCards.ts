@@ -168,21 +168,18 @@ export function getPackSelectionItems(locale: string): SelectionCardItem[] {
       href: href("/selections/packs/essentiel-cordes"),
       description:
         "Un jeu de cordes sélectionné avec une colophane assortie.",
-      instrument: "Violon",
     },
     {
       title: "Pack essentiel archet",
       href: href("/selections/packs/essentiel-archet"),
       description:
         "Un archet avec une colophane adaptée, pour travailler avec de bons repères dès le départ.",
-      instrument: "Alto",
     },
     {
       title: "Pack performance archet",
       href: href("/selections/packs/performance-archet"),
       description:
         "Archet, cordes et colophane réunis pour gagner en réponse, en couleur et en projection.",
-      instrument: "Violoncelle",
     },
   ];
 }

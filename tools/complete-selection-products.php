@@ -20,6 +20,8 @@ $stats = [
     'existingLinked' => 0,
     'created' => 0,
     'updated' => 0,
+    'existingCompleteGamesLinked' => 0,
+    'existingCompleteGamesPreserved' => 0,
     'thumbnailsSet' => 0,
     'missingImages' => 0,
     'missingComponents' => 0,
@@ -63,6 +65,18 @@ foreach ($records as &$record) {
 
     $firstImageProduct = firstProductWithImage($componentProducts);
     $modelProduct = findModelProduct($products, $record, $targetSku);
+    $linkedExistingCompleteGame = false;
+    if (
+        $directSku === ''
+        && isCompleteGameSelection($record)
+        && !empty($modelProduct['sku'])
+        && !str_starts_with(strtoupper((string) $modelProduct['sku']), 'CDM-SET-')
+    ) {
+        $targetSku = (string) $modelProduct['sku'];
+        $linkedExistingCompleteGame = true;
+        $stats['existingCompleteGamesLinked']++;
+    }
+
     $sourceImageProduct = (!empty($modelProduct['thumb_id']) && !productImageLooksWrong($modelProduct))
         ? $modelProduct
         : $firstImageProduct;
@@ -93,15 +107,24 @@ foreach ($records as &$record) {
         $stats['thumbnailsSet']++;
     }
 
-    updateSelectionProduct($db, (int) $product['ID'], $record, $targetSku, $componentProducts, $termMap);
+    if ($linkedExistingCompleteGame && !$created) {
+        updateExistingCompleteGameEditorialContext($db, (int) $product['ID'], $record, $targetSku, $termMap);
+        $stats['existingCompleteGamesPreserved']++;
+    } else {
+        updateSelectionProduct($db, (int) $product['ID'], $record, $targetSku, $componentProducts, $termMap);
+    }
 
     $product = reloadProductBySku($db, $targetSku);
     $products[strtoupper($targetSku)] = $product;
 
     $record['code'] = $targetSku;
     $record['sku_jeu_complet'] = $targetSku;
-    $record['stock_jeu_complet'] = stockForSelection($record, $componentProducts);
-    $record['prix_jeu_complet'] = priceForSelection($record, $componentProducts);
+    $record['stock_jeu_complet'] = $linkedExistingCompleteGame && !$created
+        ? (string) ($product['stock'] ?? '')
+        : stockForSelection($record, $componentProducts);
+    $record['prix_jeu_complet'] = $linkedExistingCompleteGame && !$created
+        ? (string) ($product['price'] ?? '')
+        : priceForSelection($record, $componentProducts);
     $record['slug_jeu_complet'] = (string) $product['post_name'];
     $record['image_jeu_complet'] = (string) ($product['image_url'] ?? '');
 
@@ -259,7 +282,6 @@ function findModelProduct(array $products, array $record, string $targetSku): ar
 {
     if (
         isset($products[strtoupper($targetSku)])
-        && !empty($products[strtoupper($targetSku)]['thumb_id'])
         && !productImageLooksWrong($products[strtoupper($targetSku)])
     ) {
         return $products[strtoupper($targetSku)];
@@ -282,7 +304,6 @@ function findModelProduct(array $products, array $record, string $targetSku): ar
             $title !== ''
             && str_contains($title, $model)
             && str_contains($title, $instrument)
-            && !empty($product['thumb_id'])
             && !productImageLooksWrong($product)
         ) {
             return $product;
@@ -360,6 +381,37 @@ function updateSelectionProduct(mysqli $db, int $postId, array $record, string $
     upsertMeta($db, $postId, '_product_attributes', serialize(productAttributes($record)));
 
     assignTerms($db, $postId, termsForRecord($record, $termMap));
+}
+
+function updateExistingCompleteGameEditorialContext(mysqli $db, int $postId, array $record, string $sku, array $termMap): void
+{
+    upsertMeta($db, $postId, 'cdm_editorial_code', preg_replace('/^CDM-SET-/', '', $sku));
+    assignTerms($db, $postId, termsForRecord($record, $termMap));
+
+    $description = selectionEditorialDescription($record);
+    if ($description === '') {
+        return;
+    }
+
+    $marker = '<!-- cdm-selection-context:' . md5($description) . ' -->';
+    $stmt = $db->prepare("SELECT post_content FROM wp_posts WHERE ID = ? LIMIT 1");
+    $stmt->bind_param('i', $postId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $content = (string) ($row['post_content'] ?? '');
+
+    if (str_contains($content, $marker) || str_contains(normalize($content), normalize($description))) {
+        return;
+    }
+
+    $addition = "\n\n" . $marker . "\n" . '<p>' . htmlspecialchars($description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>';
+    $nextContent = trim($content . $addition);
+    $now = date('Y-m-d H:i:s');
+    $nowGmt = gmdate('Y-m-d H:i:s');
+
+    $stmt = $db->prepare("UPDATE wp_posts SET post_content = ?, post_modified = ?, post_modified_gmt = ? WHERE ID = ?");
+    $stmt->bind_param('sssi', $nextContent, $now, $nowGmt, $postId);
+    $stmt->execute();
 }
 
 function upsertMeta(mysqli $db, int $postId, string $key, string $value): void
@@ -475,6 +527,11 @@ function selectionTypeLabel(array $record): string
     return slugify((string) ($record['type_selection'] ?? '')) === 'jeu-compose' ? 'jeu composé' : 'jeu complet';
 }
 
+function isCompleteGameSelection(array $record): bool
+{
+    return slugify((string) ($record['type_selection'] ?? '')) !== 'jeu-compose';
+}
+
 function componentModels(array $record): string
 {
     $models = [];
@@ -491,18 +548,33 @@ function componentModels(array $record): string
 function productDescription(array $record, array $components): string
 {
     $lines = [];
-    $lines[] = trim((string) ($record['objectif'] ?? ''));
+    $editorialDescription = selectionEditorialDescription($record);
+    if ($editorialDescription !== '') {
+        $lines[] = $editorialDescription;
+    }
+
+    $composition = componentSummary($record);
+    if ($composition !== '' && !isCompleteGameSelection($record)) {
+        $lines[] = 'Composition : ' . $composition;
+    }
+
+    return implode("\n\n", array_filter($lines));
+}
+
+function selectionEditorialDescription(array $record): string
+{
+    $lines = [];
+    $objective = trim((string) ($record['objectif'] ?? ''));
+    if ($objective !== '') {
+        $lines[] = $objective;
+    }
+
     $note = trim((string) ($record['note'] ?? ''));
     if ($note !== '') {
         $lines[] = $note;
     }
 
-    $composition = componentSummary($record);
-    if ($composition !== '') {
-        $lines[] = 'Composition : ' . $composition;
-    }
-
-    return implode("\n\n", array_filter($lines));
+    return implode(' ', $lines);
 }
 
 function componentSummary(array $record): string

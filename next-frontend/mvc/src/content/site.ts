@@ -22,6 +22,10 @@ export const chantDuMerleSiteConfig = {
       href: siteHref("/cordes"),
     },
     {
+      label: "Archets",
+      href: siteHref("/archets"),
+    },
+    {
       label: "Accessoires",
       href: siteHref("/accessoires"),
     },
@@ -35,7 +39,7 @@ export const chantDuMerleSiteConfig = {
     },
     {
       label: "Espace client",
-      href: wooHref("/mon-compte"),
+      href: siteHref("/mon-compte"),
       icon: "user",
       iconOnly: true,
     },

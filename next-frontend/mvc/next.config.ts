@@ -33,6 +33,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/mon-compte",
+        destination: "/fr/mon-compte",
+        permanent: true,
+      },
+      {
         source: "/selections",
         destination: "/fr/selections",
         permanent: true,
@@ -82,6 +87,10 @@ const nextConfig: NextConfig = {
       {
         source: "/wp-admin/admin-ajax.php",
         destination: `${normalizedWooProxyTarget}/wp-admin/admin-ajax.php`,
+      },
+      {
+        source: "/wp-login.php",
+        destination: `${normalizedWooProxyTarget}/wp-login.php`,
       },
       {
         source: "/wp-content/:path*",

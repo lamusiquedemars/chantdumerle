@@ -127,6 +127,15 @@ function buildProductBreadcrumbItems(
     return items;
   }
 
+  if (productType?.slug === "archet") {
+    items.push(
+      { label: "Archets", href: localizedHref(locale, "/archets") },
+      { label: htmlToPlainText(product.name) ?? product.name }
+    );
+
+    return items;
+  }
+
   items.push({ label: "Cordes", href: localizedHref(locale, "/cordes") });
 
   if (instrument?.slug) {

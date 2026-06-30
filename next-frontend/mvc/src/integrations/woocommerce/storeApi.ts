@@ -35,6 +35,12 @@ export type WooStoreProduct = {
     thumbnail?: string;
     alt?: string;
   }[];
+  tags?: {
+    id: number;
+    name: string;
+    slug: string;
+    link?: string;
+  }[];
   brands?: {
     name: string;
     slug: string;

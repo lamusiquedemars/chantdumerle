@@ -109,8 +109,8 @@ export default function ProductGallery({
                   ? `${styles.thumbnailButton} ${styles.activeThumbnail}`
                   : styles.thumbnailButton
               }
-              onClick={() => openLightbox(index)}
-              aria-label={`Agrandir l'image ${index + 1}`}
+              onClick={() => setActiveIndex(index)}
+              aria-label={`Afficher l'image ${index + 1}`}
               aria-current={index === activeIndex ? "true" : undefined}
             >
               <Image

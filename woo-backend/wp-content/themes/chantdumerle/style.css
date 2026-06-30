@@ -328,7 +328,7 @@ p {
 .woocommerce select {
   min-height: 2.75rem;
   border: 1px solid color-mix(in srgb, var(--color-border-soft) 70%, transparent);
-  border-radius: 2px;
+  border-radius: var(--radius);
   background: var(--color-white);
   color: var(--color-text);
   font-family: var(--font-body);
@@ -339,26 +339,53 @@ p {
 .woocommerce a.button,
 .woocommerce input.button,
 .woocommerce #respond input#submit,
-.woocommerce .woocommerce-button {
+.woocommerce .woocommerce-button,
+.woocommerce button.button.alt,
+.woocommerce a.button.alt,
+.woocommerce input.button.alt,
+.woocommerce #respond input#submit.alt,
+.woocommerce #payment #place_order,
+.woocommerce-page #payment #place_order {
   border: 1px solid var(--color-primary);
-  border-radius: 2px;
+  border-radius: var(--radius);
   background: var(--color-primary);
   color: var(--color-white);
   font-family: var(--font-body);
   font-size: var(--fs-body);
   font-weight: 600;
   line-height: 1.1;
-  padding: 0.8rem 1rem;
+  padding: 0.9rem 1.15rem;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
 .woocommerce button.button:hover,
 .woocommerce a.button:hover,
 .woocommerce input.button:hover,
 .woocommerce #respond input#submit:hover,
-.woocommerce .woocommerce-button:hover {
+.woocommerce .woocommerce-button:hover,
+.woocommerce button.button.alt:hover,
+.woocommerce a.button.alt:hover,
+.woocommerce input.button.alt:hover,
+.woocommerce #respond input#submit.alt:hover,
+.woocommerce #payment #place_order:hover,
+.woocommerce-page #payment #place_order:hover {
   background: var(--color-text);
   border-color: var(--color-text);
   color: var(--color-white);
+  transform: translateY(-1px);
+}
+
+.woocommerce button.button:disabled,
+.woocommerce button.button:disabled[disabled],
+.woocommerce input.button:disabled,
+.woocommerce input.button:disabled[disabled] {
+  border-color: var(--color-beige);
+  background: var(--color-beige);
+  color: var(--color-info);
+  opacity: 1;
+  transform: none;
 }
 
 .woocommerce-MyAccount-navigation ul {
@@ -406,6 +433,155 @@ p {
   border-top-color: var(--color-primary);
   background: var(--color-white);
   color: var(--color-text);
+}
+
+.woocommerce-cart .woocommerce,
+.woocommerce-checkout .woocommerce {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.woocommerce-cart-form,
+.woocommerce .cart_totals,
+.woocommerce-checkout #payment,
+.woocommerce-checkout .woocommerce-billing-fields,
+.woocommerce-checkout .woocommerce-shipping-fields,
+.woocommerce-checkout .woocommerce-additional-fields {
+  border: 1px solid color-mix(in srgb, var(--color-border-soft) 55%, transparent);
+  border-radius: var(--radius);
+  background: var(--color-white);
+  box-shadow: 0 14px 34px rgba(26, 26, 26, 0.06);
+}
+
+.woocommerce-cart-form {
+  padding: var(--space-24);
+}
+
+.woocommerce .cart_totals,
+.woocommerce-checkout #payment {
+  padding: var(--space-24);
+}
+
+.woocommerce .cart_totals h2,
+.woocommerce-checkout h3 {
+  margin-bottom: var(--space-16);
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+}
+
+.woocommerce table.shop_table {
+  overflow: hidden;
+}
+
+.woocommerce table.shop_table th,
+.woocommerce table.shop_table td {
+  border-color: color-mix(in srgb, var(--color-border-soft) 35%, transparent);
+  padding: 1rem;
+}
+
+.woocommerce table.shop_table thead,
+.woocommerce table.shop_table tfoot th {
+  background: color-mix(in srgb, var(--color-beige) 45%, var(--color-white));
+}
+
+.woocommerce-cart table.cart img {
+  width: 72px;
+  border-radius: var(--radius);
+  background: var(--color-bg);
+}
+
+.woocommerce-cart table.cart td.actions {
+  padding-top: var(--space-16);
+}
+
+.woocommerce-cart table.cart td.actions .coupon {
+  display: flex;
+  gap: var(--space-8);
+}
+
+.woocommerce-cart table.cart td.actions .coupon .input-text {
+  min-width: 12rem;
+  padding: 0.75rem 0.9rem;
+}
+
+.woocommerce-cart .wc-proceed-to-checkout {
+  padding-bottom: 0;
+}
+
+.woocommerce-cart .wc-proceed-to-checkout a.checkout-button {
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+  margin: var(--space-16) 0 0;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: var(--fs-button);
+}
+
+.woocommerce-cart .cart-collaterals .cart_totals {
+  width: min(100%, 28rem);
+}
+
+.woocommerce ul#shipping_method {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.woocommerce ul#shipping_method li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-soft) 35%, transparent);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+}
+
+.woocommerce ul#shipping_method input {
+  margin-top: 0.35rem;
+  accent-color: var(--color-primary);
+}
+
+.woocommerce #payment {
+  background: var(--color-white);
+}
+
+.woocommerce-checkout #payment ul.payment_methods {
+  border-bottom-color: color-mix(in srgb, var(--color-border-soft) 35%, transparent);
+}
+
+.woocommerce-checkout #payment div.payment_box {
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--color-beige) 38%, var(--color-white));
+  color: var(--color-text);
+}
+
+.woocommerce-checkout #payment div.payment_box::before {
+  border-bottom-color: color-mix(in srgb, var(--color-beige) 38%, var(--color-white));
+}
+
+.woocommerce-checkout #place_order {
+  float: none;
+  width: 100%;
+  margin-top: var(--space-16);
+  font-size: var(--fs-button);
+}
+
+.woocommerce a.remove {
+  color: var(--color-primary) !important;
+}
+
+.woocommerce a.remove:hover {
+  background: var(--color-primary);
+  color: var(--color-white) !important;
+}
+
+.woocommerce form .form-row label,
+.woocommerce table.shop_table th {
+  color: var(--color-text);
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {
@@ -485,5 +661,22 @@ p {
 
   .site-footer__links {
     justify-content: flex-start;
+  }
+
+  .woocommerce-cart-form,
+  .woocommerce .cart_totals,
+  .woocommerce-checkout #payment {
+    padding: var(--space-16);
+  }
+
+  .woocommerce-cart table.cart td.actions .coupon {
+    display: grid;
+    width: 100%;
+  }
+
+  .woocommerce-cart table.cart td.actions .coupon .input-text,
+  .woocommerce-cart table.cart td.actions .coupon .button,
+  .woocommerce-cart table.cart td.actions > .button {
+    width: 100%;
   }
 }

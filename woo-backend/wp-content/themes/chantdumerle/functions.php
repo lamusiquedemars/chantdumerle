@@ -25,12 +25,14 @@ add_action( 'after_setup_theme', 'cdm_theme_setup' );
 
 function cdm_enqueue_assets(): void {
 	$theme = wp_get_theme();
+	$style_path = get_stylesheet_directory() . '/style.css';
+	$style_version = file_exists( $style_path ) ? (string) md5_file( $style_path ) : $theme->get( 'Version' );
 
 	wp_enqueue_style(
 		'chantdumerle-style',
 		get_stylesheet_uri(),
 		array(),
-		$theme->get( 'Version' )
+		$style_version
 	);
 
 	wp_enqueue_script(
@@ -40,6 +42,36 @@ function cdm_enqueue_assets(): void {
 		$theme->get( 'Version' ),
 		true
 	);
+
+	if (
+		class_exists( 'WC_AJAX' )
+		&& (
+			( function_exists( 'is_cart' ) && is_cart() )
+			|| ( function_exists( 'is_checkout' ) && is_checkout() )
+		)
+	) {
+		$cart_shipping_path = get_template_directory() . '/assets/cart-shipping.js';
+		$cart_shipping_version = file_exists( $cart_shipping_path )
+			? (string) md5_file( $cart_shipping_path )
+			: $theme->get( 'Version' );
+
+		wp_enqueue_script(
+			'chantdumerle-cart-shipping',
+			get_template_directory_uri() . '/assets/cart-shipping.js',
+			array( 'jquery' ),
+			$cart_shipping_version,
+			true
+		);
+
+		wp_localize_script(
+			'chantdumerle-cart-shipping',
+			'cdmCartShipping',
+			array(
+				'wcAjaxUrl'                 => WC_AJAX::get_endpoint( '%%endpoint%%' ),
+				'updateShippingMethodNonce' => wp_create_nonce( 'update-shipping-method' ),
+			)
+		);
+	}
 }
 add_action( 'wp_enqueue_scripts', 'cdm_enqueue_assets' );
 
@@ -74,7 +106,7 @@ function cdm_front_base_url(): string {
 }
 
 function cdm_front_url( string $path = '' ): string {
-	return esc_url( cdm_front_base_url() . '/' . ltrim( $path, '/' ) );
+	return esc_url( '/' . ltrim( $path, '/' ) );
 }
 
 function cdm_account_url(): string {
@@ -182,3 +214,23 @@ function cdm_return_to_shop_redirect(): string {
 	return cdm_front_url( 'fr/cordes' );
 }
 add_filter( 'woocommerce_return_to_shop_redirect', 'cdm_return_to_shop_redirect' );
+
+function cdm_zero_local_pickup_shipping_rates( array $rates, array $package ): array {
+	unset( $package );
+
+	foreach ( $rates as $rate ) {
+		if ( ! $rate instanceof WC_Shipping_Rate ) {
+			continue;
+		}
+
+		if ( ! in_array( $rate->get_method_id(), array( 'local_pickup', 'pickup_location' ), true ) ) {
+			continue;
+		}
+
+		$rate->set_cost( 0 );
+		$rate->set_taxes( array_map( static fn () => 0, $rate->get_taxes() ) );
+	}
+
+	return $rates;
+}
+add_filter( 'woocommerce_package_rates', 'cdm_zero_local_pickup_shipping_rates', 100, 2 );

@@ -22,7 +22,7 @@ type MainNavProps = {
 };
 
 const CART_ENDPOINT = "/wp-json/cdm/v1/cart";
-const WOO_OWNED_PATHS = ["/panier", "/commande", "/mon-compte"];
+const WOO_OWNED_PATHS = ["/panier", "/commande"];
 
 function isWooOwnedHref(href: string): boolean {
   return WOO_OWNED_PATHS.some(

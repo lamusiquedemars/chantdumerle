@@ -70,6 +70,14 @@ export type AccessoriesContent = {
   };
 };
 
+export type BowsContent = {
+  hero: {
+    title: string;
+    subtitle: string;
+    backgroundImage?: string;
+  };
+};
+
 export type FilterIntroContent = {
   title: string;
   paragraphs: string[];

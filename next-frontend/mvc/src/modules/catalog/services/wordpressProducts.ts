@@ -28,6 +28,7 @@ import {
   type StringProductTermsResponse,
 } from "@/modules/catalog/services/catalogFilters";
 import {
+  getStoreAttributeTermSlugs,
   isStringProductCard,
   mapAccessoryStoreProductToCard,
   mapPackStoreProductToCard,
@@ -175,6 +176,7 @@ export type StringProductsPageData = {
 export type AccessoryProductsPageData = StringProductsPageData;
 
 const WOO_STORE_PRODUCTS_PER_PAGE_MAX = 100;
+const PACK_CATEGORY_ID = 544;
 
 function logWordPressProductError(context: string, error: unknown) {
   console.error(
@@ -321,15 +323,61 @@ export async function getPackProducts(
       "products",
       params
     );
+    const products =
+      data.length > 0
+        ? data
+        : await getPackProductsByCategoryFallback(typePackSlug, instrument);
 
-    return data.map((product) => mapPackStoreProductToCard(product, locale));
+    return products
+      .slice(0, first)
+      .map((product) => mapPackStoreProductToCard(product, locale));
   } catch (error) {
     logWordPressProductError(
       `Unable to load WooCommerce pack products for "${typePackSlug}"`,
       error
     );
-    return [];
+
+    try {
+      const products = await getPackProductsByCategoryFallback(
+        typePackSlug,
+        instrument
+      );
+
+      return products
+        .slice(0, first)
+        .map((product) => mapPackStoreProductToCard(product, locale));
+    } catch (fallbackError) {
+      logWordPressProductError(
+        `Unable to load WooCommerce fallback pack products for "${typePackSlug}"`,
+        fallbackError
+      );
+      return [];
+    }
   }
+}
+
+async function getPackProductsByCategoryFallback(
+  typePackSlug: string,
+  instrument?: string
+): Promise<WooStoreProduct[]> {
+  const params = new URLSearchParams({
+    category: String(PACK_CATEGORY_ID),
+    per_page: String(WOO_STORE_PRODUCTS_PER_PAGE_MAX),
+    orderby: "title",
+    order: "asc",
+  });
+  const { data } = await fetchWooStore<WooStoreProduct[]>("products", params);
+
+  return data.filter((product) => {
+    const hasPackType = product.tags?.some(
+      (tag) => tag.slug === typePackSlug
+    );
+    const hasInstrument =
+      !instrument ||
+      getStoreAttributeTermSlugs(product, "pa_instrument").includes(instrument);
+
+    return hasPackType && hasInstrument;
+  });
 }
 
 export async function getSelectionStringProducts(
@@ -720,6 +768,40 @@ export async function getAccessoryProductsPageData(
         resultCount: 0,
       },
     };
+  }
+}
+
+export async function getBowProductsPageData(
+  locale: string = "fr",
+  first = 12
+): Promise<ProductCardItem[]> {
+  if (!hasWordPressEndpoint) {
+    return [];
+  }
+
+  try {
+    const params = new URLSearchParams({
+      per_page: String(Math.min(first, WOO_STORE_PRODUCTS_PER_PAGE_MAX)),
+      orderby: "title",
+      order: "asc",
+    });
+
+    appendStoreAttributeFilter(params, 0, "pa_type_produit", ["archet"]);
+
+    const { data: products } = await fetchWooStore<WooStoreProduct[]>(
+      "products",
+      params
+    );
+
+    return products.map((product) =>
+      mapAccessoryStoreProductToCard(product, locale)
+    );
+  } catch (error) {
+    logWordPressProductError(
+      "Unable to load WooCommerce bow products page data",
+      error
+    );
+    return [];
   }
 }
 

@@ -51,15 +51,6 @@
   min-height: 100%;
 }
 
-.instrument {
-  /* méta-information secondaire, utile pour filtrer mentalement */
-  font-size: var(--fs-small);
-  line-height: 1.4;
-  color: var(--color-green);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
 .title {
   /* titre principal de carte */
   font-size: var(--fs-h3);

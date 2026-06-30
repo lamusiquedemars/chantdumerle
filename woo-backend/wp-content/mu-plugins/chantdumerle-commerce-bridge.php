@@ -218,6 +218,111 @@ function cdm_commerce_add_to_cart(WP_REST_Request $request)
     return rest_ensure_response($payload);
 }
 
+function cdm_commerce_recent_orders_payload(int $user_id): array
+{
+    if (! function_exists('wc_get_orders')) {
+        return [];
+    }
+
+    $orders = wc_get_orders([
+        'customer_id' => $user_id,
+        'limit' => 3,
+        'orderby' => 'date',
+        'order' => 'DESC',
+        'return' => 'objects',
+    ]);
+
+    $payload = [];
+
+    foreach ($orders as $order) {
+        if (! $order instanceof WC_Order) {
+            continue;
+        }
+
+        $payload[] = [
+            'id' => $order->get_id(),
+            'number' => $order->get_order_number(),
+            'date' => $order->get_date_created()
+                ? $order->get_date_created()->date_i18n(get_option('date_format'))
+                : null,
+            'status' => wc_get_order_status_name($order->get_status()),
+            'totalHtml' => $order->get_formatted_order_total(),
+            'viewUrl' => cdm_commerce_relative_url($order->get_view_order_url()),
+        ];
+    }
+
+    return $payload;
+}
+
+function cdm_commerce_account_payload(): array
+{
+    $user_id = get_current_user_id();
+
+    if ($user_id <= 0) {
+        return [
+            'isLoggedIn' => false,
+        ];
+    }
+
+    $user = wp_get_current_user();
+    $display_name = $user->display_name ?: $user->user_login;
+    $logout_url = wp_logout_url(cdm_commerce_front_url('/fr/mon-compte'));
+
+    return [
+        'isLoggedIn' => true,
+        'user' => [
+            'displayName' => $display_name,
+            'email' => $user->user_email,
+            'firstName' => get_user_meta($user_id, 'first_name', true),
+            'lastName' => get_user_meta($user_id, 'last_name', true),
+        ],
+        'recentOrders' => cdm_commerce_recent_orders_payload($user_id),
+        'links' => [
+            'orders' => '/mon-compte/orders/',
+            'addresses' => '/mon-compte/edit-address/',
+            'details' => '/mon-compte/edit-account/',
+            'logout' => cdm_commerce_relative_url($logout_url),
+        ],
+    ];
+}
+
+function cdm_commerce_get_account()
+{
+    return rest_ensure_response(cdm_commerce_account_payload());
+}
+
+function cdm_commerce_login_account(WP_REST_Request $request)
+{
+    $login = sanitize_text_field((string) $request->get_param('username'));
+    $password = (string) $request->get_param('password');
+
+    if ($login === '' || $password === '') {
+        return new WP_Error(
+            'cdm_login_missing_credentials',
+            'Veuillez renseigner votre identifiant et votre mot de passe.',
+            ['status' => 400]
+        );
+    }
+
+    $user = wp_signon([
+        'user_login' => $login,
+        'user_password' => $password,
+        'remember' => rest_sanitize_boolean($request->get_param('remember')),
+    ], is_ssl());
+
+    if ($user instanceof WP_Error) {
+        return new WP_Error(
+            'cdm_login_failed',
+            'Identifiant ou mot de passe incorrect.',
+            ['status' => 401]
+        );
+    }
+
+    wp_set_current_user($user->ID);
+
+    return rest_ensure_response(cdm_commerce_account_payload());
+}
+
 function cdm_commerce_register_routes(): void
 {
     register_rest_route(CDM_COMMERCE_REST_NAMESPACE, '/cart', [
@@ -238,6 +343,31 @@ function cdm_commerce_register_routes(): void
             'quantity' => [
                 'default' => 1,
                 'sanitize_callback' => 'absint',
+            ],
+        ],
+    ]);
+
+    register_rest_route(CDM_COMMERCE_REST_NAMESPACE, '/account', [
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => 'cdm_commerce_get_account',
+        'permission_callback' => '__return_true',
+    ]);
+
+    register_rest_route(CDM_COMMERCE_REST_NAMESPACE, '/account/login', [
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'cdm_commerce_login_account',
+        'permission_callback' => '__return_true',
+        'args' => [
+            'username' => [
+                'required' => true,
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'password' => [
+                'required' => true,
+            ],
+            'remember' => [
+                'default' => false,
+                'sanitize_callback' => 'rest_sanitize_boolean',
             ],
         ],
     ]);
@@ -277,21 +407,26 @@ function cdm_commerce_front_url(string $path): string
     return untrailingslashit($front_url) . '/' . ltrim($path, '/');
 }
 
+function cdm_commerce_front_path(string $path): string
+{
+    return '/' . ltrim($path, '/');
+}
+
 function cdm_commerce_front_cart_url(): string
 {
-    return cdm_commerce_front_url('/panier');
+    return cdm_commerce_front_path('/panier');
 }
 add_filter('woocommerce_get_cart_url', 'cdm_commerce_front_cart_url');
 
 function cdm_commerce_front_checkout_url(): string
 {
-    return cdm_commerce_front_url('/commande');
+    return cdm_commerce_front_path('/commande');
 }
 add_filter('woocommerce_get_checkout_url', 'cdm_commerce_front_checkout_url');
 
 function cdm_commerce_front_account_url(): string
 {
-    return cdm_commerce_front_url('/mon-compte');
+    return cdm_commerce_front_path('/mon-compte');
 }
 add_filter('woocommerce_get_myaccount_page_permalink', 'cdm_commerce_front_account_url');
 
@@ -300,13 +435,13 @@ function cdm_commerce_front_transactional_page_url(string $link, int $post_id): 
     $privacy_policy_page_id = (int) get_option('wp_page_for_privacy_policy');
 
     if ($privacy_policy_page_id > 0 && $post_id === $privacy_policy_page_id) {
-        return cdm_commerce_front_url('/fr/politique-confidentialite');
+        return cdm_commerce_front_path('/fr/politique-confidentialite');
     }
 
     $path = wp_parse_url($link, PHP_URL_PATH) ?: '';
 
     if (cdm_commerce_is_transactional_path($path)) {
-        return cdm_commerce_front_url($path);
+        return cdm_commerce_front_path($path);
     }
 
     return $link;
@@ -315,7 +450,9 @@ add_filter('page_link', 'cdm_commerce_front_transactional_page_url', 10, 2);
 
 function cdm_commerce_front_ajax_endpoint(string $url, string $request): string
 {
-    return add_query_arg('wc-ajax', $request, cdm_commerce_front_url('/'));
+    unset($url);
+
+    return add_query_arg('wc-ajax', $request, cdm_commerce_front_path('/'));
 }
 add_filter('woocommerce_ajax_get_endpoint', 'cdm_commerce_front_ajax_endpoint', 10, 2);
 
