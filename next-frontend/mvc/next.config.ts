@@ -5,11 +5,14 @@ const wooProxyTarget =
   process.env.WOO_BASE_URL ??
   process.env.NEXT_PUBLIC_WP_URL;
 const normalizedWooProxyTarget = wooProxyTarget?.replace(/\/$/, "");
+const wooAdminUrl = normalizedWooProxyTarget
+  ? `${normalizedWooProxyTarget}/wp-admin/`
+  : "http://chantdumerle-wp.test/wp-admin/";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["localhost", "chantdumerle.local"],
+  allowedDevOrigins: ["localhost", "chantdumerle.test"],
   images: {
-    // Le WordPress local sert les images via chantdumerle-wp.local -> 127.0.0.1.
+    // Le WordPress local sert les images via chantdumerle-wp.test -> 127.0.0.1.
     dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
@@ -27,6 +30,11 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      {
+        source: "/admin",
+        destination: wooAdminUrl,
+        permanent: false,
+      },
       {
         source: "/fr/panier",
         destination: "/panier",
