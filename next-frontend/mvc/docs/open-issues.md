@@ -40,6 +40,9 @@ ouverts de ce document.
 
 ### Points a verifier lors de la correction
 
+- Hypothese du 15 juillet 2026 : le parcours basculerait vers le site
+  WordPress, dont la navigation ne contient pas la page `Archets`. Confirmer le
+  domaine et l'application qui rendent `/panier` avant toute correction.
 - Routage et rendu de `/panier` entre Next et le theme WooCommerce.
 - Identifiant produit ou variante transmis depuis la selection.
 - Reponse de `/wp-json/cdm/v1/cart/add` et propagation de l'evenement
