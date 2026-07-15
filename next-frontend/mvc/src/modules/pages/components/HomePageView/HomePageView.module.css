@@ -1,0 +1,132 @@
+.closingManifesto {
+  display: grid;
+  gap: var(--space-32);
+}
+
+.manifestoDivider {
+  max-width: 12rem;
+  border-top-color: rgba(140, 47, 28, 0.45);
+}
+
+.manifestoContent {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr);
+  gap: var(--space-48);
+  align-items: start;
+  max-width: 980px;
+}
+
+.manifestoContent h2 {
+  color: var(--color-primary);
+}
+
+.manifestoText {
+  display: grid;
+  gap: var(--space-20);
+  max-width: 68ch;
+}
+
+.manifestoText p {
+  color: var(--color-text);
+  font-size: 1.08rem;
+  line-height: 1.72;
+}
+
+.manifestoText p:first-child {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-tight);
+}
+
+.shippingBlock {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.shippingIntro {
+  display: grid;
+  gap: var(--space-12);
+  max-width: 78ch;
+}
+
+.shippingIntro h2 {
+  color: var(--color-primary);
+}
+
+.shippingIntro p,
+.shippingFooter p {
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+.shippingTableWrap {
+  overflow-x: auto;
+  border: 1px solid rgba(42, 35, 29, 0.14);
+  border-radius: var(--radius);
+  background: var(--color-white);
+}
+
+.shippingTable {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.shippingTable th,
+.shippingTable td {
+  padding: var(--space-16);
+  border-bottom: 1px solid rgba(42, 35, 29, 0.12);
+  vertical-align: top;
+}
+
+.shippingTable thead th {
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.shippingTable tbody th {
+  font-weight: 700;
+}
+
+.shippingTable tbody tr:last-child th,
+.shippingTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.shippingFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.shippingFooter p {
+  max-width: 70ch;
+}
+
+@media (max-width: 767px) {
+  .manifestoContent {
+    grid-template-columns: 1fr;
+    gap: var(--space-20);
+  }
+
+  .manifestoText {
+    gap: var(--space-16);
+  }
+
+  .shippingBlock {
+    gap: var(--space-20);
+  }
+
+  .shippingTable th,
+  .shippingTable td {
+    padding: var(--space-12);
+  }
+}

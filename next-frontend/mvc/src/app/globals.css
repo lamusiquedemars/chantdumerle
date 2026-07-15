@@ -20,6 +20,12 @@ img {
   display: block;
 }
 
+hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid rgba(26, 26, 26, 0.18);
+}
+
 a {
   text-decoration: none;
   color: inherit;

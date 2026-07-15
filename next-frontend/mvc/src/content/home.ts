@@ -20,6 +20,14 @@ type HomeTextBlock = {
   tone?: "default" | "light";
 };
 
+type ShippingRate = {
+  destination: string;
+  estimatedDelay: string;
+  smallParcel: string;
+  largeParcel: string;
+  freeFrom: string;
+};
+
 // Contenu home du client Chant du Merle.
 export function getHomeContent(locale: string, guideItems: GuideCardItem[] = []) {
   const href = (path: string) => localizedHref(locale, path);
@@ -28,18 +36,13 @@ export function getHomeContent(locale: string, guideItems: GuideCardItem[] = [])
     hero: {
       title: "Les cordes, c'est notre spécialité.",
       subtitle:
-        "Cordes et accessoires pour instruments du quatuor, sélectionnés avec soin.",
+        "Cordes et accessoires pour instruments du quatuor, sélectionnés avec soin pour vous aider à trouver le son juste.",
       backgroundImage: "/images/brand/hero-home.png",
       actions: [
         { label: "Choisir mes cordes", href: href("/cordes") },
         { label: "Explorer les sélections", href: href("/selections") },
       ],
     },
-    intro: {
-      title: "Bien plus qu'un catalogue, une sélection réfléchie.",
-      text: "Notre proposition est de vous orienter vers les cordes les plus adaptées à votre niveau," +
-      " à votre instrument et au son que vous recherchez.",
-    } satisfies HomeTextBlock,
     entrySections: {
       instruments: {
         title: "Entrer par instrument",
@@ -81,15 +84,51 @@ export function getHomeContent(locale: string, guideItems: GuideCardItem[] = [])
     },
     closing: {
       title: "Choisir avec justesse",
-      text: "C’est notre devise au Chant du Merle. Nous croyons que chaque musicien mérite de "+
-      "comprendre son instrument, qu’il soit débutant ou professionnel. "+
-      "Nous réduisons volontairement le choix de cordes et d’accessoires, afin de proposer une "+
-      "offre claire et surtout pratique. Par ailleurs, nos sélections de cordes et de jeux " +
-      "composées, conçus en fonction de l’usage et du type de son recherché, adoptent cette intention "+
-      "de clarté et de simplicité. "+
-      "Nous croyons aussi que l’information est essentielle, et nos guides pratiques vous aideront "+
-      "à comprendre et à choisir. Nous vous souhaitons une bonne navigation !",
-    } satisfies HomeTextBlock,
+      paragraphs: [
+        "C’est notre devise au Chant du Merle.",
+        "Nous croyons que chaque musicien mérite de comprendre son instrument, qu’il soit débutant ou professionnel. Nous réduisons volontairement le choix de cordes et d’accessoires, afin de proposer une offre claire et surtout pratique.",
+        "Nos sélections de cordes et de jeux composés, pensées selon l’usage et le type de son recherché, suivent cette même intention : rendre le choix plus simple, plus lisible, plus juste.",
+      ],
+    } satisfies {
+      title: string;
+      paragraphs: string[];
+    },
+    shipping: {
+      title: "Essai et envoi",
+      intro:
+        "Les archets peuvent être essayés à l’atelier, à Collonges-au-Mont-d’Or, près de Lyon. Un essai par envoi peut aussi être envisagé selon les cas.",
+      details:
+        "Les commandes sont expédiées avec suivi. Les frais et délais ci-dessous sont donnés à titre indicatif ; le montant définitif est confirmé au panier avant validation.",
+      rates: [
+        {
+          destination: "France métropolitaine",
+          estimatedDelay: "2 à 5 jours ouvrés",
+          smallParcel: "6 €",
+          largeParcel: "15 €",
+          freeFrom: "offerte dès 100 €",
+        },
+        {
+          destination: "Europe",
+          estimatedDelay: "3 à 7 jours ouvrés",
+          smallParcel: "7 €",
+          largeParcel: "17 €",
+          freeFrom: "offerte dès 120 €",
+        },
+      ],
+      note:
+        "Les conditions détaillées d’essai, d’expédition, de paiement et de garantie sont précisées dans les Conditions Générales de Vente.",
+      action: {
+        label: "Consulter les CGV",
+        href: href("/cgv"),
+      },
+    } satisfies {
+      title: string;
+      intro: string;
+      details: string;
+      rates: ShippingRate[];
+      note: string;
+      action: ContentAction;
+    },
     workshop: {
       backgroundImage: "/images/bow-ivo-incidit.jpg",
       content: {

@@ -182,7 +182,7 @@ export const termsOfSalePageContent: LegalPageContent = {
         {
           type: "paragraph",
           text: [
-            "Les produits sont livrés en Europe. Les expéditions peuvent être réalisées directement depuis un fournisseur situé en Espagne, selon les produits commandés et leur disponibilité.",
+            "Les produits sont livrés en France métropolitaine et en Europe. Les expéditions peuvent être réalisées directement depuis un fournisseur situé en Espagne, selon les produits commandés et leur disponibilité.",
           ],
         },
         {
@@ -194,7 +194,13 @@ export const termsOfSalePageContent: LegalPageContent = {
         {
           type: "paragraph",
           text: [
-            "Les frais de livraison sont indicatifs : 10 € pour les petits objets et à partir de 15 € pour les objets volumineux, notamment les étuis, selon la taille et la destination.",
+            "Les frais de livraison sont calculés au panier selon la destination et la classe d’expédition. À titre indicatif, les petits colis sont facturés 6 € pour la France métropolitaine et 7 € pour l’Europe ; les gros colis sont facturés 15 € pour la France métropolitaine et 17 € pour l’Europe.",
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            "La livraison est offerte à partir de 100 € d’achat pour la France métropolitaine et 120 € pour l’Europe. Aucun minimum de commande n’est actuellement appliqué.",
           ],
         },
       ],
