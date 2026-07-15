@@ -71,6 +71,12 @@ Ce repo Chant du Merle doit rester specifique au site CDM : contenu client,
 integrations WordPress/WooCommerce, pages cordes/accessoires/selections et
 outillage de migration.
 
+## Suivi Des Bugs
+
+Les anomalies connues et volontairement differees sont consignees dans
+`docs/open-issues.md`. Toute reprise de projet ou demande "what's up" doit
+commencer par ce registre.
+
 ## Variables D'Environnement
 
 | Variable | Requise | Usage |
