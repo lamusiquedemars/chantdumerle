@@ -25,6 +25,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # Local WordPress state
+/backups/
 /.media-quarantine/
 /woo-backend/wp-config.php
 /woo-backend/wp-content/debug.log
