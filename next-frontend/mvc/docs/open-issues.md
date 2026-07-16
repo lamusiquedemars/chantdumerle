@@ -6,7 +6,7 @@ ouverts de ce document.
 
 ## CDM-001 - Rupture du parcours Archets et panier
 
-- Statut : ouvert, correction volontairement differee.
+- Statut : corrige localement le 16 juillet 2026, validation visuelle finale requise.
 - Gravite : critique pour le parcours d'achat.
 - Signale le : 15 juillet 2026.
 - Environnement constate : local Herd, domaines `.test`.
@@ -54,3 +54,16 @@ ouverts de ce document.
 
 Ne pas clore ce bug sans validation visuelle et fonctionnelle de l'ensemble du
 parcours.
+
+### Correction locale du 16 juillet 2026
+
+- L'hypothese de routage est confirmee : `/panier` reste sous le domaine du
+  frontend, mais son rendu est fourni par le theme WordPress/WooCommerce au
+  moyen du proxy interne prevu par l'architecture.
+- La rubrique `Archets` a ete ajoutee a la navigation du theme WooCommerce afin
+  de conserver le meme parcours que dans le frontend Next.
+- Avec une session neuve et isolee, l'ajout du produit WooCommerce `8065` depuis
+  `/wp-json/cdm/v1/cart/add` renvoie un compteur de `1`, pose les cookies Woo et
+  conserve le produit dans `/panier`.
+- Le badge et l'ensemble du parcours doivent encore etre valides visuellement
+  dans un navigateur, sur ordinateur puis sur mobile, avant fermeture definitive.

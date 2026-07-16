@@ -140,6 +140,10 @@ function cdm_primary_nav_items(): array {
 			'url'   => cdm_front_url( 'fr/cordes' ),
 		),
 		array(
+			'label' => 'Archets',
+			'url'   => cdm_front_url( 'fr/archets' ),
+		),
+		array(
 			'label' => 'Accessoires',
 			'url'   => cdm_front_url( 'fr/accessoires' ),
 		),
