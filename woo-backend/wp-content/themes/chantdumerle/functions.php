@@ -27,6 +27,10 @@ function cdm_enqueue_assets(): void {
 	$theme = wp_get_theme();
 	$style_path = get_stylesheet_directory() . '/style.css';
 	$style_version = file_exists( $style_path ) ? (string) md5_file( $style_path ) : $theme->get( 'Version' );
+	$navigation_path = get_template_directory() . '/assets/navigation.js';
+	$navigation_version = file_exists( $navigation_path )
+		? (string) md5_file( $navigation_path )
+		: $theme->get( 'Version' );
 
 	wp_enqueue_style(
 		'chantdumerle-style',
@@ -39,7 +43,7 @@ function cdm_enqueue_assets(): void {
 		'chantdumerle-navigation',
 		get_template_directory_uri() . '/assets/navigation.js',
 		array(),
-		$theme->get( 'Version' ),
+		$navigation_version,
 		true
 	);
 
@@ -133,6 +137,38 @@ function cdm_checkout_url(): string {
 	return esc_url( home_url( '/checkout/' ) );
 }
 
+function cdm_cart_item_count(): int {
+	if ( function_exists( 'WC' ) && WC()->cart ) {
+		$count = (int) WC()->cart->get_cart_contents_count();
+
+		if ( $count > 0 ) {
+			return $count;
+		}
+	}
+
+	// Woo pose ce cookie des l'ajout, avant meme que le theme rende son header.
+	return isset( $_COOKIE['woocommerce_items_in_cart'] )
+		? max( 0, absint( wp_unslash( $_COOKIE['woocommerce_items_in_cart'] ) ) )
+		: 0;
+}
+
+function cdm_cart_remove_redundant_view_cart_link( string $message ): string {
+	$request_path = wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
+
+	if ( untrailingslashit( (string) $request_path ) !== '/panier' ) {
+		return $message;
+	}
+
+	$filtered_message = preg_replace(
+		'/\s*<a\b[^>]*class="[^"]*\bwc-forward\b[^"]*"[^>]*>.*?<\/a>\s*$/s',
+		'',
+		$message
+	);
+
+	return is_string( $filtered_message ) ? $filtered_message : $message;
+}
+add_filter( 'wc_add_to_cart_message_html', 'cdm_cart_remove_redundant_view_cart_link' );
+
 function cdm_primary_nav_items(): array {
 	return array(
 		array(
@@ -166,6 +202,7 @@ function cdm_primary_nav_items(): array {
 			'label' => 'Panier',
 			'url'   => cdm_cart_url(),
 			'icon'  => 'cart',
+			'count' => cdm_cart_item_count(),
 			'icon_only' => true,
 			'active' => function_exists( 'is_cart' ) && is_cart(),
 		),

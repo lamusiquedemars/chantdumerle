@@ -56,6 +56,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<?php if ( isset( $item['icon'] ) ) : ?>
 								<?php cdm_nav_icon( $item['icon'] ); ?>
 							<?php endif; ?>
+							<?php if ( isset( $item['count'] ) ) : ?>
+								<span class="site-nav__badge" data-cart-count aria-hidden="true" <?php echo $item['count'] > 0 ? '' : 'hidden'; ?>>
+									<?php echo esc_html( (string) $item['count'] ); ?>
+								</span>
+							<?php endif; ?>
 							<span class="<?php echo ! empty( $item['icon_only'] ) ? 'screen-reader-text' : ''; ?>">
 								<?php echo esc_html( $item['label'] ); ?>
 							</span>

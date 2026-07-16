@@ -6,7 +6,7 @@ ouverts de ce document.
 
 ## CDM-001 - Rupture du parcours Archets et panier
 
-- Statut : corrige localement le 16 juillet 2026, validation visuelle finale requise.
+- Statut : corrige et valide localement le 16 juillet 2026.
 - Gravite : critique pour le parcours d'achat.
 - Signale le : 15 juillet 2026.
 - Environnement constate : local Herd, domaines `.test`.
@@ -67,3 +67,29 @@ parcours.
   conserve le produit dans `/panier`.
 - Le badge et l'ensemble du parcours doivent encore etre valides visuellement
   dans un navigateur, sur ordinateur puis sur mobile, avant fermeture definitive.
+- La validation utilisateur a ensuite montre un comportement instable : l'archet
+  seul est ajoute, mais pas toujours le pack archet. Le journal Next n'a montre
+  aucun appel `POST` lors d'un clic concerne, apres qu'un build de production et
+  le serveur de developpement ont partage le meme dossier `.next`. Le serveur de
+  developpement a ete redemarre avant de poursuivre le diagnostic.
+- Le theme WordPress n'affichait aucun compteur dans son icone panier. Un badge
+  base sur le contenu de la session WooCommerce a ete ajoute.
+- Les produits simples utilisent maintenant l'ajout natif WooCommerce : le pack
+  ouvre directement `/panier` et ne depend plus de l'hydratation JavaScript du
+  frontend. Les produits a variantes conservent le pont AJAX.
+- Le badge du theme WooCommerce se resynchronise apres mise a jour de quantite,
+  suppression et vidage du panier. Le parcours WebKit automatise a valide la
+  sequence `1 -> 3 -> 0`, puis l'utilisateur a confirme l'ajout et
+  l'actualisation dans Safari.
+- Sur `/panier`, le message d'ajout ne propose plus le bouton redondant `Voir le
+  panier`; le lien de validation de la commande reste present.
+
+## CDM-002 - Rendu CSS instable
+
+- Statut : ouvert, reproduction precise requise.
+- Signale le : 16 juillet 2026.
+- Environnement constate : Safari local.
+
+Le rendu CSS est signale comme instable. Ne pas rattacher cette anomalie au
+panier sans preuve. Relever la page, l'etat avant/apres, les feuilles chargees
+et les erreurs de console avant toute correction.

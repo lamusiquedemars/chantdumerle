@@ -121,7 +121,9 @@ export default function AddToCartButton({
     <form
       action="/panier"
       method="get"
-      onSubmit={handleAddToCart}
+      // Un produit simple doit rester achetable même si l'hydratation Next échoue.
+      // Les variantes gardent le pont AJAX, qui transmet leur combinaison exacte.
+      onSubmit={needsVariationSelection ? handleAddToCart : undefined}
     >
       <input type="hidden" name="add-to-cart" value={cartProductId} />
 
